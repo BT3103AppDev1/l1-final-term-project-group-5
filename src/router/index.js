@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
+import AddProduct from '../components/AddProduct.vue';
+import AddListing from '../components/AddListing.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,7 +30,22 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login
-    }
+    },
+    {
+      path: '/partner/marketplace',
+      name: 'partner-marketplace',
+      component: () => import('../views/PartnerMktView.vue')
+    },
+    {
+      path: '/partner/marketplace/add-product',
+      name: 'add-product',
+      component: AddProduct
+    },
+    {
+      path: '/partner/marketplace/add-listing',
+      name: 'add-listing',
+      component: AddListing
+    },
   ]
 })
 

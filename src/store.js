@@ -17,7 +17,7 @@ import {
     fetchSignInMethodsForEmail
   } from 'firebase/auth';
   import { auth, db, googleProvider, storage } from "./firebase";
-  import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+  import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 const store = createStore({
     state: {
@@ -85,7 +85,15 @@ const store = createStore({
           try {
             const response = await signInWithEmailAndPassword(auth, email, password)
             context.commit('SET_LOGGED_IN', true)
-              context.commit('SET_USER', response.user)
+            context.commit('SET_USER', response.user)
+            const userRef = doc(db, "users", response.user.uid);
+            const docSnap = await getDoc(userRef);
+            if (docSnap.exists()) {
+              //console.log("Document data:", docSnap.get('userType'));
+              context.commit('SET_USER_TYPE', docSnap.get('userType'))
+            } else {
+              console.log("No such document!");
+            }
           } catch (error) {
             console.error(error);
             // Handle error here

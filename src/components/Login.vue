@@ -20,6 +20,7 @@
                       required
                       autofocus
                       v-model="email"
+                      autocomplete="email"
                     />
                   </div>
                 </div>
@@ -41,9 +42,17 @@
   
                 <div class="form-group row mb-0">
                   <div class="col-md-8 offset-md-4">
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="submit" class="btn btn-primary" @click="loginWithEmail">Login</button>
                   </div>
                 </div>
+
+                <div class="form-group row">
+                <div class="col-md-6">
+                  <p>If you aren't registered, you can <router-link to="/register">register here</router-link>.</p>
+                </div>
+              </div>
+
+
               </form>
             </div>
           </div>
@@ -69,7 +78,7 @@ name: "LoginComponent",
 
     const Login = async () => {
     try {
-        await store.dispatch('login', {
+        await store.dispatch('loginWithEmail', {
         email: email.value,
         password: password.value
         })

@@ -6,7 +6,7 @@
             <div class="card-header">Register</div>
             <div class="card-body">
               <div v-if="error" class="alert alert-danger">{{error}}</div>
-              <form action="#" @submit.prevent="Register">
+              <form action="#" @submit.prevent="RegisterWithEmail">
 
                 <div class="form-group row">
               
@@ -87,9 +87,22 @@
   
                 <div class="form-group row mb-0">
                   <div class="col-md-8 offset-md-4">
-                    <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="submit" class="btn-primary" @click="RegisterWithEmail">Register</button>
                   </div>
                 </div>
+
+                <div class="form-group row mb-0">
+                  <div class="col-md-8 offset-md-4">
+                    <button type="button" class="btn-primary" @click="RegisterWithGoogle">Register with Google</button>
+                  </div>
+                </div>
+                
+                <div class="form-group row">
+                <div class="col-md-6">
+                  <p>If you are already registered, you can <router-link to="/login">login here</router-link>.</p>
+                </div>
+              </div>
+
               </form>
             </div>
           </div>
@@ -122,9 +135,9 @@ setup() {
       store.dispatch('setUserType', { userType: userType });
     }
 
-    const Register = async () => {
+    const RegisterWithEmail = async () => {
     try {
-        await store.dispatch('register', {
+        await store.dispatch('registerWithEmail', {
         email: email.value,
         password: password.value,
         name: name.value,
@@ -137,7 +150,19 @@ setup() {
             }
     }
 
-    return { Register, name, email, password, error, selectedUserType, setUserType }
+    const RegisterWithGoogle = async () => {
+    try {
+        await store.dispatch('registerWithGoogle', {
+        userType: selectedUserType.value
+        })
+        router.push('/')
+    }
+    catch (err) {
+        error.value = err.message
+            }
+    }
+
+    return { RegisterWithEmail, RegisterWithGoogle, name, email, password, error, selectedUserType, setUserType }
 }
 };
 </script>

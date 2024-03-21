@@ -9,10 +9,12 @@ import {
     sendPasswordResetEmail,
     signInWithEmailAndPassword,
     signInWithPopup,
+    signInWithRedirect,
     signOut,
     updateEmail,
     updatePassword,
     updateProfile,
+    fetchSignInMethodsForEmail
   } from 'firebase/auth';
   import { auth, db, googleProvider, storage } from "./firebase";
   import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
@@ -42,9 +44,14 @@ const store = createStore({
         }
       },
     actions: {
-        async register(context, { email, password, name, userType }){
+        async registerWithEmail(context, { email, password, name, userType }) {
+          try {
             const response = await createUserWithEmailAndPassword(auth, email, password)
             if (response) {
+                const signInMethods = await fetchSignInMethodsForEmail(email);
+                if (signInMethods.length > 0) {
+                  throw new Error('The email address is already in use by another account.');
+                }
                 context.commit('SET_USER', response.user)
                 context.commit('SET_LOGGED_IN', true)
                 //await response.user.updateProfile({ displayName: name })
@@ -59,9 +66,13 @@ const store = createStore({
                   about: '',
                   address: ''
                 });
-            } else {
-                throw new Error('Unable to register user')
-            }
+              }
+          } catch (error) {
+            throw new Error(error)
+            // Handle error here
+          }
+            
+
         },
 
       async setUserType(context, {userType}) {
@@ -70,17 +81,18 @@ const store = createStore({
         
       },  
   
-        async login(context, { email, password }){
-          const response = await signInWithEmailAndPassword(auth, email, password)
-          if (response) {
-              context.commit('SET_LOGGED_IN', true)
+        async loginWithEmail(context, { email, password }) {
+          try {
+            const response = await signInWithEmailAndPassword(auth, email, password)
+            context.commit('SET_LOGGED_IN', true)
               context.commit('SET_USER', response.user)
-          } else {
-              throw new Error('login failed')
+          } catch (error) {
+            console.error(error);
+            // Handle error here
           }
       },
   
-      async logOut(context){
+      async logOut(context) {
           await signOut(auth)
           context.commit('SET_LOGGED_IN', false)
           context.commit('SET_USER', null)
@@ -96,7 +108,56 @@ const store = createStore({
         } else {
           context.commit("SET_USER", null);
         }
-    }
+      },
+
+      async registerWithGoogle(context, { userType }) {
+        const provider = googleProvider;
+        if (provider) {
+          provider.setCustomParameters({
+            prompt: 'select_account'
+          });
+          signInWithRedirect(auth, provider)
+          .then(async (result) => {
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            // The signed-in user info.
+            const user = result.user;
+            const signInMethods = await fetchSignInMethodsForEmail(user.email);
+            if (signInMethods.length > 1) {
+              throw new Error('The email address is already in use by another account.');
+            }
+
+            // IdP data available using getAdditionalUserInfo(result)
+            // ...
+            context.commit('SET_USER', user)
+            context.commit('SET_LOGGED_IN', true)
+          }).catch((error) => {
+            // Handle Errors here.
+            console.log(error)
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // The email of the user's account used.
+            const email = error.customData.email;
+            // The AuthCredential type that was used.
+            const credential = GoogleAuthProvider.credentialFromError(error);
+          })    
+            //await response.user.updateProfile({ displayName: name })
+            await updateProfile(result.user, { displayName: 'result.user.displayName' })
+            await setDoc(doc(db, "users", 'result.user.uid'), {
+              uid: 'result.user.uid',
+              name: 'result.user.displayName',
+              authProvider: 'google',
+              email,
+              //photoURL: '/static/images/avatar/2.jpg',
+              userType,
+              about: '',
+              address: ''
+            });
+        } else {
+            throw new Error('Unable to register user')
+        }
+      },
     }
 })
 

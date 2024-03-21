@@ -36,4 +36,12 @@
   
   <style scoped>
     /* Add any specific styles for your Nav component here */
+    #nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000; /* This ensures the navbar stays on top of other elements */
+      background-color: #f8f9fa; /* This sets the background color of the navbar */
+      padding-top: 10px;
+    }
   </style>

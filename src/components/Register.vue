@@ -148,4 +148,27 @@ setup() {
   border-color: #30c77b;
   color: white; /* You might want to change the text color to ensure it's readable on the green background */
 }
+
+.container {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.container .btn-primary {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
+
+.form-group .col-md-6 {
+  display: flex;
+  justify-content: center;
+}
+
+.card-header {
+  font-size: 2em;
+}
 </style>

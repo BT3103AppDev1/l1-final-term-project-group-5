@@ -98,11 +98,12 @@
                 </div>
                 
                 <div class="form-group row">
-                <div class="col-md-6">
-                  <p>If you are already registered, you can <router-link to="/login">login here</router-link>.</p>
+                  <div class="col-md-6">
+                    <p>If you are already registered, you can <router-link to="/login">login here</router-link>.</p>
+                  </div>
                 </div>
-              </div>
 
+                
               </form>
             </div>
           </div>

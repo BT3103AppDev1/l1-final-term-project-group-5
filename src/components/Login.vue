@@ -47,11 +47,16 @@
                 </div>
 
                 <div class="form-group row">
-                <div class="col-md-6">
-                  <p>If you aren't registered, you can <router-link to="/register">register here</router-link>.</p>
+                  <div class="col-md-6">
+                    <p>If you aren't registered, you can <router-link to="/register">register here</router-link>.</p>
+                  </div>
                 </div>
-              </div>
 
+                <div class="form-group row">
+                  <div class="col-md-6">
+                    <p><router-link to="/forgetPassword">Forget Password</router-link>.</p>
+                  </div>
+                </div>
 
               </form>
             </div>

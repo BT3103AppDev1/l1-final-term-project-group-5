@@ -101,21 +101,29 @@ const store = createStore({
       },
   
       async logOut(context) {
-          await signOut(auth)
-          context.commit('SET_LOGGED_IN', false)
-          context.commit('SET_USER', null)
+        try {
+          await signOut(auth);
+          context.commit('SET_LOGGED_IN', false);
+          context.commit('SET_USER', null);
+        } catch (error) {
+          console.error('Failed to log out:', error);
+          // Handle error here
+        }
       },
   
-      async fetchUser(context ,user) {
-        context.commit("SET_LOGGED_IN", user !== null);
-        if (user) {
-          context.commit("SET_USER", {
-            displayName: user.displayName,
-            email: user.email
-          });
-        } else {
-          context.commit("SET_USER", null);
-        }
+      async fetchUser({ commit }) {
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            commit('SET_LOGGED_IN', true);
+            context.commit("SET_USER", {
+              displayName: user.displayName,
+              email: user.email
+            });
+          } else {
+            commit('SET_LOGGED_IN', false);
+            commit('SET_USER', null);
+          }
+        });
       },
 
       async registerWithGoogle(context, { userType }) {
@@ -166,6 +174,16 @@ const store = createStore({
             throw new Error('Unable to register user')
         }
       },
+
+      async forgetPassword(context, email) {
+        try {
+          await sendPasswordResetEmail(auth, email);
+          // console.log('Password reset email sent', email);
+        } catch (error) {
+          console.error('Failed to send password reset email:', error);
+        }
+      }
+
     }
 })
 

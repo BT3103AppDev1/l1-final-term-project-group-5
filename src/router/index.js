@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
+import ForgetPassword from '../components/ForgetPassword.vue';
+import { auth } from '../firebase';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +30,20 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/forgetPassword',
+      name: 'forgetPassword',
+      component: ForgetPassword,
+      beforeEnter(to, from, next) {
+        const user = auth.currentUser;
+        // console.log(user)
+        if (user) {
+          next({ name: "home" });
+        } else {
+          next();
+        }
+      },
     }
   ]
 })

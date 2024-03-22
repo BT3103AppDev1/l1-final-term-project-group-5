@@ -45,6 +45,10 @@ const store = createStore({
 
         ADD_PRODUCT(state, product) {
           state.products.push(product);
+        },
+
+        SET_PRODUCTS(state, products) {
+          state.products = products;
         }
       },
     actions: {
@@ -129,6 +133,15 @@ const store = createStore({
       } catch (error) {
         console.error("Error adding product: ", error);
       }
+    },
+
+    async fetchProducts({ commit }) {
+      const querySnapshot = await getDocs(collection(db, 'products'));
+      const products = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      commit('SET_PRODUCTS', products);
     }
 
     }

@@ -3,6 +3,7 @@
     <div class="products-section">
       <h2>Products</h2>
       <div class="products-grid">
+        <!--
         <div class="product-card" v-for="product in products" :key="product.id">
           <img :src="product.image" :alt="product.name" />
           <div class="product-info">
@@ -10,6 +11,15 @@
             <p>{{ product.category }}</p>
           </div>
         </div>
+        -->
+
+        <div class="product" v-for="product in products" :key="product.id">
+          <img :src="product.imageUrl" alt="">
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.category }}</p>
+          <!-- More product details -->
+        </div>
+        
         <div class="product-card add-new">
           <button @click="AddProduct" class="submit-btn">Add Product</button>
         </div>
@@ -37,8 +47,22 @@
   
 <script>
 import { mapState } from 'vuex';
+import { onMounted, ref } from 'vue';
+import { db } from '@/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 export default {
+  data() {
+    return {
+      selectedTab: 'products',
+      products: [],
+      currentListings: [],
+      expiredListings: []
+    };
+  },
+  async mounted() {
+    await this.fetchProducts();
+  },
   computed:{
     ...mapState(['products']),
   },
@@ -49,6 +73,13 @@ export default {
       AddListing() {
         this.$router.push('marketplace/add-listing')
       },
+      async fetchProducts() {
+        const querySnapshot = await getDocs(collection(db, 'products'));
+        this.products = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+      }
     },
   }
 

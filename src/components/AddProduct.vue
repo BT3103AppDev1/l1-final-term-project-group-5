@@ -36,7 +36,7 @@ export default {
       product: {
         name: '',
         category: '',
-        image: null,
+        imageUrl: null,
         weight: '',
       },
       categories: ['Baked Good', 'Dairy', 'Fruit', 'Vegetable'] // list of categories

@@ -15,7 +15,7 @@ import {
     updateProfile,
   } from 'firebase/auth';
   import { auth, db, googleProvider, storage } from "./firebase";
-  import { doc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDocs } from "firebase/firestore";
+  import { query, doc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDoc, getDocs, where } from "firebase/firestore";
   import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const store = createStore({
@@ -26,7 +26,8 @@ const store = createStore({
           type: 'ecoSeeker'
         },
         products: [],
-        listings: []
+        listings: [],
+        activeListings: []
       },
     getters: {
         user(state){
@@ -54,6 +55,10 @@ const store = createStore({
 
         ADD_LISTING(state, listing) {
           state.listings.push(listing);
+        },
+
+        SET_ACTIVE_LISTINGS(state, listings) {
+          state.activeListings = listings;
         }
       },
     actions: {
@@ -152,9 +157,10 @@ const store = createStore({
 
     async addListing({ commit }, newListing) {
       const now = new Date();
+      now.setHours(0, 0, 0, 0) // Set now to beginning of the day
       newListing.unitsRemaining = newListing.unitsToSell;
       newListing.createdDate = now;
-      newListing.isActive = (newListing.unitsRemaining > 0) && (new Date(newListing.expirationDate) > now);
+      newListing.isActive = (newListing.unitsRemaining > 0) && (new Date(newListing.expirationDate) >= now);
   
       const docRef = await addDoc(collection(db, 'listings'), newListing);
       await updateDoc(doc(db, 'listings', docRef.id), {
@@ -162,6 +168,34 @@ const store = createStore({
       });
       newListing.listingId = docRef.id;
       commit('ADD_LISTING', { id: docRef.id, ...newListing });
+    },
+
+    async fetchActiveListingsWithProductDetails({ commit }) {
+      const activeListingsQuery = query(collection(db, 'listings'), where('isActive', '==', true));
+      const querySnapshot = await getDocs(activeListingsQuery);
+  
+      const listings = await Promise.all(querySnapshot.docs.map(async (listingDoc) => {
+        const listing = listingDoc.data();
+        const productRef = doc(db, 'products', listing.productId);
+        const productSnap = await getDoc(productRef);
+        
+        // Assuming the product exists and adding a check for the same
+        if (productSnap.exists()) {
+          const product = productSnap.data();
+          // Return the listing with additional product details
+          return {
+            ...listing,
+            productName: product.name,
+            productImage: product.imageUrl,
+            productCategory: product.category
+          };
+        }
+        
+        // If the product does not exist, return the listing without product details
+        return listing;
+      }));
+  
+      commit('SET_ACTIVE_LISTINGS', listings);
     },
 
     }

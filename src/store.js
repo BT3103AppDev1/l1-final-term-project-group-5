@@ -15,7 +15,8 @@ import {
     updateProfile,
   } from 'firebase/auth';
   import { auth, db, googleProvider, storage } from "./firebase";
-  import { doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+  import { doc, setDoc, updateDoc, deleteDoc, addDoc, collection } from "firebase/firestore";
+  import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const store = createStore({
     state: {
@@ -23,7 +24,8 @@ const store = createStore({
           loggedIn: false,
           data: null,
           type: 'ecoSeeker'
-        }
+        },
+        products: []
       },
     getters: {
         user(state){
@@ -39,6 +41,10 @@ const store = createStore({
         },
         SET_USER_TYPE(state, data) {
           state.user.type = data;
+        },
+
+        ADD_PRODUCT(state, product) {
+          state.products.push(product);
         }
       },
     actions: {
@@ -96,7 +102,35 @@ const store = createStore({
         } else {
           context.commit("SET_USER", null);
         }
+    },
+
+    async addProductToDB({ commit }, product) {
+      try {
+        // Create a reference to the storage location
+        const storageRef = ref(storage, `products/${product.image.name}`);
+        // Upload the file
+        const snapshot = await uploadBytes(storageRef, product.image);
+        // Get the URL of the uploaded file
+        const imageUrl = await getDownloadURL(snapshot.ref);
+
+        // Prepare the product object with the image URL
+        const productToAdd = {
+          name: product.name,
+          category: product.category,
+          weight: product.weight, // Assuming you've added 'weight' to your product object
+          imageUrl
+        };
+
+        // Add the product object to Firestore
+        const docRef = await addDoc(collection(db, 'products'), productToAdd);
+        
+        // Commit to Vuex state
+        commit('ADD_PRODUCT', { id: docRef.id, ...productToAdd });
+      } catch (error) {
+        console.error("Error adding product: ", error);
+      }
     }
+
     }
 })
 

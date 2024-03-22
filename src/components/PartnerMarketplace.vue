@@ -36,7 +36,12 @@
 </template>
   
 <script>
+import { mapState } from 'vuex';
+
 export default {
+  computed:{
+    ...mapState(['products']),
+  },
     methods: {
       AddProduct() {
         this.$router.push('marketplace/add-product');

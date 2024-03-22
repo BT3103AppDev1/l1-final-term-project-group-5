@@ -4,6 +4,12 @@
       <h2>Products</h2>
       <div class="products-grid">
 
+        <div @click="AddProduct" class="product-card-add-new">
+          <span class="plus-icon">+</span>
+          <p>Add New Product</p>
+          <!---<button @click="AddProduct" class="submit-btn">Add Product</button>-->
+        </div>
+
         <div class="product-card" v-for="product in products" :key="product.id">
           <img :src="product.imageUrl" :alt="product.name" class="product-image">
           <div class="product-info">
@@ -14,11 +20,6 @@
           </div>
         </div>
         
-        <div @click="AddProduct" class="product-card add-new">
-          <span class="plus-icon">+</span>
-          <p>Add New Product</p>
-          <!---<button @click="AddProduct" class="submit-btn">Add Product</button>-->
-        </div>
       </div>
     </div>
     
@@ -90,7 +91,7 @@ export default {
   justify-content: flex-start;
   }
 
-  .product-card {
+  .product-card, .product-card-add-new {
   flex: 0 1 200px; /* Cards will flex but have a base width of 200px */
   margin-bottom: 20px;
   border: 1px solid #ccc;
@@ -113,7 +114,7 @@ export default {
   margin-top: 10px;
 }
 
-.add-new {
+.product-card-add-new {
   cursor: pointer;
   display: flex;
   flex-direction: column;

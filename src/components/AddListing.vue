@@ -14,7 +14,7 @@
   
         <div class="form-group">
           <label for="expirationDate">Expiration Date</label>
-          <input type="date" id="expirationDate" v-model="newListing.expirationDate" required>
+          <input type="date" id="expirationDate" v-model="newListing.expirationDate" :min="today" required>
         </div>
   
         <div class="form-group">
@@ -45,12 +45,18 @@
         productId: '',
         expirationDate: '',
         price: null,
-        unitsToSell: null
+        unitsToSell: null,
+        unitsRemaining: null
       }
     };
   },
   async mounted() {
     await this.fetchProducts();
+  },
+  computed: {
+    today() {
+      return new Date().toISOString().split('T')[0];
+    }
   },
   methods: {
     async fetchProducts() {
@@ -62,8 +68,12 @@
     },
     async submitListing() {
       try {
+        const completeListing = {
+          ...this.newListing,
+          unitsRemaining: this.newListing.unitsToSell
+        };
         // Save the new listing to Firestore
-        const docRef = await addDoc(collection(db, 'listings'), this.newListing);
+        const docRef = await addDoc(collection(db, 'listings'), completeListing);
         await updateDoc(doc(db, 'listings', docRef.id), {
           listingId: docRef.id
         });

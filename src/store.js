@@ -17,6 +17,7 @@ import {
   import { auth, db, googleProvider, storage } from "./firebase";
   import { doc, setDoc, updateDoc, deleteDoc, addDoc, collection } from "firebase/firestore";
   import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { pro } from 'ccxt';
 
 const store = createStore({
     state: {
@@ -110,12 +111,9 @@ const store = createStore({
 
     async addProductToDB({ commit }, product) {
       try {
-        // Create a reference to the storage location
-        const storageRef = ref(storage, `products/${product.image.name}`);
-        // Upload the file
-        const snapshot = await uploadBytes(storageRef, product.image);
-        // Get the URL of the uploaded file
-        const imageUrl = await getDownloadURL(snapshot.ref);
+        const storageRef = ref(storage, `products/${product.image.name}`);    // Create a reference to the storage location
+        const snapshot = await uploadBytes(storageRef, product.image);        // Upload the file
+        const imageUrl = await getDownloadURL(snapshot.ref);                  // Get the URL of the uploaded file
 
         // Prepare the product object with the image URL
         const productToAdd = {
@@ -127,9 +125,13 @@ const store = createStore({
 
         // Add the product object to Firestore
         const docRef = await addDoc(collection(db, 'products'), productToAdd);
-        
+        await updateDoc(doc(db, 'products', docRef.id), {
+          productId: docRef.id
+        });
+        productToAdd.productId = docRef.id;
+
         // Commit to Vuex state
-        commit('ADD_PRODUCT', { id: docRef.id, ...productToAdd });
+        commit('ADD_PRODUCT', productToAdd);
       } catch (error) {
         console.error("Error adding product: ", error);
       }

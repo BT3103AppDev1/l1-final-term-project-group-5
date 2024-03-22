@@ -15,9 +15,8 @@ import {
     updateProfile,
   } from 'firebase/auth';
   import { auth, db, googleProvider, storage } from "./firebase";
-  import { doc, setDoc, updateDoc, deleteDoc, addDoc, collection } from "firebase/firestore";
+  import { doc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDocs } from "firebase/firestore";
   import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { pro } from 'ccxt';
 
 const store = createStore({
     state: {
@@ -26,7 +25,8 @@ const store = createStore({
           data: null,
           type: 'ecoSeeker'
         },
-        products: []
+        products: [],
+        listings: []
       },
     getters: {
         user(state){
@@ -50,6 +50,10 @@ const store = createStore({
 
         SET_PRODUCTS(state, products) {
           state.products = products;
+        },
+
+        ADD_LISTING(state, listing) {
+          state.listings.push(listing);
         }
       },
     actions: {
@@ -144,7 +148,21 @@ const store = createStore({
         ...doc.data()
       }));
       commit('SET_PRODUCTS', products);
-    }
+    },
+
+    async addListing({ commit }, newListing) {
+      const now = new Date();
+      newListing.unitsRemaining = newListing.unitsToSell;
+      newListing.createdDate = now;
+      newListing.isActive = (newListing.unitsRemaining > 0) && (new Date(newListing.expirationDate) > now);
+  
+      const docRef = await addDoc(collection(db, 'listings'), newListing);
+      await updateDoc(doc(db, 'listings', docRef.id), {
+        listingId: docRef.id
+      });
+      newListing.listingId = docRef.id;
+      commit('ADD_LISTING', { id: docRef.id, ...newListing });
+    },
 
     }
 })

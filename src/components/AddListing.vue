@@ -36,8 +36,9 @@
   import { ref, onMounted } from 'vue';
   import { db } from '@/firebase';
   import { doc, collection, getDocs, addDoc, updateDoc } from 'firebase/firestore';
+  import { mapActions } from 'vuex';
 
-  export default {
+  export default {  
   data() {
     return {
       products: [], // This will hold the array of products from your database
@@ -59,6 +60,7 @@
     }
   },
   methods: {
+    ...mapActions(['addListing']),
     async fetchProducts() {
       const querySnapshot = await getDocs(collection(db, 'products'));
       this.products = querySnapshot.docs.map(doc => ({
@@ -68,17 +70,7 @@
     },
     async submitListing() {
       try {
-        const completeListing = {
-          ...this.newListing,
-          unitsRemaining: this.newListing.unitsToSell
-        };
-        // Save the new listing to Firestore
-        const docRef = await addDoc(collection(db, 'listings'), completeListing);
-        await updateDoc(doc(db, 'listings', docRef.id), {
-          listingId: docRef.id
-        });
-        this.newListing.listingId = docRef.id;
-        console.log('Listing added with ID:', docRef.id);
+        await this.addListing(this.newListing);
         this.$router.push('/partner/marketplace');
         // Reset the form or give user feedback
       } catch (error) {

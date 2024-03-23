@@ -6,7 +6,7 @@
             <div class="card-header">Login</div>
             <div class="card-body">
               <div v-if="error" class="alert alert-danger">{{error}}</div>
-              <form action="#"  @submit.prevent="Login">
+              <form action="#"  @submit.prevent="LoginWithEmail">
                 <div class="form-group row">
                   <label for="email" class="col-md-4 col-form-label text-md-right">Email</label>
   
@@ -42,7 +42,13 @@
   
                 <div class="form-group row mb-0">
                   <div class="col-md-8 offset-md-4">
-                    <button type="submit" class="btn btn-primary" @click="loginWithEmail">Login</button>
+                    <button type="submit" class="btn btn-primary" @click="LoginWithEmail">Login</button>
+                  </div>
+                </div>
+
+                <div class="form-group row mb-0">
+                  <div class="col-md-8 offset-md-4">
+                    <button type="submit" class="btn btn-primary" @click="LoginWithGoogle">Login With Google</button>
                   </div>
                 </div>
 
@@ -81,19 +87,29 @@ name: "LoginComponent",
     const store = useStore()
     const router = useRouter()
 
-    const Login = async () => {
-    try {
-        await store.dispatch('loginWithEmail', {
-        email: email.value,
-        password: password.value
-        })
-        router.push('/')
+    const LoginWithEmail = async () => {
+      try {
+          await store.dispatch('loginWithEmail', {
+          email: email.value,
+          password: password.value
+          })
+          router.push('/')
+      }
+      catch (err) {
+          error.value = err.message
+      }
     }
-    catch (err) {
-        error.value = err.message
+
+    const LoginWithGoogle = async () => {
+      try {
+          await store.dispatch('loginWithGoogle', {}).then(
+          router.push('/'))
+      }
+      catch (err) {
+          error.value = err.message
+      }
     }
-    }
-    return { Login, email, password, error }
+    return { LoginWithEmail, email, password, error, LoginWithGoogle }
 }
 };
 </script>

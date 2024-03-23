@@ -18,6 +18,7 @@ import {
 } from "firebase/auth";
 import { auth, db, googleProvider, storage } from "./firebase";
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const store = createStore({
   state: {
@@ -63,14 +64,14 @@ const store = createStore({
           //await response.user.updateProfile({ displayName: name })
           await updateProfile(response.user, { displayName: name });
           await setDoc(doc(db, "users", response.user.uid), {
+            userType: userType,
             uid: response.user.uid,
-            name,
+            name: name,
             authProvider: "local",
-            email,
-            //photoURL: '/static/images/avatar/2.jpg',
-            userType,
+            email: email,                      
             about: "",
             address: "",
+            photoURL: '/static/images/avatar/2.jpg',
           });
         }
       } catch (error) {
@@ -148,7 +149,15 @@ const store = createStore({
           const docSnap = await getDoc(userRef);
           if (!docSnap.exists()) {
             // If the document does not exist, create it with the user type
-            await setDoc(userRef, { userType: userType });
+            await setDoc(userRef, { 
+              userType: userType,
+              uid: user.uid,
+              name: user.displayName,
+              authProvider: "google",
+              email: user.email,
+              about: "",
+              address: "",
+              photoURL: user.photoURL});
             context.commit("SET_USER_TYPE", userType);
           } else {
             console.log("User already exists!");

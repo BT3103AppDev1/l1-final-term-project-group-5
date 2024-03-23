@@ -47,7 +47,8 @@
     <div class="expired-section">
       <h2>Expired Listings</h2>
       <div class="listings-container" name="expired-listings">
-        <div class="listing-card" v-for="listing in inactiveListings" :key="listing.id">
+        
+        <div class="expired-listing-card" v-for="listing in inactiveListings" :key="listing.id">
           <img :src="listing.productImage" :alt="listing.productName" class="listing-image">
           <div class="listing-details">
             <h3>{{ listing.productName }}</h3>
@@ -56,6 +57,7 @@
             <p>Price: ${{ listing.price }}</p>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -132,6 +134,20 @@ export default {
   align-items: center;
   text-align: center;
   padding: 15px;
+}
+
+.expired-listing-card {
+  flex: 0 1 200px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 15px;
+  opacity: 0.5;           /* Add a visual cue that the listing is expired */            
 }
 
 .product-image, .listing-image {

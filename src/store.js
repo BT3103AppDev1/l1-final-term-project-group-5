@@ -59,7 +59,17 @@ const store = createStore({
 
         SET_ACTIVE_LISTINGS(state, listings) {
           state.activeListings = listings;
-        }
+        },
+
+        UPDATE_LISTING_STATUS(state, { listingId, isActive }) {
+          // Find the listing and update its 'isActive' status
+          const index = state.listings.findIndex(listing => listing.id === listingId);
+          if (index !== -1) {
+            const listing = state.listings[index];
+            listing.isActive = isActive;
+            // Vue.set(state.listings, index, listing); // Use Vue.set if you need to ensure reactivity
+          }
+        },
       },
     actions: {
         async register(context, { email, password, name, userType }){
@@ -196,6 +206,39 @@ const store = createStore({
       }));
   
       commit('SET_ACTIVE_LISTINGS', listings);
+    },
+
+    async checkAndUpdateListingStatus({ commit }) {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0); // Use start of the day for comparison
+      const listingsRef = collection(db, 'listings');
+  
+      const querySnapshot = await getDocs(listingsRef);
+      
+      const updates = [];
+      querySnapshot.forEach((doc) => {
+        const listing = doc.data();
+        //const listingExpirationDate = new Date(listing.expirationDate.seconds * 1000);
+        
+        // Determine if the listing should be marked as inactive
+        const shouldBeInactive = listing.unitsRemaining <= 0 || new Date(listing.expirationDate) < now;
+        
+        if (listing.isActive && shouldBeInactive) {
+          // Only update if the listing is currently active but should be inactive
+          updates.push({
+            id: doc.id,
+            updateFn: updateDoc(doc.ref, { isActive: false })
+          });
+        }
+      });
+      
+      // Execute all update operations
+      await Promise.all(updates.map(u => u.updateFn));
+      
+      // Commit updates to the Vuex store
+      updates.forEach(({ id }) => {
+        commit('UPDATE_LISTING_STATUS', { listingId: id, isActive: false });
+      });
     },
 
     }

@@ -70,14 +70,17 @@ export default {
   },
   async mounted() {
     await this.fetchProducts();
-    await this.fetchActiveListingsWithProductDetails();
+    await this.checkAndUpdateListingStatus().then(() => {
+      // After updating, fetch the latest active listings
+      this.fetchActiveListingsWithProductDetails();
+    });
   },
   computed: {
     ...mapState(['activeListings']),
   },
 
   methods: {
-    ...mapActions(['fetchActiveListingsWithProductDetails']),
+    ...mapActions(['fetchActiveListingsWithProductDetails', 'checkAndUpdateListingStatus']),
     AddProduct() {
       this.$router.push('marketplace/add-product');
     },

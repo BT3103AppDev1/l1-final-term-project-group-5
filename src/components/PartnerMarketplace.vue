@@ -25,7 +25,7 @@
 
     <div class="listings-section">
       <h2>Current Listings</h2>
-      <div class="listings-container">
+      <div class="listings-container" name="active-listings">
         <div class="listing-card" v-for="listing in activeListings" :key="listing.id">
           <img :src="listing.productImage" :alt="listing.productName" class="listing-image">
           <div class="listing-details">
@@ -46,8 +46,16 @@
 
     <div class="expired-section">
       <h2>Expired Listings</h2>
-      <div class="expired-grid">
-        <!-- Repeat the same pattern as above for expired listings -->
+      <div class="listings-container" name="expired-listings">
+        <div class="listing-card" v-for="listing in inactiveListings" :key="listing.id">
+          <img :src="listing.productImage" :alt="listing.productName" class="listing-image">
+          <div class="listing-details">
+            <h3>{{ listing.productName }}</h3>
+            <p>{{ listing.productCategory }}</p>
+            <p>Remaining: {{ listing.unitsRemaining }} / {{ listing.unitsToSell }}</p>
+            <p>Price: ${{ listing.price }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -63,9 +71,9 @@ export default {
   data() {
     return {
       selectedTab: 'products',
-      products: [],
-      currentListings: [],
-      expiredListings: []
+      products: []
+      //currentListings: [],
+      //expiredListings: []
     };
   },
   async mounted() {
@@ -73,14 +81,15 @@ export default {
     await this.checkAndUpdateListingStatus().then(() => {
       // After updating, fetch the latest active listings
       this.fetchActiveListingsWithProductDetails();
+      this.fetchInactiveListingsWithProductDetails();
     });
   },
   computed: {
-    ...mapState(['activeListings']),
+    ...mapState(['activeListings', 'inactiveListings']),
   },
 
   methods: {
-    ...mapActions(['fetchActiveListingsWithProductDetails', 'checkAndUpdateListingStatus']),
+    ...mapActions(['fetchActiveListingsWithProductDetails', 'fetchInactiveListingsWithProductDetails' , 'checkAndUpdateListingStatus']),
     AddProduct() {
       this.$router.push('marketplace/add-product');
     },
@@ -108,19 +117,16 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  /* Adjust the gap as necessary */
   justify-content: flex-start;
 }
 
 .product-card, .product-card-add-new, 
 .listing-card, .listing-card-add-new {
-  flex: 0 1 200px;
-  /* Cards will flex but have a base width of 200px */
+  flex: 0 1 200px;          /* Cards will flex but have a base width of 200px */
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 10px;
-  overflow: hidden;
-  /* Ensures the image does not break the card's round corners */
+  overflow: hidden;         /* Ensures the image does not break the card's round corners */
   display: flex;
   flex-direction: column;
   align-items: center;

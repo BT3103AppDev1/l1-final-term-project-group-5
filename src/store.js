@@ -27,7 +27,8 @@ const store = createStore({
         },
         products: [],
         listings: [],
-        activeListings: []
+        activeListings: [],
+        inactiveListings: []
       },
     getters: {
         user(state){
@@ -59,6 +60,10 @@ const store = createStore({
 
         SET_ACTIVE_LISTINGS(state, listings) {
           state.activeListings = listings;
+        },
+
+        SET_INACTIVE_LISTINGS(state, listings) {
+          state.inactiveListings = listings;
         },
 
         UPDATE_LISTING_STATUS(state, { listingId, isActive }) {
@@ -206,6 +211,34 @@ const store = createStore({
       }));
   
       commit('SET_ACTIVE_LISTINGS', listings);
+    },
+
+    async fetchInactiveListingsWithProductDetails({ commit }) {
+      const activeListingsQuery = query(collection(db, 'listings'), where('isActive', '==', false));
+      const querySnapshot = await getDocs(activeListingsQuery);
+  
+      const listings = await Promise.all(querySnapshot.docs.map(async (listingDoc) => {
+        const listing = listingDoc.data();
+        const productRef = doc(db, 'products', listing.productId);
+        const productSnap = await getDoc(productRef);
+        
+        // Assuming the product exists and adding a check for the same
+        if (productSnap.exists()) {
+          const product = productSnap.data();
+          // Return the listing with additional product details
+          return {
+            ...listing,
+            productName: product.name,
+            productImage: product.imageUrl,
+            productCategory: product.category
+          };
+        }
+        
+        // If the product does not exist, return the listing without product details
+        return listing;
+      }));
+  
+      commit('SET_INACTIVE_LISTINGS', listings);
     },
 
     async checkAndUpdateListingStatus({ commit }) {

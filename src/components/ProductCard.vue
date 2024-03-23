@@ -26,7 +26,8 @@ const db = getFirestore(firebaseApp);
 export default {
 
     props: {
-        searchQuery : String 
+        searchQuery : String,
+        selectedCategories: Array
     }, 
 
     data() {
@@ -38,16 +39,23 @@ export default {
     },
 
     async created() {
+
         const productSnapshot = await getDocs(collection(db, "products"));
         this.products = productSnapshot.docs.map(doc => doc.data());
 
         const listingSnapshot = await getDocs(collection(db, "listings"));
         this.listings = listingSnapshot.docs.map(doc => doc.data());
+        console.log(this.listings);
+        this.filteredActiveListings = this.activeListings;
     },
 
     watch: {
-        searchQuery(newQuery) {
-            this.filterActiveListings(newQuery);
+        searchQuery() {
+            this.applyFilters();
+        },
+
+        selectedCategories() {
+            this.applyFilters();
         }
     },
 
@@ -65,15 +73,33 @@ export default {
     },
 
     methods: {
-
-        filterActiveListings(query) {
+        /*filterActiveListings(query) {
             if (query) {
                 this.filteredActiveListings = this.activeListings.filter(listing=> 
                     listing.name.toLowerCase().includes(query.toLowerCase()));
             } else {
                 this.filteredActiveListings = this.activeListings;
             }
+        },*/
 
+        applyFilters() {
+            // initialise with all active listings first
+            let filtered = this.activeListings;
+
+            //Filter by selected categories if any 
+            console.log(this.selectedCategories);
+            if (this.selectedCategories.length > 0) {
+                filtered = filtered.filter(listing => 
+                    this.selectedCategories.includes(listing.category));
+            }
+            //Filter by search query if present
+
+            if (this.searchQuery) {
+                filtered = filtered.filter(listing => 
+                    listing.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+            }
+
+            this.filteredActiveListings = filtered;
         },
 
         addToCart(listing) {
@@ -100,7 +126,7 @@ export default {
 
 .category {
     color:white;
-
+    text-align : left;
 }
 
 .price {

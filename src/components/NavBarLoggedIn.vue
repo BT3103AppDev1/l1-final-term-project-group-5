@@ -19,11 +19,12 @@
 </template>
 
 <script>
+import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { onMounted, ref } from "vue";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebase.js";
 
 export default {
   name: "NavLoggedIn",
@@ -39,9 +40,6 @@ export default {
     };
 
     onMounted(() => {
-      const auth = getAuth();
-      const firestore = getFirestore();
-
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           // Fetch basic details from the auth user object
@@ -53,7 +51,7 @@ export default {
           };
 
           // Attempt to fetch additional details from Firestore
-          const userDocRef = doc(firestore, "users", user.uid);
+          const userDocRef = doc(db, "users", user.uid);
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {

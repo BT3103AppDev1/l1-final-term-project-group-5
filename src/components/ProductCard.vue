@@ -1,6 +1,6 @@
 <template>
     <div class="product-grid">
-        <div v-for="listing in activeListings"  :key="listing.listingId" class="product-card">
+        <div v-for="listing in filteredActiveListings"  :key="listing.listingId" class="product-card">
             <img :src="listing.imageUrl" alt="Product Image" class="product-image">
             <h2 class="name">{{ listing.name }}</h2>
             <p class="category"> {{ listing.category }}</p>
@@ -24,20 +24,31 @@ import { getFirestore, collection, getDocs } from "firebase/firestore";
 const db = getFirestore(firebaseApp);
 
 export default {
+
+    props: {
+        searchQuery : String 
+    }, 
+
     data() {
         return {
             products : [],
             listings: [],
+            filteredActiveListings: [] // holds filtered listings
         };
     },
-    async created() {
-        this.$emit('listings-updated', this.listings); // Emit the listings to the parent node
 
+    async created() {
         const productSnapshot = await getDocs(collection(db, "products"));
         this.products = productSnapshot.docs.map(doc => doc.data());
 
         const listingSnapshot = await getDocs(collection(db, "listings"));
         this.listings = listingSnapshot.docs.map(doc => doc.data());
+    },
+
+    watch: {
+        searchQuery(newQuery) {
+            this.filterActiveListings(newQuery);
+        }
     },
 
     computed: {
@@ -54,6 +65,17 @@ export default {
     },
 
     methods: {
+
+        filterActiveListings(query) {
+            if (query) {
+                this.filteredActiveListings = this.activeListings.filter(listing=> 
+                    listing.name.toLowerCase().includes(query.toLowerCase()));
+            } else {
+                this.filteredActiveListings = this.activeListings;
+            }
+
+        },
+
         addToCart(listing) {
             console.log('Added to cart:', listing);
         }

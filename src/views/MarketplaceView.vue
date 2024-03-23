@@ -1,41 +1,35 @@
 <template>
     <div class="MarketplaceView">
-        <div class="searchBar">
-            <SearchBar @search="searchHandler" />
-        </div>
-        <div class="center">
-            <ProductCard @listings="updateListings" />
-        </div>
+        <SearchBar @update-search-query="updateSearchQuery" />
+        <ProductCard :searchQuery="searchQuery" />
     </div>
 </template>
 
 <script>
 import ProductCard from "@/components/ProductCard.vue";
-//import SearchBar from "@/components/SearchBar.vue";
+import SearchBar from "@/components/SearchBar.vue";
 
 export default {
     components: {
         ProductCard,
-        //SearchBar,
+        SearchBar,
     },
 
     data() {
         return {
-            //searchTerm: '',
-            listings: [],
+            searchQuery: '',
         };
     },
 
     methods: {
-        /*searchHandler(searchTerm) {
-            console.log('Search term:', searchTerm);
-            this.searchTerm = searchTerm;
-        },*/
+        updateSearchQuery(newQuery) {
+            this.searchQuery = newQuery;
+        },
 
-        updateListings(listings) {
+        /*updateListings(listings) {
             console.log('Listings:', listings);
             this.listings = listings;
-        }
+        }*/
     },
 };
 </script>

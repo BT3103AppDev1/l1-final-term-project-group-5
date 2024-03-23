@@ -1,6 +1,13 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { collection, getDocs, orderBy } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+  orderBy,
+} from "firebase/firestore";
 import { db } from "../firebase.js";
 
 // Reactive reference to store the documents
@@ -40,6 +47,24 @@ const paginatedOrders = computed(() => {
   const start = (currentPage.value - 1) * ordersPerPage;
   return orders.value.slice(start, start + ordersPerPage);
 });
+
+const navigateToPage = (pageNum) => {
+  currentPage.value = pageNum;
+};
+
+// Update order status
+const updateOrderStatus = async (orderId) => {
+  const orderDocRef = doc(db, "order", orderId);
+  await updateDoc(orderDocRef, { status: "Completed" });
+  fetchDocuments(); // Refresh the list after update
+};
+
+// Delete order
+const deleteOrder = async (orderId) => {
+  const orderDocRef = doc(db, "order", orderId);
+  await deleteDoc(orderDocRef);
+  fetchDocuments(); // Refresh the list after deletion
+};
 </script>
 
 <template>
@@ -70,15 +95,36 @@ const paginatedOrders = computed(() => {
               {{ order.status }}
             </div>
           </td>
+          <td v-if="order.status === 'Ongoing'" style="text-align: center">
+            <button @click="updateOrderStatus(order.id)">✓</button>
+          </td>
+          <td
+            v-else-if="order.status === 'Completed'"
+            style="text-align: center"
+          >
+            <button disabled>✓</button>
+          </td>
+          <td v-else-if="order.status === 'Expired'" style="text-align: center">
+            <button @click="deleteOrder(order.id)">🗑</button>
+          </td>
+          <td v-else></td>
         </tr>
       </tbody>
     </table>
 
-    <div>
+    <div class="pageNavigation">
       <button @click="currentPage--" :disabled="currentPage <= 1">
         Previous
       </button>
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        v-for="pageNum in totalPages"
+        :key="pageNum"
+        @click="navigateToPage(pageNum)"
+        :disabled="currentPage === pageNum"
+        :class="{ activePage: currentPage === pageNum }"
+      >
+        {{ pageNum }}
+      </button>
       <button @click="currentPage++" :disabled="currentPage >= totalPages">
         Next
       </button>
@@ -105,11 +151,9 @@ th {
   background-color: #00350a;
   color: white;
 }
-/* Style for odd rows */
 tbody tr:nth-child(odd) {
   background-color: #b3d2b3;
 }
-/* Style for even rows */
 tbody tr:nth-child(even) {
   background-color: #e6e6e6;
 }
@@ -140,5 +184,25 @@ tbody tr:nth-child(even) {
   padding: 2px 8px 2px 8px;
   background-color: #fff3cd;
   color: #856404;
+}
+
+.pageNavigation {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+.activePage {
+  background-color: #00350a;
+  color: white;
+  border: none;
+}
+.pageNavigation button {
+  margin-right: 5px;
+  cursor: pointer;
+}
+.pageNavigation button:disabled {
+  cursor: default;
+  opacity: 0.7;
 }
 </style>

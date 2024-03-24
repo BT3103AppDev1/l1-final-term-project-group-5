@@ -65,6 +65,22 @@ const deleteOrder = async (orderId) => {
   await deleteDoc(orderDocRef);
   fetchDocuments(); // Refresh the list after deletion
 };
+
+// Filtering by order status
+const currentFilter = ref("All");
+const filteredOrders = computed(() => {
+  if (currentFilter.value === "All") {
+    return paginatedOrders.value;
+  }
+  return paginatedOrders.value.filter(
+    (order) => order.status === currentFilter.value
+  );
+});
+
+const showFilterDropdown = ref(false);
+const toggleFilterDropdown = () => {
+  showFilterDropdown.value = !showFilterDropdown.value;
+};
 </script>
 
 <template>
@@ -78,7 +94,17 @@ const deleteOrder = async (orderId) => {
           <th>Address</th>
           <th>Date</th>
           <th>Price</th>
-          <th>Status</th>
+          <th>
+            Status <button @click="toggleFilterDropdown">⚙️</button>
+            <div v-if="showFilterDropdown" class="filterDropdown">
+              <select v-model="currentFilter">
+                <option value="All">All</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Completed">Completed</option>
+                <option value="Expired">Expired</option>
+              </select>
+            </div>
+          </th>
           <th>Mark as Collected</th>
         </tr>
       </thead>
@@ -204,5 +230,19 @@ tbody tr:nth-child(even) {
 .pageNavigation button:disabled {
   cursor: default;
   opacity: 0.7;
+}
+
+.filterDropdown {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  padding: 5px;
+}
+.filterDropdown select {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  min-width: 120px;
 }
 </style>

@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
 import ForgetPassword from '../components/ForgetPassword.vue';
+import ProfilePage from '../components/ProfilePage.vue';
 import { auth } from '../firebase';
 
 const router = createRouter({
@@ -44,6 +45,11 @@ const router = createRouter({
           next();
         }
       },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfilePage
     }
   ]
 })

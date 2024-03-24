@@ -12,10 +12,8 @@
                   id="email"
                   label="Email"
                   type="email"
-                  value
                   required
                   autofocus
-                  class="form-control"
                   v-model="email"
                   autocomplete="email"
                 ></v-text-field>
@@ -40,7 +38,7 @@
                     color="primary"
                     @click="LoginWithEmail"
                   >
-                    Register
+                    Login
                   </v-btn>
                 </v-col>
               </v-row>
@@ -52,7 +50,7 @@
                     color="primary"
                     @click="LoginWithGoogle"
                   >
-                    Register with Google
+                    Login with Google
                   </v-btn>
                 </v-col>
               </v-row>

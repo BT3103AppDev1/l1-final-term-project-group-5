@@ -71,7 +71,7 @@ const store = createStore({
             email: email,                      
             about: "",
             address: "",
-            photoURL: '/static/images/avatar/2.jpg',
+            photoURL: "",
           });
         }
       } catch (error) {
@@ -94,6 +94,7 @@ const store = createStore({
         );
         context.commit("SET_LOGGED_IN", true);
         context.commit("SET_USER", response.user);
+        console.log(response.user);
         const userRef = doc(db, "users", response.user.uid);
         const docSnap = await getDoc(userRef);
         if (docSnap.exists()) {

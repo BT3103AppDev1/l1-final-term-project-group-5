@@ -7,77 +7,69 @@
           <v-card-text class="text-center">
             <v-alert v-if="error" type="error">{{ error }}</v-alert>
             <v-form @submit.prevent="RegisterWithEmail">
-              
-                <v-row  justify="center">
-                  <v-col cols="12" md="2">
-                    <v-btn
-                      value="ecoSeeker"
-                      class="btn btn-outline-primary"
-                      :class="{
-                        active: selectedUserType === 'ecoSeeker',
-                      }"
-                      @click="setUserType('ecoSeeker')"
-                    >
-                      Eco-Seeker
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="12" md="2">
-                    <v-btn
-                      value="ecoPartner"
-                      class="btn btn-outline-primary"
-                      :class="{
-                        active: selectedUserType === 'ecoPartner',
-                      }"
-                      @click="setUserType('ecoPartner')"
-                    >
-                      Eco-Partner
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              
-
-              
-                <v-col cols="12" md="12">
-                  <v-text-field
-                    id="name"
-                    label="Name"
-                    type="name"
-                    required
-                    autofocus
-                    v-model="name"
-                    autocomplete="name"
-                  ></v-text-field>
-                </v-col>
-              
-
-              
-                <v-col cols="12" md="12">
-                  <v-text-field
-                    id="email"
-                    label="Email"
-                    type="email"
-                    required
-                    autofocus
-                    v-model="email"
-                    autocomplete="email"
-                  ></v-text-field>
-                </v-col>
-              
-
-              
-                <v-col cols="12" md="12">
-                  <v-text-field
-                    id="password"
-                    label="Password"
-                    type="password"
-                    required
-                    v-model="password"
-                  ></v-text-field>
-                </v-col>
-              
-
-              <v-row justify="center" >
+              <v-row justify="center">
                 <v-col cols="12" md="2">
+                  <v-btn
+                    value="ecoSeeker"
+                    class="btn btn-outline-primary"
+                    :class="{
+                      active: selectedUserType === 'ecoSeeker',
+                    }"
+                    @click="setUserType('ecoSeeker')"
+                  >
+                    Eco-Seeker
+                  </v-btn>
+                </v-col>
+                <v-col cols="12" md="2">
+                  <v-btn
+                    value="ecoPartner"
+                    class="btn btn-outline-primary"
+                    :class="{
+                      active: selectedUserType === 'ecoPartner',
+                    }"
+                    @click="setUserType('ecoPartner')"
+                  >
+                    Eco-Partner
+                  </v-btn>
+                </v-col>
+              </v-row>
+
+              <v-col cols="12" md="12">
+                <v-text-field
+                  id="name"
+                  label="Name"
+                  type="name"
+                  required
+                  autofocus
+                  v-model="name"
+                  autocomplete="name"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="12">
+                <v-text-field
+                  id="email"
+                  label="Email"
+                  type="email"
+                  required
+                  autofocus
+                  v-model="email"
+                  autocomplete="email"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="12">
+                <v-text-field
+                  id="password"
+                  label="Password"
+                  type="password"
+                  required
+                  v-model="password"
+                ></v-text-field>
+              </v-col>
+
+              <v-row justify="center">
+                <v-col cols="12" md="2" sm="2">
                   <v-btn
                     append-icon="$vuetify"
                     type="submit"
@@ -90,7 +82,7 @@
               </v-row>
 
               <v-row justify="center">
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="3" sm="2">
                   <v-btn
                     append-icon="$vuetify"
                     color="primary"
@@ -102,7 +94,7 @@
               </v-row>
 
               <v-row justify="center">
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="4" sm="3">
                   <v-card-text>
                     If you are already registered, you can
                     <router-link to="/login">login here</router-link>.
@@ -121,6 +113,7 @@
 import { ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { connectStorageEmulator } from "firebase/storage";
 
 export default {
   name: "RegisterComponent",
@@ -142,6 +135,10 @@ export default {
 
     const RegisterWithEmail = async () => {
       try {
+        console.log("Email:", email.value);
+        console.log("Password:", password.value);
+        console.log("Name:", name.value);
+        console.log(selectedUserType.value);
         await store.dispatch("registerWithEmail", {
           email: email.value,
           password: password.value,
@@ -185,6 +182,4 @@ export default {
   border-color: #30c77b;
   color: white; /* You might want to change the text color to ensure it's readable on the green background */
 }
-
-
 </style>

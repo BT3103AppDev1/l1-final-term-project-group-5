@@ -1,29 +1,26 @@
 <template>
-    <div id="nav">
+  <v-app-bar fixed color="#B0E487">
+    <v-toolbar-title>
       <router-link to="/">
-        <img src="../assets/GreenHarborLogo.png" alt="Green Harbor Logo" />
+        <img src="../assets/GreenHarborLogo.png" alt="Green Harbor Logo" class="logo" />
       </router-link>
-      | 
-      <router-link to="/Register">Sign Up</router-link>
-      | 
-      <router-link to="/Login">Login</router-link>
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'NavLoggedOut'
-  }
-  </script>
-  
-  <style scoped>
-    /* Add any specific styles for your Nav component here */
-    #nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000; /* This ensures the navbar stays on top of other elements */
-      background-color: #B0E487; /* This sets the background color of the navbar */
-      padding-top: 10px;
-    }
-  </style>
+    </v-toolbar-title>
+    <v-spacer></v-spacer>
+    <v-btn text to="/Register">Sign Up</v-btn>
+    <v-btn text to="/Login">Login</v-btn>
+  </v-app-bar>
+</template>
+
+<script>
+export default {
+  name: "NavLoggedOut",
+};
+</script>
+
+<style scoped>
+.logo {
+  max-height: 60px;
+  margin-bottom: -10px;
+}
+
+</style>

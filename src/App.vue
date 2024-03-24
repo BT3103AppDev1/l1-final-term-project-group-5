@@ -1,13 +1,16 @@
 <template>
-  <div>
+  <v-app>
     <template v-if="isLoggedIn">
-      <NavLoggedIn />
+      <NavLoggedIn :user="user" />
     </template>
     <template v-else>
       <NavLoggedOut />
     </template>
-  </div>
-  <router-view />
+    
+    <div style="padding-top: 120px;"> 
+      <router-view />
+    </div>
+  </v-app>
 </template>
 
 <script>
@@ -24,6 +27,7 @@ export default {
   computed: {
     ...mapState({
       isLoggedIn: (state) => state.user.loggedIn,
+      user: (state) => state.user,
     }),
   },
 }

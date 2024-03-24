@@ -1,89 +1,146 @@
 <template>
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-8">
-          <div class="card">
-            <div class="card-header">Profile Page</div>
-            <div class="card-body">
-              <div v-if="error" class="alert alert-danger">{{error}}</div>
+  <v-row justify="center">
+    <v-col cols="12" md="8">
+      <v-card>
+        <v-card-title class="text-center">Profile Page</v-card-title>
+        <v-card-text class="text-center">
+          <v-alert v-if="error" type="error">{{ error }}</v-alert>
+          <v-form>
+            <v-row justify="center">
+              <v-col
+                align-self="start"
+                class="d-flex justify-center align-center pa-0"
+                cols="12"
+              >
+                <v-avatar
+                  class="profile avatar-center-heigth avatar-shadow"
+                  color="grey"
+                  size="164"
+                >
+                  <img
+                    :src="user.data.photoURL" 
+                    class="avatar-image"/>
 
-              <form action="#" @submit.prevent="RegisterWithEmail">
+                  <v-btn
+                    class="upload-btn absolute bottom"
+                    x-large
+                    icon="mdi-antenna"
+                  >
+                  </v-btn>
+                </v-avatar>
+              </v-col>
+            </v-row>
 
-                <div class="form-group row">
-                  <label for="name" class="col-md-4 col-form-label text-md-right">Name</label>
-  
-                  <div class="col-md-6">
-                    <input
-                      id="name"
-                      type="name"
-                      class="form-control"
-                      name="name"
-                      value
-                      required
-                      autofocus
-                      v-model="name"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-  
-                <div class="form-group row">
-                  <label for="email" class="col-md-4 col-form-label text-md-right">Email</label>
-  
-                  <div class="col-md-6">
-                    <input
-                      id="email"
-                      type="email"
-                      class="form-control"
-                      name="email"
-                      value
-                      required
-                      autofocus
-                      v-model="email"
-                      autocomplete="email"
-                    />
-                  </div>
-                </div>
-  
-                <div class="form-group row">
-                  <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
-  
-                  <div class="col-md-6">
-                    <input
-                      id="password"
-                      type="password"
-                      class="form-control"
-                      name="password"
-                      required
-                      v-model="password"
-                    />
-                  </div>
-                </div>
-  
-                <div class="form-group row mb-0">
-                  <div class="col-md-8 offset-md-4">
-                    <button type="submit" class="btn-primary" @click="RegisterWithEmail">Register</button>
-                  </div>
-                </div>
+            <v-col cols="12" md="12" flass="mt-5">
+              <v-text-field
+                id="name"
+                label="Name"
+                type="name"
+                required
+                autofocus
+                v-model="user.data.displayName"
+                autocomplete="name"
+                :disabled="!editing"
+              ></v-text-field>
+            </v-col>
 
-                <div class="form-group row mb-0">
-                  <div class="col-md-8 offset-md-4">
-                    <button type="button" class="btn-primary" >Reset Password</button>
-                  </div>
-                </div>
-                
+            <v-col cols="12" md="12">
+              <v-text-field
+                id="email"
+                label="Email"
+                type="email"
+                required
+                autofocus
+                v-model="user.data.email"
+                autocomplete="email"
+                :disabled="!editing"
+              ></v-text-field>
+            </v-col>
 
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            <v-col cols="12" md="12">
+              <v-text-field
+                id="password"
+                label="Password"
+                type="password"
+                required
+                v-model="password"
+                autocomplete="new-password"
+              ></v-text-field>
+            </v-col>
+
+            <v-col cols="12" md="12">
+              <v-text-field
+                id="about"
+                label="About"
+                type="about"
+                required
+                v-model="user.data.about"
+                autocomplete="false"
+                :disabled="!editing"
+              ></v-text-field>
+            </v-col>
+
+            <v-col cols="12" md="12">
+              <v-text-field
+                id="address"
+                label="Address"
+                type="address"
+                required
+                v-model="user.data.address"
+                autocomplete="false"
+                :disabled="!editing"
+              ></v-text-field>
+            </v-col>
+
+            <v-col cols="12" md="12" class="text-center">
+              <v-btn @click="toggleEditing" color="primary">
+                {{ editing ? 'Save' : 'Edit' }}
+              </v-btn>
+            </v-col>
+
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
-
 <script>
+import { ref } from "vue";
+import { useStore } from "vuex";
+import { mapState } from 'vuex';
+import { useRouter } from "vue-router";
+import { connectStorageEmulator } from "firebase/storage";
+import SvgIcon from "@jamescoyle/vue-icon";
+import { mdiAccount } from "@mdi/js";
 
+
+export default {
+  name: "ProfileComponent",
+  computed: {
+    ...mapState(['user']),
+  },
+  setup() {
+    const editing = ref(false); // Reactive variable to track editing mode
+    const name = ref(""); // Reactive variable for name
+    const email = ref(""); // Reactive variable for email
+    const password = ref(""); // Reactive variable for password
+    const error = ref(null);
+  
+    const toggleEditing = () => {
+      editing.value = !editing.value; // Toggle editing mode
+    };
+
+    return {
+      editing,
+      name,
+      email,
+      password,
+      error, 
+      toggleEditing,
+    };
+  },
+};
 </script>
 
 <style>
@@ -93,26 +150,17 @@
   color: white; /* You might want to change the text color to ensure it's readable on the green background */
 }
 
-.container {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
+.upload-btn {
+  position: absolute !important;
+  z-index: 999;
+  top: 121px;
+  color: cadetblue;
+  background: #b0e487;
 }
 
-.container .btn-primary {
-  display: flex;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 10px;
-}
-
-.form-group .col-md-6 {
-  display: flex;
-  justify-content: center;
-}
-
-.card-header {
-  font-size: 2em;
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

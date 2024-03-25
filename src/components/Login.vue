@@ -110,7 +110,7 @@ export default {
 
     const LoginWithGoogle = async () => {
       try {
-        await store.dispatch("loginWithGoogle", {}).then(router.push("/"));
+        await store.dispatch("registerWithGoogle", {}).then(router.push("/"));
       } catch (err) {
         error.value = err.message;
       }

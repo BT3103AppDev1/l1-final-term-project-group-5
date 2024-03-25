@@ -26,7 +26,12 @@ const store = createStore({
       loggedIn: false,
       data: null,
       type: "ecoSeeker",
+      displayName: "",
+      email: "",
     },
+    userId: {
+      uid: "",
+    }
   },
   getters: {
     user(state) {
@@ -38,41 +43,49 @@ const store = createStore({
       state.user.loggedIn = value;
     },
     SET_USER(state, data) {
-      state.user.data = data;
+      state.user.data = {
+        ...state.user.data,
+        ...data,
+      };
     },
     SET_USER_TYPE(state, data) {
       state.user.type = data;
     },
+    SET_USER_ID(state, value) {
+      state.userId.uid = value;
+    },
   },
   actions: {
-    async registerWithEmail(context, { email, password, name, userType }) {
+    async registerWithEmail(context, { email, password }) {
       try {
+        // const signInMethods = await fetchSignInMethodsForEmail(email);
+        //   if (signInMethods.length > 0) {
+        //     throw new Error(
+        //       "The email address is already in use by another account."
+        //     );
+        
         const response = await createUserWithEmailAndPassword(
           auth,
           email,
           password
         );
         if (response) {
-          const signInMethods = await fetchSignInMethodsForEmail(email);
-          if (signInMethods.length > 0) {
-            throw new Error(
-              "The email address is already in use by another account."
-            );
-          }
+          console.log(response.user);
           context.commit("SET_USER", response.user);
           context.commit("SET_LOGGED_IN", true);
           //await response.user.updateProfile({ displayName: name })
-          await updateProfile(response.user, { displayName: name });
+          // await updateProfile(response.user, { displayName: name });
           await setDoc(doc(db, "users", response.user.uid), {
-            userType: userType,
+            userType: "",
             uid: response.user.uid,
-            name: name,
+            name: "",
             authProvider: "local",
             email: email,                      
             about: "",
             address: "",
             photoURL: "",
           });
+          context.commit("SET_USER_ID", response.user.uid);
         }
       } catch (error) {
         throw new Error(error);
@@ -133,7 +146,7 @@ const store = createStore({
       });
     },
 
-    async registerWithGoogle(context, { userType }) {
+    async registerWithGoogle(context, {  }) {
       const provider = googleProvider;
       if (provider) {
         provider.setCustomParameters({
@@ -151,7 +164,7 @@ const store = createStore({
           if (!docSnap.exists()) {
             // If the document does not exist, create it with the user type
             await setDoc(userRef, { 
-              userType: userType,
+              userType: "",
               uid: user.uid,
               name: user.displayName,
               authProvider: "google",
@@ -159,56 +172,13 @@ const store = createStore({
               about: "",
               address: "",
               photoURL: user.photoURL});
-            context.commit("SET_USER_TYPE", userType);
-          } else {
-            console.log("User already exists!");
           }
         } catch (error) {
           console.error("Failed to register with Google:", error);
-          // Handle error here
         }
       } else {
         throw new Error("Unable to register with Google");
       }
-    },
-
-    async loginWithGoogle(context, { }) {
-      await signOut(auth).then(console.log("User signed out before signing in with Google!"));
-
-      const provider = googleProvider;
-      // if (provider) {
-      //   provider.setCustomParameters({
-      //     prompt: "select_account",
-      //   });}
-      try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        const signInMethods = await fetchSignInMethodsForEmail(auth, user.email);
-        // if (signInMethods.length === 0) {
-        //   console.log("The Google account is not registered.")
-        //   throw new Error("The Google account is not registered.");
-        // }
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        
-        const userRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
-          context.commit("SET_USER", user);
-          context.commit("SET_LOGGED_IN", true);
-          context.commit("SET_USER_TYPE", docSnap.get("userType"));
-        } else {
-          console.log("No such document!");
-          context.commit("SET_LOGGED_IN", false);
-          throw new Error("The Google account is not registered. Please register first.");
-        }
-      } catch (error) {
-        console.error("Failed to sign in with Google:", error);
-        // Handle error here
-      }
-      // } else {
-      //   throw new Error("Unable to login with Google");
-      // }
     },
 
     async forgetPassword(context, email) {
@@ -217,6 +187,54 @@ const store = createStore({
         // console.log('Password reset email sent', email);
       } catch (error) {
         console.error("Failed to send password reset email:", error);
+      }
+    },
+
+    async registerDetails(context, { name, userType, about, address }) {
+      try {
+        const uid = context.state.userId.uid;
+        console.log(uid);
+        const userRef = doc(db, "users", uid);
+        
+        // await setDoc(doc(db, "users", response.user.uid), {
+        //   userType: "",
+        //   uid: response.user.uid,
+        //   name: "",
+        //   authProvider: "local",
+        //   email: email,                      
+        //   about: "",
+        //   address: "",
+        //   photoURL: "",
+        // });
+        await updateDoc(userRef, {
+          name: name,
+          userType: userType,
+          about: about,
+          address: address,
+        });
+  
+        // Update the user in the state
+        context.commit("SET_USER", {
+          ...context.state.user,
+          name: name,
+          userType: userType,
+          about: about,
+          address: address,
+        });
+        context.commit("SET_USER_TYPE", userType);
+      } catch (error) {
+        console.error("Error updating user details: ", error);
+      }
+    },
+  
+    async updateEmail(context, email) {
+      try {
+        const user = context.state.user;
+        await updateEmail(user, email);
+        await updateDoc(doc(db, "users", user.uid), { email: email });
+        context.commit("SET_USER", { ...user, email: email });
+      } catch (error) {
+        console.error("Failed to update email:", error);
       }
     },
   },

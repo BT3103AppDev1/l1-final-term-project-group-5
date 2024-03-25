@@ -7,44 +7,6 @@
           <v-card-text class="text-center">
             <v-alert v-if="error" type="error">{{ error }}</v-alert>
             <v-form @submit.prevent="RegisterWithEmail">
-              <v-row justify="center">
-                <v-col cols="12" md="2">
-                  <v-btn
-                    value="ecoSeeker"
-                    class="btn btn-outline-primary"
-                    :class="{
-                      active: selectedUserType === 'ecoSeeker',
-                    }"
-                    @click="setUserType('ecoSeeker')"
-                  >
-                    Eco-Seeker
-                  </v-btn>
-                </v-col>
-                <v-col cols="12" md="2">
-                  <v-btn
-                    value="ecoPartner"
-                    class="btn btn-outline-primary"
-                    :class="{
-                      active: selectedUserType === 'ecoPartner',
-                    }"
-                    @click="setUserType('ecoPartner')"
-                  >
-                    Eco-Partner
-                  </v-btn>
-                </v-col>
-              </v-row>
-
-              <v-col cols="12" md="12">
-                <v-text-field
-                  id="name"
-                  label="Name"
-                  type="name"
-                  required
-                  autofocus
-                  v-model="name"
-                  autocomplete="name"
-                ></v-text-field>
-              </v-col>
 
               <v-col cols="12" md="12">
                 <v-text-field
@@ -65,6 +27,7 @@
                   type="password"
                   required
                   v-model="password"
+                  autocomplete="false"
                 ></v-text-field>
               </v-col>
 
@@ -101,6 +64,7 @@
                   </v-card-text>
                 </v-col>
               </v-row>
+
             </v-form>
           </v-card-text>
         </v-card>
@@ -118,8 +82,6 @@ import { connectStorageEmulator } from "firebase/storage";
 export default {
   name: "RegisterComponent",
   setup() {
-    const selectedUserType = ref("ecoSeeker");
-    const name = ref("");
     const email = ref("");
     const password = ref("");
     const error = ref(null);
@@ -127,25 +89,16 @@ export default {
     const store = useStore();
     const router = useRouter();
 
-    const setUserType = async (userType) => {
-      selectedUserType.value = userType;
-
-      store.dispatch("setUserType", { userType: userType });
-    };
-
     const RegisterWithEmail = async () => {
       try {
         console.log("Email:", email.value);
         console.log("Password:", password.value);
-        console.log("Name:", name.value);
-        console.log(selectedUserType.value);
         await store.dispatch("registerWithEmail", {
           email: email.value,
           password: password.value,
-          name: name.value,
-          userType: selectedUserType.value,
-        });
-        router.push("/");
+        })
+        router.push("/registerDetails")
+        
       } catch (err) {
         error.value = err.message;
       }
@@ -154,9 +107,8 @@ export default {
     const RegisterWithGoogle = async () => {
       try {
         await store.dispatch("registerWithGoogle", {
-          userType: selectedUserType.value,
-        });
-        router.push("/");
+        }).then(
+        router.push("/registerDetails"));
       } catch (err) {
         error.value = err.message;
       }
@@ -165,12 +117,9 @@ export default {
     return {
       RegisterWithEmail,
       RegisterWithGoogle,
-      name,
       email,
       password,
       error,
-      selectedUserType,
-      setUserType,
     };
   },
 };

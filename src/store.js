@@ -75,6 +75,10 @@ const store = createStore({
             // Vue.set(state.listings, index, listing); // Use Vue.set if you need to ensure reactivity
           }
         },
+
+        REMOVE_LISTING(state, listingId) {
+          state.listings = state.listings.filter(listing => listing.id !== listingId);
+        },
       },
     actions: {
         async register(context, { email, password, name, userType }){
@@ -272,6 +276,16 @@ const store = createStore({
       updates.forEach(({ id }) => {
         commit('UPDATE_LISTING_STATUS', { listingId: id, isActive: false });
       });
+    },
+
+    async deleteListing({ commit }, listingId) {
+      try {
+        await deleteDoc(doc(db, 'listings', listingId));
+        commit('REMOVE_LISTING', listingId);
+      } catch (error) {
+        console.error('Error deleting listing:', error);
+        // Handle the error appropriately
+      }
     },
 
     }

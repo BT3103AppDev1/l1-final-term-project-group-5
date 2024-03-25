@@ -33,6 +33,7 @@
             <p>{{ listing.productCategory }}</p>
             <p>Remaining: {{ listing.unitsRemaining }} / {{ listing.unitsToSell }}</p>
             <p>Price: ${{ listing.price }}</p>
+            <button @click="confirmDelete(listing.listingId)">Delete</button>
           </div>
         </div>
 
@@ -91,7 +92,20 @@ export default {
   },
 
   methods: {
-    ...mapActions(['fetchActiveListingsWithProductDetails', 'fetchInactiveListingsWithProductDetails' , 'checkAndUpdateListingStatus']),
+    ...mapActions([
+      'fetchActiveListingsWithProductDetails', 
+      'fetchInactiveListingsWithProductDetails', 
+      'checkAndUpdateListingStatus',
+      'deleteListing'
+    ]),
+    confirmDelete(listingId) {
+      if (confirm('Are you sure you want to delete this listing?')) {
+        console.log('Deleting listing with ID:', listingId);
+        this.deleteListing(listingId).then(() => {
+          this.fetchActiveListingsWithProductDetails();
+        });
+      }
+    },
     AddProduct() {
       this.$router.push('marketplace/add-product');
     },

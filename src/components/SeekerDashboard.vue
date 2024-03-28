@@ -69,11 +69,11 @@ const deleteOrder = async (orderId) => {
 // Filtering by order status
 const currentFilter = ref("All");
 const filteredOrders = computed(() => {
-  // First, apply the filter.
-  let filtered = orders.value;
-  if (currentFilter.value !== "All") {
-    filtered = filtered.filter((order) => order.status === currentFilter.value);
-  }
+  // Apply the filter first on searched orders.
+  let filtered = searchedOrders.value.filter(
+    (order) =>
+      currentFilter.value === "All" || order.status === currentFilter.value
+  );
 
   // Then, apply pagination to the filtered list.
   const start = (currentPage.value - 1) * ordersPerPage;
@@ -95,9 +95,43 @@ const toggleDateSortOrder = () => {
   dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
   fetchDocuments(); // Re-fetch documents with the new sort order
 };
+
+// Search based on order name
+const searchTerm = ref("");
+const appliedSearchTerm = ref("");
+const applySearch = () => {
+  appliedSearchTerm.value = searchTerm.value;
+};
+const searchedOrders = computed(() => {
+  if (appliedSearchTerm.value.trim() === "") {
+    return orders.value;
+  }
+  return orders.value.filter((order) =>
+    (order.order ? order.order.toLowerCase() : "").includes(
+      appliedSearchTerm.value.toLowerCase()
+    )
+  );
+});
+const clearSearch = () => {
+  searchTerm.value = "";
+  appliedSearchTerm.value = "";
+};
 </script>
 
 <template>
+  <div class="searchContainer">
+    <div class="inputWithClear">
+      <input
+        type="text"
+        v-model="searchTerm"
+        @keyup.enter="applySearch"
+        placeholder="Search orders..."
+      />
+      <button @click="clearSearch" :disabled="!searchTerm">✕</button>
+    </div>
+    <button @click="applySearch">Search</button>
+  </div>
+
   <div class="orderContainer">
     <table>
       <thead>
@@ -266,5 +300,48 @@ tbody tr:nth-child(even) {
 }
 .customDropdown div:hover {
   background-color: #f0f0f0;
+}
+
+.inputWithClear {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.inputWithClear input {
+  padding-right: 30px;
+}
+.inputWithClear button {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 8px;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  color: #333;
+}
+.inputWithClear button:disabled {
+  cursor: not-allowed;
+  color: #ccc;
+}
+.searchContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+.searchContainer input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+.searchContainer > button {
+  padding: 8px 15px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  border-radius: 4px;
 }
 </style>

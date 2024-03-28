@@ -2,7 +2,9 @@
   <div class="pagination-container">
     <button class="previous-button" @click="handlePrev" :disabled="currentPage < 4 || searchQuery !== ''" :class="{ 'fade-out': currentPage < 4 }">Previous</button>
     <button v-for="pageNumber in visiblePages" :key="pageNumber" class="pagination-button" @click="goToPage(pageNumber)" :class="{ 'current-page': currentPage === pageNumber }">{{ pageNumber }}</button>
-    <button class="next-button" @click="handleNext" :disabled="currentPage + 2 > totalPages - 1 || searchQuery !== ''" :class="{ 'fade-out': currentPage + 2 > totalPages - 1}">Next</button>
+    <button class="next-button" @click="handleNext" 
+    :disabled="isNextDisabled" 
+    :class="isNextDisabled">Next</button>
   </div>
 </template>
 
@@ -27,6 +29,19 @@ export default {
       const start = Math.floor((this.currentPage - 1) / 3) * 3 + 1;
       const end = Math.min(start + 2, this.totalPages);
       return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    },
+    isNextDisabled() {
+      if (this.searchQuery !== '') {
+        return true;
+      }
+      let remainder = this.currentPage % 3
+      let page = this.currentPage
+      if (remainder === 2) {
+        page = this.currentPage - 1
+      } else if (remainder === 0) {
+        page = this.currentPage - 2
+      }
+      return (page + 3 > this.totalPages);
     }
   },
   methods: {

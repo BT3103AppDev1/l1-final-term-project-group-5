@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class='container' >
+    <NavBar />
     <SearchBar @search="handleSearch" />
     <br>
     <OrderDashTablePartner :currentPage="currentPage" :entriesPerPage="entriesPerPage" :searchQuery="searchQuery" @total-page="updateTotalPage($event)" @handleStatus="handleStatus" /> 
@@ -12,20 +13,22 @@
 import SearchBar from '@/components/SearchBar.vue';
 import OrderDashTablePartner from '@/components/OrderDashTablePartner.vue';
 import PageBar from '@/components/PageBar.vue';
+import NavBar from '@/components/NavBarLoggedIn.vue';
 import { db } from '@/firebase.js';
 import { collection, getDocs } from 'firebase/firestore';
-import { toDisplayString } from 'vue';
+
 export default {
   name: 'OrderDashPartner',
   components: {
     SearchBar,
     OrderDashTablePartner,
     PageBar,
+    NavBar
   },
   data() {
     return {
       currentPage: 1,
-      entriesPerPage: 2,
+      entriesPerPage: 4,
       totalEntries: 0,
       searchQuery: '',
       entriesToComplete: [],
@@ -76,5 +79,8 @@ export default {
   max-width: 800px; /* Set maximum width for the container */
   margin: 0 auto; /* Center align the container */
   padding: 20px; /* Add padding to the container */
+  background-image: url("@/assets/OrderDashPartnerBG.svg");
+  background-size: cover;
 }
 </style>
+

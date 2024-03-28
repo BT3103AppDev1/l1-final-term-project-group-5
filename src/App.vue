@@ -30,6 +30,20 @@ export default {
 </script>
 
 <style scoped>
+
+/* Import Montserrat font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+/* Apply Montserrat font to specific elements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Example: Apply Montserrat font to nav links */
+nav {
+  font-family: 'Montserrat', sans-serif;
+}
+
 /*
 header {
   line-height: 1.5;

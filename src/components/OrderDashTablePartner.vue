@@ -3,34 +3,21 @@
     <table id="table" class="'auto-index'">
       <thead>
         <tr>
-          <th>
-            ID 
-            <button @click="sortBy('ID')">
-              <span v-if="sortField === 'ID'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </button>
-          </th>
+          <th>ID</th>
           <th>Order</th>
-          <th>
-            Customer 
-            <button @click="sortBy('Customer')">
-              <span v-if="sortField === 'Customer'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </button>
-          </th>
-          <th>
-            Date 
-            <button @click="sortBy('Date')">
-              <span v-if="sortField === 'Date'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </button>
-          </th>
+          <th>Customer</th>
+          <th>Date</th>
           <th>Price</th>
           <th>
-            Status 
-            <select @change="filterByStatus(statusField)" v-model="statusField" >
-              <option value="All">All</option>
-              <option value="Completed">Completed</option>
-              <option value="Ongoing">Ongoing</option>
-              <option value="Expired">Expired</option>
-            </select>
+            <div class="status-container">
+              <span>Status</span>
+              <select @change="filterByStatus(statusField)" v-model="statusField" >
+                <option value="All">All</option>
+                <option value="Completed">Completed</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Expired">Expired</option>
+              </select>
+            </div>
           </th>
           <th>Mark as Completed</th>
         </tr>
@@ -46,6 +33,7 @@
 <script>
 import { firebaseApp } from '../firebase.js'
 import { getFirestore, query, where, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import trash from "@/assets/Trash.svg"
 
 const db = getFirestore(firebaseApp);
 
@@ -156,9 +144,9 @@ export default {
           cell7.appendChild(checkbox)
         } else if (documentData.status === 'Expired') {
           // Render a delete button
-          let deleteButton = document.createElement('button')
-          deleteButton.id = String(documentData.orderId)
-          deleteButton.className = "bwt"
+          let deleteButton = document.createElement('img');
+          deleteButton.src = trash;
+          deleteButton.className = "trash-bwt"
           deleteButton.innerHTML = "Delete"
           deleteButton.addEventListener('click', () => {
             this.deleteInstrument(documentData.orderId)
@@ -221,46 +209,73 @@ export default {
 </script>
 
 <style>
-  /* Table styles */
-  table {
-      font-family: Arial, sans-serif;
-      border-collapse: collapse;
-      width: 100%;
-  }
+/* Table styles */
+table {
+    font-family: 'Montserrat', sans-serif; /* Applying Montserrat font */
+    border-collapse: collapse;
+    width: 100%;
+}
 
-  /* Table header styles */
-  th {
-      background-color: #007bff; /* Header background color */
-      color: #fff; /* Header text color */
-      padding: 12px; /* Padding for header cells */
-      text-align: center; /* Center align header text */
-      border: 1px solid #ddd; /* Border for header cells */
-  }
+/* Table header styles */
+th {
+    background-color: #4E644B;
+    color: #fff;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
 
-  /* Table cell styles */
-  td {
-      padding: 8px; /* Padding for table cells */
-      text-align: center; /* Center align table cell content */
-      border: 1px solid #ddd; /* Border for table cells */
-  }
+/* Table cell styles */
+td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
 
-  /* Alternate row background color for better readability */
-  tbody tr:nth-child(even){
-      background-color: #f2f2f2;
-  }
+/* Alternate row background color for better readability */
+tbody tr:nth-child(even) {
+    background-color: #F0F4F0;
+}
 
-  /* Button style for delete button */
-  .bwt {
-      color: #fff; /* Text color */
-      background-color: #dc3545; /* Button background color */
-      border: none; /* Remove button border */
-      padding: 8px 16px; /* Padding for button */
-      cursor: pointer; /* Change cursor to pointer on hover */
-      border-radius: 4px; /* Rounded corners */
-  }
+tbody tr:nth-child(odd) {
+    background-color: #fff;
+}
 
-  /* Hover effect for delete button */
-  .bwt:hover {
-      background-color: #c82333; /* Darker background color on hover */
-  }
+/* Button style for delete button */
+.bwt {
+    color: #fff;
+    /* Remove background-color and border */
+    background-color: transparent;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Hover effect for delete button */
+.bwt:hover {
+    background-color: transparent; /* Keep the hover effect */
+}
+
+/* Adjust the width and height of the trash button */
+.trash-bwt {
+    width: 20%;
+}
+
+.trash-bwt:hover {
+    transform: scale(1.1); /* Scale up by 10% */
+}
+
+/* Styles for status container */
+.status-container {
+  display: flex;
+  align-items: center;
+}
+
+.status-container select {
+  margin-left: 8px; /* Adjust the spacing between the text and the select box */
+}
 </style>

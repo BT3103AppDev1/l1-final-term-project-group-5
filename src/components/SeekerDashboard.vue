@@ -6,6 +6,7 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
+  query,
   orderBy,
 } from "firebase/firestore";
 import { db } from "../firebase.js";
@@ -15,10 +16,14 @@ const orders = ref([]);
 
 // Function to fetch documents from a specified collection
 async function fetchDocuments() {
-  const querySnapshot = await getDocs(
-    collection(db, "order"),
-    orderBy("datePurchased", "desc")
-  );
+  const ordersCollectionRef = collection(db, "order");
+  let queryRef;
+  if (dateSortOrder.value === "desc") {
+    queryRef = query(ordersCollectionRef, orderBy("datePurchased", "desc"));
+  } else {
+    queryRef = query(ordersCollectionRef, orderBy("datePurchased", "asc"));
+  }
+  const querySnapshot = await getDocs(queryRef);
   orders.value = querySnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
@@ -83,6 +88,13 @@ const selectFilter = (filterValue) => {
   currentFilter.value = filterValue;
   showFilterDropdown.value = false; // Hide dropdown after selection
 };
+
+// Filtering by date purchased
+const dateSortOrder = ref("desc");
+const toggleDateSortOrder = () => {
+  dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
+  fetchDocuments(); // Re-fetch documents with the new sort order
+};
 </script>
 
 <template>
@@ -94,7 +106,13 @@ const selectFilter = (filterValue) => {
           <th>Order</th>
           <th>Company</th>
           <th>Address</th>
-          <th>Date</th>
+          <th>
+            Date
+            <button @click="toggleDateSortOrder">
+              {{ dateSortOrder === "desc" ? "🔽" : "🔼" }}
+            </button>
+          </th>
+
           <th>Price</th>
           <th>
             Status <button @click="toggleFilterDropdown">⚙️</button>

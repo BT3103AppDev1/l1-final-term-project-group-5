@@ -1,184 +1,105 @@
 <template>
-    <div class="product-grid">
-        <div v-for="listing in filteredActiveListings"  :key="listing.listingId" class="product-card">
-            <img :src="listing.imageUrl" alt="Product Image" class="product-image">
+    <div class="product-card">
+        <img :src="listing.imageUrl" alt="Product Image" class="img">
+        <div class="product-details">
             <h2 class="name">{{ listing.name }}</h2>
-            <p class="category"> {{ listing.category }}</p>
-            <p class="price">Price: ${{ listing.price.toFixed(2) }}</p>
-            <p class="expiry">Expires: {{ listing.expirationDate }}</p>
+            <h3 class="category">{{ listing.category }}</h3>
+            <h3 class="price">Price: ${{ listing.price.toFixed(2) }}</h3>
+            <h3 class="expiry">Expires: {{ listing.expirationDate }}</h3>
+        </div>
+        <div class="qty-btn-container">
             <div class="qty-selector">
                 <label for="quantity">Quantity:</label>
                 <input type="number" id="quantity" name="quantity" min="1" :max="listing.unitsRemaining" v-model="listing.quantity">
             </div>
-
             <div class="add-btn" @click="addToCart(listing)">
                 <img src="@/assets/cart.svg" alt="Add to Cart">
             </div>
         </div>
+
     </div>
+
 </template>
 
 <script>
-import { firebaseApp } from '@/firebase';
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-const db = getFirestore(firebaseApp);
-
 export default {
-
-    props: {
-        searchQuery : String,
-        selectedCategories: Array
-    }, 
+    props: ['listing'],
 
     data() {
         return {
-            products : [],
-            listings: [],
-            filteredActiveListings: [] // holds filtered listings
+            cart : [],
         };
     },
 
-    async created() {
-
-        const productSnapshot = await getDocs(collection(db, "products"));
-        this.products = productSnapshot.docs.map(doc => doc.data());
-
-        const listingSnapshot = await getDocs(collection(db, "listings"));
-        this.listings = listingSnapshot.docs.map(doc => doc.data());
-        console.log(this.listings);
-        this.filteredActiveListings = this.activeListings;
-    },
-
-    watch: {
-        searchQuery() {
-            this.applyFilters();
-        },
-
-        selectedCategories() {
-            this.applyFilters();
-        }
-    },
-
-    computed: {
-        activeListings() {
-            return this.listings.filter(listing => listing.isActive)
-                .map(listing => {
-                    const product = this.products.find(product => product.productId === listing.productId);
-                    return {
-                        ...product,
-                        ...listing
-                    };
-                });
-        }
-    },
-
-    methods: {
-        /*filterActiveListings(query) {
-            if (query) {
-                this.filteredActiveListings = this.activeListings.filter(listing=> 
-                    listing.name.toLowerCase().includes(query.toLowerCase()));
-            } else {
-                this.filteredActiveListings = this.activeListings;
-            }
-        },*/
-
-        applyFilters() {
-            // initialise with all active listings first
-            let filtered = this.activeListings;
-
-            //Filter by selected categories if any 
-            console.log(this.selectedCategories);
-            if (this.selectedCategories.length > 0) {
-                filtered = filtered.filter(listing => 
-                    this.selectedCategories.includes(listing.category));
-            }
-            //Filter by search query if present
-
-            if (this.searchQuery) {
-                filtered = filtered.filter(listing => 
-                    listing.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
-            }
-
-            this.filteredActiveListings = filtered;
-        },
-
+    methods : {
         addToCart(listing) {
-            console.log('Added to cart:', listing);
-        }
-    }
+            this.cart.push(listing);
+            console.log(this.cart);
+            this.$emit('add-to-cart', listing);
+        },
+    },
 };
 </script>
 
 <style scoped>
-.product-grid {
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-}
-
-.name {
-    color: white;
-    border-bottom:1px solid lightslategray;
-    text-align: left;
-    width: 200px;
-
-}
-
-.category {
-    color:white;
-    text-align : left;
-}
-
-.price {
-    color:white;;
-}
 
 .product-card {
     display: flex;
     flex-direction: column;
     align-items: left;
-    border: 3px solid lightslategray;
-    border-radius: 4px;
+    border: 4px solid lightslategray;
+    border-radius: 30px;
     padding: 16px;
-    margin: 16px;
+    margin: 8px;
     width: 250px;
-    height:375px;
+    height:400px;
+    background-color:darkslategray;
 }
 
-.product-image {
-    align-self:center;
-    background-color: lightslategray;
-    width: 100%;
+.img {
+    border-radius: 20px;
+    align-self: center;
     height: 200px;
-    width: 200px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #e1e1e1;
+    width: 220px;
+    margin-bottom: 0px;
+    object-fit: cover; /* Ensures the image fills the container without distortion */
 }
 
-.product-details {
-    color: white;
+.name {
+    color:white;
     text-align: left;
+    border-top: 2px white;
+    border-bottom: 2px white;
+}
+
+.category {
+    text-align:left;
+
+}
+
+.expiry {
+    text-align:left;
+    padding-bottom: 8px;
 }
 
 .qty-selector {
-    color:white;
-    margin-top: auto;
+    align-self:flex-start;
+}
+
+.qty-btn-container {
+    display:flex;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .add-btn {
     align-self: flex-end;
-    padding: 0px;
-    border: none;
     cursor: pointer;
-    margin-top: auto;
 }
 
 .add-btn img {
-    width: 30px;
-    height: 30px;
-    border: 1px solid white;
-    color:white;
-    background-color: white;
+    width: 35px;
+    height: 35px;
 }
-
 </style>
+

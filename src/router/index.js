@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
-import MarketplaceView from '../views/MarketplaceView.vue';
+import SeekerMarketplaceView from '../views/SeekerMarketplaceView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,8 +32,8 @@ const router = createRouter({
     },
     {
       path: '/MarketplaceView',
-      name: 'MarketplaceView',
-      component: MarketplaceView
+      name: 'SeekerMarketplaceView',
+      component: SeekerMarketplaceView
     }
   ]
 })

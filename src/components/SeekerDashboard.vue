@@ -43,11 +43,6 @@ const ordersPerPage = 10;
 const totalOrders = computed(() => orders.value.length);
 const totalPages = computed(() => Math.ceil(totalOrders.value / ordersPerPage));
 
-const paginatedOrders = computed(() => {
-  const start = (currentPage.value - 1) * ordersPerPage;
-  return orders.value.slice(start, start + ordersPerPage);
-});
-
 const navigateToPage = (pageNum) => {
   currentPage.value = pageNum;
 };
@@ -69,17 +64,24 @@ const deleteOrder = async (orderId) => {
 // Filtering by order status
 const currentFilter = ref("All");
 const filteredOrders = computed(() => {
-  if (currentFilter.value === "All") {
-    return paginatedOrders.value;
+  // First, apply the filter.
+  let filtered = orders.value;
+  if (currentFilter.value !== "All") {
+    filtered = filtered.filter((order) => order.status === currentFilter.value);
   }
-  return paginatedOrders.value.filter(
-    (order) => order.status === currentFilter.value
-  );
+
+  // Then, apply pagination to the filtered list.
+  const start = (currentPage.value - 1) * ordersPerPage;
+  return filtered.slice(start, start + ordersPerPage);
 });
 
 const showFilterDropdown = ref(false);
 const toggleFilterDropdown = () => {
   showFilterDropdown.value = !showFilterDropdown.value;
+};
+const selectFilter = (filterValue) => {
+  currentFilter.value = filterValue;
+  showFilterDropdown.value = false; // Hide dropdown after selection
 };
 </script>
 
@@ -96,20 +98,18 @@ const toggleFilterDropdown = () => {
           <th>Price</th>
           <th>
             Status <button @click="toggleFilterDropdown">⚙️</button>
-            <div v-if="showFilterDropdown" class="filterDropdown">
-              <select v-model="currentFilter">
-                <option value="All">All</option>
-                <option value="Ongoing">Ongoing</option>
-                <option value="Completed">Completed</option>
-                <option value="Expired">Expired</option>
-              </select>
+            <div v-if="showFilterDropdown" class="customDropdown">
+              <div @click="selectFilter('All')">All</div>
+              <div @click="selectFilter('Ongoing')">Ongoing</div>
+              <div @click="selectFilter('Completed')">Completed</div>
+              <div @click="selectFilter('Expired')">Expired</div>
             </div>
           </th>
           <th>Mark as Collected</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="order in paginatedOrders" :key="order.id">
+        <tr v-for="order in filteredOrders" :key="order.id">
           <td>{{ order.orderId }}</td>
           <td>{{ order.order }}</td>
           <td>{{ order.companyName }}</td>
@@ -232,17 +232,21 @@ tbody tr:nth-child(even) {
   opacity: 0.7;
 }
 
-.filterDropdown {
+.customDropdown {
   position: absolute;
   background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  padding: 5px;
-}
-.filterDropdown select {
   border: 1px solid #ccc;
   border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  z-index: 100;
+}
+.customDropdown div {
   padding: 5px;
-  min-width: 120px;
+  cursor: pointer;
+  color: black;
+}
+.customDropdown div:hover {
+  background-color: #f0f0f0;
 }
 </style>

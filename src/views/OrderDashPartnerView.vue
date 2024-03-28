@@ -2,7 +2,6 @@
   <div class='container' >
     <NavBar />
     <SearchBar @search="handleSearch" />
-    <br>
     <OrderDashTablePartner :currentPage="currentPage" :entriesPerPage="entriesPerPage" :searchQuery="searchQuery" @total-page="updateTotalPage($event)" @handleStatus="handleStatus" /> 
     <br>
     <PageBar :currentPage="currentPage" :totalPages="totalPages" :searchQuery="searchQuery" @page-change="handlePageChange" />
@@ -28,7 +27,7 @@ export default {
   data() {
     return {
       currentPage: 1,
-      entriesPerPage: 4,
+      entriesPerPage: 3,
       totalEntries: 0,
       searchQuery: '',
       entriesToComplete: [],

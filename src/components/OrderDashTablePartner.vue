@@ -19,13 +19,15 @@
               </select>
             </div>
           </th>
-          <th>Mark as Completed</th>
+          <th>Complete/Delete</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-    <br><br>
-    <button id="completeButton" @click="completeSelectedEntries">Complete Selected</button>
+    <br>
+    <div id="completeButtonContainer">
+      <button id="completeButton" @click="completeSelectedEntries">Complete Selected</button>
+    </div>
     <br><br>
   </div>
 </template>
@@ -131,7 +133,25 @@ export default {
         const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
         cell4.innerHTML = formattedDate;
         cell5.innerHTML = documentData.totalPrice;
-        cell6.innerHTML = documentData.status;
+
+        // Apply oval border and color based on status
+        const statusCellContent = document.createElement('div');
+        statusCellContent.classList.add('status-cell-content');
+        const statusWords = documentData.status.split(' ');
+        statusWords.forEach(word => {
+          const oval = document.createElement('div');
+          oval.classList.add('status-oval');
+          oval.textContent = word;
+          if (word === 'Completed') {
+            oval.classList.add('green');
+          } else if (word === 'Expired') {
+            oval.classList.add('red');
+          } else if (word === 'Ongoing') {
+            oval.classList.add('yellow');
+          }
+          statusCellContent.appendChild(oval);
+        });
+        cell6.appendChild(statusCellContent);
 
         if (documentData.status === 'Ongoing' || documentData.status === 'Collected') {
           // Render a checkbox
@@ -214,6 +234,7 @@ table {
     font-family: 'Montserrat', sans-serif; /* Applying Montserrat font */
     border-collapse: collapse;
     width: 100%;
+    border: none; /* Remove the border */
 }
 
 /* Table header styles */
@@ -222,7 +243,6 @@ th {
     color: #fff;
     padding: 12px;
     text-align: center;
-    border: 1px solid #ddd;
     font-size: 16px;
 }
 
@@ -230,7 +250,6 @@ th {
 td {
     padding: 8px;
     text-align: center;
-    border: 1px solid #ddd;
     font-size: 14px;
 }
 
@@ -262,7 +281,8 @@ tbody tr:nth-child(odd) {
 
 /* Adjust the width and height of the trash button */
 .trash-bwt {
-    width: 20%;
+    width: 15%;
+    height: 15%
 }
 
 .trash-bwt:hover {
@@ -278,4 +298,64 @@ tbody tr:nth-child(odd) {
 .status-container select {
   margin-left: 8px; /* Adjust the spacing between the text and the select box */
 }
+
+/* Oval border styles */
+.status-cell-content {
+  display: flex;
+}
+
+.status-oval {
+  border: 1px solid #ccc;
+  border-radius: 20px; /* Half of the height to create an oval shape */
+  padding: 4px 8px;
+  margin-right: 4px;
+  font-size: 12px;
+  background-color: lightcyan;
+}
+
+/* Color classes for status ovals */
+.green {
+  border-color: green;
+  color: green;
+}
+
+.red {
+  border-color: red;
+  color: red;
+}
+
+.yellow {
+  border-color: #FFBF00;
+  color: #FFBF00;
+}
+
+.status-cell-content {
+  display: flex;
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+}
+
+#completeButton {
+  background-color: #4CAF50; /* Green background color */
+  border: none; /* Remove border */
+  color: white; /* White text color */
+  padding: 10px 30px; /* Padding */
+  text-align: center; /* Center align text */
+  text-decoration: none; /* Remove underline */
+  display: inline-block; /* Make it inline-block */
+  font-size: 12px; /* Font size */
+  cursor: pointer; /* Add cursor pointer on hover */
+  border-radius: 4px; /* Rounded corners */
+  transition: background-color 0.3s; /* Smooth transition on hover */
+}
+
+#completeButtonContainer {
+  display: flex;
+  justify-content: flex-end; /* Align items to the right */
+}
+
+#completeButton:hover {
+  background-color: #45a049; /* Darker green color on hover */
+}
+
 </style>

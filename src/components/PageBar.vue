@@ -4,7 +4,7 @@
     <button v-for="pageNumber in visiblePages" :key="pageNumber" class="pagination-button" @click="goToPage(pageNumber)" :class="{ 'current-page': currentPage === pageNumber }">{{ pageNumber }}</button>
     <button class="next-button" @click="handleNext" 
     :disabled="isNextDisabled" 
-    :class="isNextDisabled">Next</button>
+    :class="{'fade-out': isNextDisabled }">Next</button>
   </div>
 </template>
 

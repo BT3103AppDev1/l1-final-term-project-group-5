@@ -1,7 +1,8 @@
 <template>
   <div class='container' >
-    <NavBar />
-    <SearchBar @search="handleSearch" />
+    <div class="search-bar-container">
+      <SearchBar @search="handleSearch" />
+    </div>
     <OrderDashTablePartner :currentPage="currentPage" :entriesPerPage="entriesPerPage" :searchQuery="searchQuery" @total-page="updateTotalPage($event)" @handleStatus="handleStatus" /> 
     <br>
     <PageBar :currentPage="currentPage" :totalPages="totalPages" :searchQuery="searchQuery" @page-change="handlePageChange" />
@@ -12,7 +13,6 @@
 import SearchBar from '@/components/SearchBar.vue';
 import OrderDashTablePartner from '@/components/OrderDashTablePartner.vue';
 import PageBar from '@/components/PageBar.vue';
-import NavBar from '@/components/NavBarLoggedIn.vue';
 import { db } from '@/firebase.js';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -22,12 +22,11 @@ export default {
     SearchBar,
     OrderDashTablePartner,
     PageBar,
-    NavBar
   },
   data() {
     return {
       currentPage: 1,
-      entriesPerPage: 2,
+      entriesPerPage: 5,
       totalEntries: 0,
       searchQuery: '',
       entriesToComplete: [],
@@ -75,11 +74,17 @@ export default {
 
 <style>
 .container {
-  max-width: 800px; /* Set maximum width for the container */
+  width: 95vw; /* Ensure the container takes the full width */
+  max-width: 100%; /* Limit the container's width to the viewport width */
   margin: 0 auto; /* Center align the container */
   padding: 20px; /* Add padding to the container */
-  background-image: url("@/assets/OrderDashPartnerBG.svg");
-  background-size: cover;
+  background-image: url(''); /* Set background image */
+  background-size: cover; /* Cover the entire container with the background image */
+  background-position: center; /* Center the background image */
+}
+
+.search-bar-container {
+  margin-left: 10px;
 }
 </style>
 

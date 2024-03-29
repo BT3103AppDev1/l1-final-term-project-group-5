@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <table id="table" class="'auto-index'">
       <thead>
         <tr>
@@ -19,14 +19,14 @@
               </select>
             </div>
           </th>
-          <th>Complete/Delete</th>
+          <th>Select</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
     <br>
     <div id="completeButtonContainer">
-      <button id="completeButton" @click="completeSelectedEntries">Complete Selected</button>
+      <button id="completeButton" @click="completeSelectedEntries">Mark as Completed</button>
     </div>
     <br><br>
   </div>
@@ -237,28 +237,38 @@ export default {
 </script>
 
 <style>
+/* Shared styles for both components */
+.container {
+  width: 95vw; /* Ensure the container takes the full width */
+  max-width: 100%; /* Limit the container's width to the viewport width */
+  margin: 0 auto; /* Center align the container */
+  padding: 20px; /* Add padding to the container */
+}
+
 /* Table styles */
 table {
-    font-family: 'Montserrat', sans-serif; /* Applying Montserrat font */
-    border-collapse: collapse;
-    width: 100%;
-    border: none; /* Remove the border */
+  font-family: 'Montserrat', sans-serif;
+  border-collapse: collapse;
+  width: 100%; /* Set table width to 100% of its container */
+  border: none;
 }
 
 /* Table header styles */
 th {
-    background-color: #4E644B;
-    color: #fff;
-    padding: 12px;
-    text-align: center;
-    font-size: 16px;
+  background-color: #4E644B;
+  color: #fff;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+  white-space: nowrap; /* Prevent text wrapping in header */
 }
 
 /* Table cell styles */
 td {
-    padding: 8px;
-    text-align: center;
-    font-size: 14px;
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+  white-space: nowrap; /* Prevent text wrapping in cells */
 }
 
 /* Alternate row background color for better readability */
@@ -273,9 +283,8 @@ tbody tr:nth-child(odd) {
 /* Button style for delete button */
 .bwt {
     color: #fff;
-    /* Remove background-color and border */
-    background-color: transparent;
-    border: none;
+    background-color: transparent; /* Remove background color */
+    border: none; /* Remove border */
     padding: 8px 16px;
     cursor: pointer;
     border-radius: 4px;
@@ -289,27 +298,31 @@ tbody tr:nth-child(odd) {
 
 /* Adjust the width and height of the trash button */
 .trash-bwt {
-    width: 15%;
-    height: 15%
+    width: 20px;
+    height: 20px;
 }
 
 .trash-bwt:hover {
-    transform: scale(1.1); /* Scale up by 10% */
+    transform: scale(1.1); /* Scale up by 10% on hover */
 }
 
 /* Styles for status container */
 .status-container {
   display: flex;
   align-items: center;
+  justify-content: center; /* Center the content horizontally */
 }
 
 .status-container select {
-  margin-left: 8px; /* Adjust the spacing between the text and the select box */
+  margin-left: 8px;
+  vertical-align: middle; /* Align the select element vertically */
 }
 
 /* Oval border styles */
 .status-cell-content {
   display: flex;
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
 }
 
 .status-oval {
@@ -337,12 +350,7 @@ tbody tr:nth-child(odd) {
   color: #FFBF00;
 }
 
-.status-cell-content {
-  display: flex;
-  align-items: center; /* Center vertically */
-  justify-content: center; /* Center horizontally */
-}
-
+/* Complete button styles */
 #completeButton {
   background-color: #4CAF50; /* Green background color */
   border: none; /* Remove border */
@@ -359,11 +367,11 @@ tbody tr:nth-child(odd) {
 
 #completeButtonContainer {
   display: flex;
-  justify-content: flex-end; /* Align items to the right */
 }
 
 #completeButton:hover {
   background-color: #45a049; /* Darker green color on hover */
 }
+
 
 </style>

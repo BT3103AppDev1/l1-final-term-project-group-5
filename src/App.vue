@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <template v-if="isLoggedIn">
-      <NavLoggedIn :user="user" />
+      <NavLoggedIn :user="user"/>
     </template>
     <template v-else>
       <NavLoggedOut />

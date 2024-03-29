@@ -17,9 +17,9 @@
 
     <v-menu min-width="200px" rounded>
       <template v-slot:activator="{ props }">
-        <v-btn icon v-bind="props">
+        <v-btn icon v-bind="props" >
           <v-avatar size="large">
-            <img :src="user.photoURL" />
+            <v-img :src="user.photoURL" />
           </v-avatar>
         </v-btn>
       </template>
@@ -51,6 +51,7 @@
 </template>
 
 <script>
+import { computed } from 'vue';
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
@@ -66,13 +67,16 @@ export default {
   setup(props) {
     const store = useStore();
     const router = useRouter();
-    console.log(props.user.data);
+    const userData = computed(() => store.getters.user);
+    console.log(userData.value)
+    //console.log(userData.value.photoURL)
+
     const signOut = async () => {
       await store.dispatch("logOut");
       router.push("/login");
     };
 
-    return { signOut, user: props.user.data };
+    return { signOut, user: userData.value };
   },
 };
 </script>

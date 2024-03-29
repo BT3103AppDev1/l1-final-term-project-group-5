@@ -37,12 +37,12 @@
   
                 <v-col cols="12" md="12">
                   <v-text-field
-                    id="name"
+                    id="displayName"
                     label="Name"
                     type="name"
                     required
                     autofocus
-                    v-model="name"
+                    v-model="displayName"
                     autocomplete="name"
                   ></v-text-field>
                 </v-col>
@@ -101,7 +101,7 @@
   export default {
     name: "RegisterDetailsComponent",
     setup() {
-      const name = ref("");
+      const displayName = ref("");
       const selectedUserType = ref("ecoSeeker");
       const about = ref("");
       const address = ref("");
@@ -118,12 +118,12 @@
   
       const RegisterDetails = async () => {
         try {
-          console.log("Name:", name.value);
+          console.log("displayName:", displayName.value);
           console.log("selectedUserType:", selectedUserType.value);
           console.log("About:", about.value);
             console.log("Address:", address.value);
           await store.dispatch("registerDetails", {
-            name: name.value,
+            displayName: displayName.value,
             userType: selectedUserType.value,
             about: about.value,
             address: address.value,
@@ -136,7 +136,7 @@
   
       return {
         RegisterDetails,
-        name,
+        displayName,
         about,
         address,
         error,

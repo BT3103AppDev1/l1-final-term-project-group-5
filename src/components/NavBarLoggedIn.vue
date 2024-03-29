@@ -9,9 +9,21 @@
         />
       </router-link>
       <v-btn to="/">Home</v-btn>
-      <v-btn to="/">Marketplace</v-btn>
-      <v-btn text to="/">My Orders</v-btn>
-    </v-toolbar-items>
+      
+      <template v-if="userDetails.userType == 'ecoSeeker'">
+        <router-link to="/seeker/marketplace">Marketplace</router-link>
+      </template>
+      <template v-else>
+        <router-link to="/partner/marketplace">Marketplace</router-link>
+      </template>
+      
+      <template v-if="userDetails.userType == 'ecoSeeker'">
+        <router-link to="/seeker/order-dashboard">My Orders</router-link>
+      </template>
+      <template v-else>
+        <router-link to="/partner/order-dashboard">My Orders</router-link>
+      </template>
+      </v-toolbar-items>
 
     <v-spacer></v-spacer>
 
@@ -51,12 +63,16 @@
 </template>
 
 <script>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebase.js";
 
 export default {
   name: "NavLoggedIn",
+  
   props: {
     user: {
       type: Object,
@@ -67,16 +83,44 @@ export default {
   setup(props) {
     const store = useStore();
     const router = useRouter();
+    const userDetails = ref({});
     const userData = computed(() => store.getters.user);
     console.log(userData.value)
     //console.log(userData.value.photoURL)
+
 
     const signOut = async () => {
       await store.dispatch("logOut");
       router.push("/login");
     };
 
-    return { signOut, user: userData.value };
+    onMounted(() => {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          // Fetch basic details from the auth user object
+          const basicDetails = {
+            uid: user.uid,
+            email: user.email,
+            name: user.name,
+            userType: user.userType,
+          };
+
+          // Attempt to fetch additional details from Firestore
+          const userDocRef = doc(db, "users", user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            // Combine basic details with extended details from Firestore
+            userDetails.value = { ...basicDetails, ...userDocSnap.data() };
+          } else {
+            // Fallback to just basic details if no Firestore document exists
+            userDetails.value = basicDetails;
+          }
+        }
+      });
+    });
+
+    return { signOut, userDetails, user: userData.value };
   },
 };
 </script>

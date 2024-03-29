@@ -4,7 +4,9 @@
       <NavLoggedIn :user="user"/>
     </template>
     <template v-else>
-      <NavLoggedOut />
+      <div class="nav">
+        <NavLoggedOut />
+      </div>
     </template>
     
     <div style="padding-top: 120px;"> 
@@ -34,6 +36,32 @@ export default {
 </script>
 
 <style scoped>
+
+
+
+/* Import Montserrat font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+/* Apply Montserrat font to specific elements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+}
+
+
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 1rem;
+  z-index: 1000; /* to ensure the navbar stays on top of other elements */
+}
+
+
+
 /*
 header {
   line-height: 1.5;

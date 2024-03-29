@@ -6,7 +6,13 @@
     |
     <router-link to="/">Home</router-link>
     |
-    <router-link to="/">Marketplace</router-link>
+    <template v-if="userDetails.userType == 'ecoSeeker'">
+      <router-link to="/seeker/marketplace">Marketplace</router-link>
+    </template>
+    <template v-else>
+      <router-link to="/partner/marketplace">Marketplace</router-link>
+    </template>
+    |
     <template v-if="userDetails.userType == 'ecoSeeker'">
       <router-link to="/seeker/order-dashboard">My Orders</router-link>
     </template>

@@ -1,31 +1,69 @@
 <template>
-  <div id="nav">
-    <router-link to="/">
-      <img src="../assets/GreenHarborLogo.png" alt="Green Harbor Logo" />
-    </router-link>
-    |
-    <router-link to="/">Home</router-link>
-    |
-    <template v-if="userDetails.userType == 'ecoSeeker'">
-      <router-link to="/seeker/marketplace">Marketplace</router-link>
-    </template>
-    <template v-else>
-      <router-link to="/partner/marketplace">Marketplace</router-link>
-    </template>
-    |
-    <template v-if="userDetails.userType == 'ecoSeeker'">
-      <router-link to="/seeker/order-dashboard">My Orders</router-link>
-    </template>
-    <template v-else>
-      <router-link to="/partner/order-dashboard">My Orders</router-link>
-    </template>
-    |
-    <button @click.prevent="signOut" class="btn btn-primary">Log Out</button>
-  </div>
+  <v-app-bar fixed color="#B0E487">
+    <v-toolbar-items>
+      <router-link to="/">
+        <img
+          src="../assets/GreenHarborLogo.png"
+          alt="Green Harbor Logo"
+          class="logo"
+        />
+      </router-link>
+      <v-btn to="/">Home</v-btn>
+      
+      <template v-if="userDetails.userType == 'ecoSeeker'">
+        <router-link to="/seeker/marketplace">Marketplace</router-link>
+      </template>
+      <template v-else>
+        <router-link to="/partner/marketplace">Marketplace</router-link>
+      </template>
+      
+      <template v-if="userDetails.userType == 'ecoSeeker'">
+        <router-link to="/seeker/order-dashboard">My Orders</router-link>
+      </template>
+      <template v-else>
+        <router-link to="/partner/order-dashboard">My Orders</router-link>
+      </template>
+      </v-toolbar-items>
+
+    <v-spacer></v-spacer>
+
+    <v-menu min-width="200px" rounded>
+      <template v-slot:activator="{ props }">
+        <v-btn icon v-bind="props" >
+          <v-avatar size="large">
+            <v-img :src="user.photoURL" />
+          </v-avatar>
+        </v-btn>
+      </template>
+      <v-card>
+        <v-card-text>
+          <div class="mx-auto text-center">
+            <h3>{{ user.displayName }}</h3>
+            <p class="text-caption mt-1">
+              {{ user.email }}
+            </p>
+            <v-divider class="my-3"></v-divider>
+            <v-btn variant="text" rounded text to="/profile">
+              Profile Page
+            </v-btn>
+            <v-divider class="my-3"></v-divider>
+            <v-btn
+              variant="text"
+              rounded
+              @click="signOut"
+              class="btn btn-primary"
+            >
+              Log Out
+            </v-btn>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-menu>
+  </v-app-bar>
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { onAuthStateChanged } from "firebase/auth";
@@ -34,11 +72,22 @@ import { auth, db } from "../firebase.js";
 
 export default {
   name: "NavLoggedIn",
+  
+  props: {
+    user: {
+      type: Object,
+      required: true,
+    },
+  },
 
-  setup() {
+  setup(props) {
     const store = useStore();
     const router = useRouter();
     const userDetails = ref({});
+    const userData = computed(() => store.getters.user);
+    console.log(userData.value)
+    //console.log(userData.value.photoURL)
+
 
     const signOut = async () => {
       await store.dispatch("logOut");
@@ -71,11 +120,17 @@ export default {
       });
     });
 
-    return { signOut, userDetails };
+    return { signOut, userDetails, user: userData.value };
   },
 };
 </script>
 
 <style scoped>
-/* Add any specific styles for your Nav component here */
+.logo {
+  max-height: 60px;
+  margin-bottom: -10px;
+}
+.v-toolbar-items {
+  float: right !important;
+}
 </style>

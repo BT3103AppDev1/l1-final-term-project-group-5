@@ -1,144 +1,127 @@
 <template>
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-8">
-          <div class="card">
-            <div class="card-header">Register</div>
-            <div class="card-body">
-              <div v-if="error" class="alert alert-danger">{{error}}</div>
-              <form action="#" @submit.prevent="Register">
+  <v-container>
+    <v-row justify="center">
+      <v-col cols="12" md="8">
+        <v-card>
+          <v-card-title class="text-center">Register</v-card-title>
+          <v-card-text class="text-center">
+            <v-alert v-if="error" type="error">{{ error }}</v-alert>
+            <v-form @submit.prevent="RegisterWithEmail">
 
-                <div class="form-group row">
-              
-                  <div class="col-md-6 d-flex align-items-center">
-                    <button
-                      type="button"
-                      class="btn btn-outline-primary"
-                      :class="{
-                        'active': selectedUserType === 'ecoSeeker'
-                      }"
-                      @click="setUserType('ecoSeeker')"
-                    >
-                      Eco-Seeker
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-primary"
-                      :class="{
-                        'active': selectedUserType === 'ecoPartner',
-                      }"
-                      @click="setUserType('ecoPartner')"
-                    >
-                      Eco-Partner
-                    </button>
-                  </div>
-              </div>
+              <v-col cols="12" md="12">
+                <v-text-field
+                  id="email"
+                  label="Email"
+                  type="email"
+                  required
+                  autofocus
+                  v-model="email"
+                  autocomplete="email"
+                ></v-text-field>
+              </v-col>
 
-                <div class="form-group row">
-                  <label for="name" class="col-md-4 col-form-label text-md-right">Name</label>
-  
-                  <div class="col-md-6">
-                    <input
-                      id="name"
-                      type="name"
-                      class="form-control"
-                      name="name"
-                      value
-                      required
-                      autofocus
-                      v-model="name"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-  
-                <div class="form-group row">
-                  <label for="email" class="col-md-4 col-form-label text-md-right">Email</label>
-  
-                  <div class="col-md-6">
-                    <input
-                      id="email"
-                      type="email"
-                      class="form-control"
-                      name="email"
-                      value
-                      required
-                      autofocus
-                      v-model="email"
-                      autocomplete="email"
-                    />
-                  </div>
-                </div>
-  
-                <div class="form-group row">
-                  <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
-  
-                  <div class="col-md-6">
-                    <input
-                      id="password"
-                      type="password"
-                      class="form-control"
-                      name="password"
-                      required
-                      v-model="password"
-                    />
-                  </div>
-                </div>
-  
-                <div class="form-group row mb-0">
-                  <div class="col-md-8 offset-md-4">
-                    <button type="submit" class="btn btn-primary">Register</button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              <v-col cols="12" md="12">
+                <v-text-field
+                  id="password"
+                  label="Password"
+                  type="password"
+                  required
+                  v-model="password"
+                  autocomplete="false"
+                ></v-text-field>
+              </v-col>
+
+              <v-row justify="center">
+                <v-col cols="12" md="2" sm="2">
+                  <v-btn
+                    append-icon="$vuetify"
+                    type="submit"
+                    color="primary"
+                    @click="RegisterWithEmail"
+                  >
+                    Register
+                  </v-btn>
+                </v-col>
+              </v-row>
+
+              <v-row justify="center">
+                <v-col cols="12" md="3" sm="2">
+                  <v-btn
+                    append-icon="$vuetify"
+                    color="primary"
+                    @click="RegisterWithGoogle"
+                  >
+                    Register with Google
+                  </v-btn>
+                </v-col>
+              </v-row>
+
+              <v-row justify="center">
+                <v-col cols="12" md="4" sm="3">
+                  <v-card-text>
+                    If you are already registered, you can
+                    <router-link to="/login">login here</router-link>.
+                  </v-card-text>
+                </v-col>
+              </v-row>
+
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
-
 <script>
-import { ref } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
+import { ref } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { connectStorageEmulator } from "firebase/storage";
 
 export default {
-name: "RegisterComponent",
-setup() {
-    const selectedUserType = ref('ecoSeeker');
-    const name = ref('')
-    const email = ref('')
-    const password = ref('')
-    const error = ref(null)
+  name: "RegisterComponent",
+  setup() {
+    const email = ref("");
+    const password = ref("");
+    const error = ref(null);
 
-    const store = useStore()
-    const router = useRouter()
+    const store = useStore();
+    const router = useRouter();
 
-    const setUserType = async (userType) => {
-      selectedUserType.value = userType;
-
-      store.dispatch('setUserType', { userType: userType });
-    }
-
-    const Register = async () => {
-    try {
-        await store.dispatch('register', {
-        email: email.value,
-        password: password.value,
-        name: name.value,
-        userType: selectedUserType.value
+    const RegisterWithEmail = async () => {
+      try {
+        console.log("Email:", email.value);
+        console.log("Password:", password.value);
+        await store.dispatch("registerWithEmail", {
+          email: email.value,
+          password: password.value,
         })
-        router.push('/')
-    }
-    catch (err) {
-        error.value = err.message
-            }
-    }
+        router.push("/registerDetails")
+        
+      } catch (err) {
+        error.value = err.message;
+      }
+    };
 
-    return { Register, name, email, password, error, selectedUserType, setUserType }
-}
+    const RegisterWithGoogle = async () => {
+      try {
+        await store.dispatch("registerWithGoogle", {
+        }).then(
+        router.push("/registerDetails"));
+      } catch (err) {
+        error.value = err.message;
+      }
+    };
+
+    return {
+      RegisterWithEmail,
+      RegisterWithGoogle,
+      email,
+      password,
+      error,
+    };
+  },
 };
 </script>
 

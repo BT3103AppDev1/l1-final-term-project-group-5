@@ -2,6 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Login from '../components/Login.vue';
 import Register from '../components/Register.vue';
+
+import ForgetPassword from '../components/ForgetPassword.vue';
+import ProfilePage from '../components/ProfilePage.vue';
+import RegisterDetails from '@/components/RegisterDetails.vue';
+import { auth } from '../firebase';
 import AddProduct from '../components/AddProduct.vue';
 import AddListing from '../components/AddListing.vue';
 import SeekerMarketplaceView from '../views/SeekerMarketplaceView.vue';
@@ -40,7 +45,31 @@ const router = createRouter({
       component: Login
     },
     {
-      path: '/partner/marketplace',
+      path: '/forgetPassword',
+      name: 'forgetPassword',
+      component: ForgetPassword,
+      beforeEnter(to, from, next) {
+        const user = auth.currentUser;
+        // console.log(user)
+        if (user) {
+          next({ name: "home" });
+        } else {
+          next();
+        }
+      },
+    },
+    {
+      path: '/registerDetails',
+      name: 'registerDetails',
+      component: RegisterDetails
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfilePage
+    },
+    {
+       path: '/partner/marketplace',
       name: 'partner-marketplace',
       component: () => import('../views/PartnerMktView.vue')
     },

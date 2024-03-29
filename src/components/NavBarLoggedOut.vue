@@ -1,13 +1,14 @@
 <template>
-  <div id="nav">
-    <router-link to="/">
-      <img src="../assets/GreenHarborLogo.png" alt="Green Harbor Logo" />
-    </router-link>
-    |
-    <router-link to="/Register">Sign Up</router-link>
-    |
-    <router-link to="/Login">Login</router-link>
-  </div>
+  <v-app-bar fixed color="#B0E487">
+    <v-toolbar-title>
+      <router-link to="/">
+        <img src="../assets/GreenHarborLogo.png" alt="Green Harbor Logo" class="logo" />
+      </router-link>
+    </v-toolbar-title>
+    <v-spacer></v-spacer>
+    <v-btn text to="/Register">Sign Up</v-btn>
+    <v-btn text to="/Login">Login</v-btn>
+  </v-app-bar>
 </template>
 
 <script>
@@ -17,5 +18,8 @@ export default {
 </script>
 
 <style scoped>
-/* Add any specific styles for your Nav component here */
+.logo {
+  max-height: 60px;
+  margin-bottom: -10px;
+}
 </style>

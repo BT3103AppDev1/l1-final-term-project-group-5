@@ -1,27 +1,27 @@
 <template>
   <div class='container' >
     <div class="search-bar-container">
-      <SearchBar @search="handleSearch" />
+      <OrderDashPartnerSearchBar @search="handleSearch" />
     </div>
-    <OrderDashTablePartner :currentPage="currentPage" :entriesPerPage="entriesPerPage" :searchQuery="searchQuery" @total-page="updateTotalPage($event)" @handleStatus="handleStatus" /> 
+    <OrderDashPartnerTable :currentPage="currentPage" :entriesPerPage="entriesPerPage" :searchQuery="searchQuery" @total-page="updateTotalPage($event)" @handleStatus="handleStatus" /> 
     <br>
-    <PageBar :currentPage="currentPage" :totalPages="totalPages" :searchQuery="searchQuery" @page-change="handlePageChange" />
+    <OrderDashPartnerPageBar :currentPage="currentPage" :totalPages="totalPages" :searchQuery="searchQuery" @page-change="handlePageChange" />
   </div>
 </template>
 
 <script>
-import SearchBar from '@/components/SearchBar.vue';
-import OrderDashTablePartner from '@/components/OrderDashTablePartner.vue';
-import PageBar from '@/components/PageBar.vue';
+import OrderDashPartnerSearchBar from '@/components/OrderDashPartnerSearchBar.vue';
+import OrderDashPartnerTable from '@/components/OrderDashPartnerTable.vue';
+import OrderDashPartnerPageBar from '@/components/OrderDashPartnerPageBar.vue';
 import { db } from '@/firebase.js';
 import { collection, getDocs } from 'firebase/firestore';
 
 export default {
   name: 'OrderDashPartner',
   components: {
-    SearchBar,
-    OrderDashTablePartner,
-    PageBar,
+    OrderDashPartnerSearchBar,
+    OrderDashPartnerTable,
+    OrderDashPartnerPageBar,
   },
   data() {
     return {

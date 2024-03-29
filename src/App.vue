@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class='nav'>
     <template v-if="isLoggedIn">
       <div class="nav">
         <NavLoggedIn />
@@ -34,6 +34,19 @@ export default {
 </script>
 
 <style scoped>
+
+
+
+/* Import Montserrat font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+/* Apply Montserrat font to specific elements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+}
+
+
+
 .nav {
   position: fixed;
   top: 0;
@@ -44,6 +57,9 @@ export default {
   padding-bottom: 1rem;
   z-index: 1000; /* to ensure the navbar stays on top of other elements */
 }
+
+
+
 /*
 header {
   line-height: 1.5;

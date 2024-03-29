@@ -5,6 +5,11 @@ import Register from '../components/Register.vue';
 import AddProduct from '../components/AddProduct.vue';
 import AddListing from '../components/AddListing.vue';
 
+import SeekerMarketplaceView from '../views/SeekerMarketplaceView.vue';
+
+import OrderDashPartnerView from '../views/OrderDashPartnerView.vue';
+
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -46,6 +51,17 @@ const router = createRouter({
       name: 'add-listing',
       component: AddListing
     },
+
+      path: '/MarketplaceView',
+      name: 'SeekerMarketplaceView',
+      component: SeekerMarketplaceView
+    },
+
+      path: '/myorders',
+      name: 'orderDashPartnerView',
+      component: OrderDashPartnerView
+    }
+
   ]
 })
 

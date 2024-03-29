@@ -173,7 +173,8 @@ export default {
           })
           cell7.appendChild(deleteButton)
         }
-      });
+      })
+      this.entriesToComplete = []; // Ensure previously checked boxes are unchecked
     },
     async deleteInstrument(id) {
       try {
@@ -201,12 +202,19 @@ export default {
     // Method to handle checkbox change
     handleCheckboxChange(event, orderId) {
       if (event.target.checked) {
+        console.log('handleCheckboxChange ran, checked')
+        console.log('Before: ' , this.entriesToComplete)
         this.entriesToComplete.push(orderId); // Add entry to selected list
+        console.log('After: ', this.entriesToComplete)
       } else {
         const index = this.entriesToComplete.indexOf(orderId);
+        console.log('Index to remove: ', index)
+        console.log('Before: ' , this.entriesToComplete)
         if (index !== -1) {
           this.entriesToComplete.splice(index, 1); // Remove entry from selected list
         }
+        console.log('handleCheckboxChange ran, unchecked')
+        console.log('After:' ,this.entriesToComplete)
       }
     },
     // Method to complete selected entries
@@ -219,8 +227,8 @@ export default {
       for (const orderId of this.entriesToComplete) {
         const docRef = doc(db, 'order', orderId);
         await updateDoc(docRef, { status: 'Completed' });
-        this.display();
       }
+      this.display();
       // Clear the selected entries list after completion
       this.entriesToComplete = [];
     },

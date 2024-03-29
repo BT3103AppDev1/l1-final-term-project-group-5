@@ -7,7 +7,7 @@
       <router-link to="/">Home</router-link>
       | 
       <router-link to="/">Marketplace</router-link>
-      <router-link to="/">My Orders</router-link>
+      <router-link to="/myorders">My Orders</router-link>
       |
       <button @click.prevent="signOut" class="btn btn-primary">Log Out</button>
     </div>

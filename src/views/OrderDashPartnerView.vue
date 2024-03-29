@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       currentPage: 1,
-      entriesPerPage: 5,
+      entriesPerPage: 2,
       totalEntries: 0,
       searchQuery: '',
       entriesToComplete: [],

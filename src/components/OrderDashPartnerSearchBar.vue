@@ -1,6 +1,6 @@
 <template>
   <div class="search-bar">
-    <input type="text" v-model="searchText" placeholder="Search by ID..." class="search-input">
+    <input type="text" v-model="searchText" placeholder="Search by ID..." class="search-input" @keyup.enter="handleSearch">
     <button @click="handleSearch" class="search-button">Search</button>
     <button @click="clearSearch" class="clear-button">Clear</button>
   </div>

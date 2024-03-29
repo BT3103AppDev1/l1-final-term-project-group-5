@@ -3,14 +3,16 @@
         <ProductCard v-for="listing in filteredActiveListings" :key="listing.listinId"
             :listing="listing" @add-to-cart="addToCart" />
         
-        <button @click="showCart = !showCart" class="view-cart-btn">View Cart</button>
+        <button v-if="!showCart" @click="showCart = !showCart" class="view-cart-btn">View Cart</button>
         <div v-if="showCart" class="cart-overlay">
             <button @click="showCart = false" class="close-btn">Close</button>
             <div class="cart-contents">
                 <div v-for="item in cart" :key="item.listingId" class="item">
                 <img :src="item.imageUrl" alt="Product Image" class="item-img">
                 <h2 class="item-name"> {{ item.name }}</h2>
-                <p class="item-price">Price: {{ item.price }}</p>
+                <p class="item-price">Price: ${{ item.price.toFixed(2) }}</p>
+                <p class="item-qty"> Qty: x{{ item.quantity }}</p>
+                <p class="item-subtotal"> Subtotal : ${{ (item.price * item.quantity).toFixed(2) }}</p>
                 </div>
                 <div class="cart-fotter">
                 <button class="clear-cart" @click="clearCart">Clear Cart</button>
@@ -18,7 +20,7 @@
             </div>
             </div>
             <div class="total-price">
-                <h2> Total Price: $ {{ totalPrice }}</h2>
+                <h2> Total: $ {{ totalPrice }}</h2>
             </div>
         </div>
     </div>
@@ -91,7 +93,7 @@ export default {
         },
 
         totalPrice() {
-            return this.cart.reduce((total, item) => total + item.price, 0);
+            return this.cart.reduce((total, item) => total + item.price * item.quantity, 0);
         }
     },
 
@@ -110,7 +112,6 @@ export default {
             let filtered = this.activeListings;
 
             //Filter by selected categories if any 
-            console.log(this.selectedCategories);
             if (this.selectedCategories.length > 0) {
                 filtered = filtered.filter(listing => 
                     this.selectedCategories.includes(listing.category));
@@ -174,11 +175,16 @@ export default {
     align-items: center;
     gap: 16px;
     padding-bottom: 10px;
+    
     border-bottom: 2px solid darkslategray;
 }
 
 .item-name {
     color:white;
+}
+
+.item-subtotal {
+    font-weight:bold;
 }
 
 
@@ -237,6 +243,7 @@ export default {
     bottom:0px;
     right: 16px;
     margin-bottom: 8px;
+    z-index: 1000;
 }
 
 .total-price {
@@ -247,6 +254,7 @@ export default {
     color:white;
     margin-top: auto;
     margin-bottom: 8px;
+    font-weight:bold;
 }
 
 </style>

@@ -31,12 +31,25 @@ export default {
         };
     },
 
+    created() {
+        this.listing.quantity = 1;
+    },
+
     methods : {
         addToCart(listing) {
-            this.cart.push(listing);
-            console.log(this.cart);
+            const itemInCart = this.cart.find(item => item.listingId === listing.listingId);
+
+            if (itemInCart) {
+                itemInCart.quantity += listing.quantity || 1; // Add 1 if no quantity is selected
+            } else {
+                this.cart.push({
+                    ...listing,
+                    quantity: listing.quantity || 1, // Set quantity to 1 if no quantity is selected
+                });
+            }
+
             this.$emit('add-to-cart', listing);
-        },
+        }
     },
 };
 </script>

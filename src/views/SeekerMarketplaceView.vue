@@ -7,9 +7,6 @@
             <ProductGrid :searchQuery="searchQuery" :selectedCategories="selectedCategories" />
         </div>
         <div class="sidebar">
-            <div class="category-filter">
-                <CategoryFilter @update-categories="updateSelectedCategories" />
-            </div>
         </div>
     </div>
 </template>
@@ -53,6 +50,7 @@ export default {
     flex-direction:column;
     align-items: center;
 }
+
 .content {
     display:flex;
     justify-content: space-between;
@@ -64,7 +62,7 @@ export default {
 }
 
 .sidebar {
-    flex:1;
+    flex: 1;
 }
 
 

@@ -1,10 +1,14 @@
 <template>
   <div>
     <template v-if="isLoggedIn">
-      <NavLoggedIn />
+      <div class="nav">
+        <NavLoggedIn />
+      </div>
     </template>
     <template v-else>
-      <NavLoggedOut />
+      <div class="nav">
+        <NavLoggedOut />
+      </div>
     </template>
   </div>
   <router-view />
@@ -30,6 +34,16 @@ export default {
 </script>
 
 <style scoped>
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 1rem;
+  z-index: 1000; /* to ensure the navbar stays on top of other elements */
+}
 /*
 header {
   line-height: 1.5;

@@ -34,7 +34,7 @@ const router = createRouter({
       path: '/MarketplaceView',
       name: 'SeekerMarketplaceView',
       component: SeekerMarketplaceView
-    }
+    },
   ]
 })
 

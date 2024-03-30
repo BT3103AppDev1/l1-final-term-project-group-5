@@ -1,7 +1,7 @@
 <template>
     <v-sheet class="mx-auto" width="300">
       <h2>Add New Listing</h2>
-      <form @submit.prevent="submitListing">
+      <v-form @submit.prevent="submitListing">
 
         <label for="product">Product</label>
         <v-select
@@ -58,7 +58,7 @@
         elevation="3"
         class="submit-button"
         type="submit">List to Marketplace</v-btn>
-      </form>
+      </v-form>
     </v-sheet>
 </template>
   

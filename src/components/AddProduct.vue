@@ -16,11 +16,11 @@
       ></v-select>
 
       <v-text-field
-      v-model="product.weight"
-      label="Enter Product Weight"
-      type="number"
-      required
-    ></v-text-field>
+        v-model="product.weight"
+        label="Enter Product Weight"
+        type="number"
+        required
+      ></v-text-field>
       
       <v-file-input 
         v-model="product.image"
@@ -32,6 +32,7 @@
       <v-btn 
         block variant="tonal" 
         elevation="3"
+        class="submit-button"
         type="submit">Add to Marketplace</v-btn>
 
     </v-form>
@@ -73,3 +74,10 @@ export default {
   }
 }
 </script>
+
+<style>
+  .submit-button {
+    background-color: #4CAF50; /* Green */
+    color: white
+  }
+</style>

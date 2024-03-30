@@ -1,5 +1,5 @@
 <template>
-    <div class="add-listing-modal">
+    <v-sheet class="mx-auto" width="300">
       <h2>Add New Listing</h2>
       <form @submit.prevent="submitListing">
         <div class="form-group">
@@ -11,25 +11,44 @@
             </option>
           </select>
         </div>
-  
-        <div class="form-group">
-          <label for="expirationDate">Expiration Date</label>
-          <input type="date" id="expirationDate" v-model="newListing.expirationDate" :min="today" required>
-        </div>
-  
-        <div class="form-group">
-          <label for="price">Price</label>
-          <input type="number" id="price" v-model="newListing.price" placeholder="Price of product ($)" required min="0" step="0.01">
-        </div>
-  
-        <div class="form-group">
-          <label for="unitsToSell">Units To Sell</label>
-          <input type="number" id="unitsToSell" v-model="newListing.unitsToSell" placeholder="# of quantity" required min="1">
-        </div>
-  
-        <button type="submit" class="submit-button">List to Marketplace</button>
+
+        <v-text-field
+          v-model="newListing.expirationDate"
+          id="expirationDate"
+          label="Expiration Date"
+          type="date"
+          :min="today"
+          required
+        ></v-text-field>
+
+        <label for="price">Price</label>
+        <v-text-field
+        v-model="newListing.price"
+        id="price"
+        label="Price of product ($)"
+        type="number"
+        min="0"
+        step="0.01"
+        required
+        ></v-text-field>
+
+        <label for="price">Units To Sell</label>
+        <v-text-field
+        v-model="newListing.unitsToSell"
+        id="unitsToSell"
+        label="# of quantity"
+        type="number"
+        min="1"
+        required
+        ></v-text-field>
+
+        <v-btn 
+        block variant="tonal" 
+        elevation="3"
+        class="submit-button"
+        type="submit">List to Marketplace</v-btn>
       </form>
-    </div>
+    </v-sheet>
 </template>
   
 <script>
@@ -102,14 +121,7 @@
   
   .submit-button {
     background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
+    color: white
   }
   
   /* Add responsiveness or other styles as needed */

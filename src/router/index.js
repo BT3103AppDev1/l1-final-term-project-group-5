@@ -89,7 +89,7 @@ const router = createRouter({
       component: SeekerMarketplaceView
     },
     {
-      path: '/myorders',
+      path: '/partner/order-dashboard',
       name: 'orderDashPartnerView',
       component: OrderDashPartnerView
     }

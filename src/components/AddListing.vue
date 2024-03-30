@@ -2,6 +2,17 @@
     <v-sheet class="mx-auto" width="300">
       <h2>Add New Listing</h2>
       <form @submit.prevent="submitListing">
+
+        <label for="product">Product</label>
+        <v-select
+          v-model="newListing.productId"
+          :items="products"
+          item-title="name"
+          item-value="id"
+          label="Select Product"
+        ></v-select>
+        
+        <!--
         <div class="form-group">
           <label for="product">Product</label>
           <select id="product" v-model="newListing.productId" required>
@@ -10,7 +21,7 @@
               {{ product.name }}
             </option>
           </select>
-        </div>
+        </div>-->
 
         <v-text-field
           v-model="newListing.expirationDate"

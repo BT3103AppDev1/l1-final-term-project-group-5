@@ -457,7 +457,7 @@ const store = createStore({
   
       const listings = await Promise.all(querySnapshot.docs.map(async (listingDoc) => {
         const listing = listingDoc.data();
-        const productRef = doc(db, 'products', listing.productId);
+        const productRef = doc(db, 'products', String(listing.productId));
         const productSnap = await getDoc(productRef);
         
         // Assuming the product exists and adding a check for the same

@@ -67,24 +67,29 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { onMounted, ref } from 'vue';
-import { db } from '@/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { auth, db } from '@/firebase';
+import { query, collection, getDocs, where } from 'firebase/firestore';
+import { onAuthStateChanged } from "firebase/auth";
 
 export default {
   data() {
     return {
+      user: null,
       selectedTab: 'products',
       products: []
-      //currentListings: [],
-      //expiredListings: []
     };
   },
   async mounted() {
+    await onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        this.user = user;
+      }
+    });
     await this.fetchProducts();
     await this.checkAndUpdateListingStatus().then(() => {
       // After updating, fetch the latest active listings
-      this.fetchActiveListingsWithProductDetails();
-      this.fetchInactiveListingsWithProductDetails();
+      this.fetchActiveListingsWithProductDetails(this.user.uid);
+      this.fetchInactiveListingsWithProductDetails(this.user.uid);
     });
   },
   computed: {
@@ -102,7 +107,7 @@ export default {
       if (confirm('Are you sure you want to delete this listing?')) {
         console.log('Deleting listing with ID:', listingId);
         this.deleteListing(listingId).then(() => {
-          this.fetchActiveListingsWithProductDetails();
+          this.fetchActiveListingsWithProductDetails(this.user.uid);
         });
       }
     },
@@ -113,7 +118,8 @@ export default {
       this.$router.push('marketplace/add-listing')
     },
     async fetchProducts() {
-      const querySnapshot = await getDocs(collection(db, 'products'));
+      const sellerQuery = query(collection(db, 'products'), where('sellerId', '==', this.user.uid))
+      const querySnapshot = await getDocs(sellerQuery);
       this.products = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -124,6 +130,13 @@ export default {
 
 </script>
 <style scoped>
+.marketplace {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 5%;
+}
+
 .products-section, .listings-section {
   width: 100%;
   box-sizing: border-box;

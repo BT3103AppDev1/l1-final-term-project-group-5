@@ -413,7 +413,8 @@ const store = createStore({
         const productToAdd = {
           name: product.name,
           category: product.category,
-          weight: product.weight, // Assuming you've added 'weight' to your product object
+          weight: product.weight,
+          sellerId: product.sellerId,
           imageUrl
         };
 
@@ -455,8 +456,12 @@ const store = createStore({
       commit('ADD_LISTING', { id: docRef.id, ...newListing });
     },
 
-    async fetchActiveListingsWithProductDetails({ commit }) {
-      const activeListingsQuery = query(collection(db, 'listings'), where('isActive', '==', true));
+    async fetchActiveListingsWithProductDetails({ commit }, sellerId) {
+      const activeListingsQuery = query(
+        collection(db, 'listings'), 
+        where('isActive', '==', true),
+        where('sellerId', '==', sellerId)
+      );
       const querySnapshot = await getDocs(activeListingsQuery);
   
       const listings = await Promise.all(querySnapshot.docs.map(async (listingDoc) => {
@@ -483,9 +488,13 @@ const store = createStore({
       commit('SET_ACTIVE_LISTINGS', listings);
     },
 
-    async fetchInactiveListingsWithProductDetails({ commit }) {
-      const activeListingsQuery = query(collection(db, 'listings'), where('isActive', '==', false));
-      const querySnapshot = await getDocs(activeListingsQuery);
+    async fetchInactiveListingsWithProductDetails({ commit }, sellerId) {
+      const inactiveListingsQuery = query(
+        collection(db, 'listings'), 
+        where('isActive', '==', false),
+        where('sellerId', '==', sellerId)
+      );
+      const querySnapshot = await getDocs(inactiveListingsQuery);
   
       const listings = await Promise.all(querySnapshot.docs.map(async (listingDoc) => {
         const listing = listingDoc.data();

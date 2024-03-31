@@ -1,30 +1,42 @@
 <template>
-  <div>
+  <v-sheet class="mx-auto" width="300">
     <h1>Add New Product</h1>
-    <form @submit.prevent="addProduct">
-      <div>
-        <input type="text" v-model="product.name" placeholder="Product Name" required>
-      </div>
-      <div>
-        <select v-model="product.category" required>
-          <option disabled value="">Select Product Category</option>
-          <!-- Assuming you have categories in your data -->
-          <option v-for="category in categories" :key="category" :value="category">
-            {{ category }}
-          </option>
-        </select>
-      </div>
-      <div>
-        <input type="number" v-model="product.weight" placeholder="Product Weight" required>
-      </div>
-      <div>
-        <input type="file" @change="onFileChange" required>
-      </div>
-      <div>
-        <button type="submit">Add to Marketplace</button>
-      </div>
-    </form>
-  </div>
+    <v-form @submit.prevent="addProduct">
+
+      <v-text-field
+        v-model="product.name"
+        label="Product Name"
+        required
+      ></v-text-field>
+
+      <v-select
+        v-model="product.category"
+        :items="categories"
+        label="Select Product Category"
+      ></v-select>
+
+      <v-text-field
+        v-model="product.weight"
+        label="Enter Product Weight"
+        type="number"
+        required
+      ></v-text-field>
+      
+      <v-file-input 
+        v-model="product.image"
+        label="Upload Product Image"
+        prepend-icon="mdi-paperclip" 
+        required>
+      </v-file-input>
+
+      <v-btn 
+        block variant="tonal" 
+        elevation="3"
+        class="submit-button"
+        type="submit">Add to Marketplace</v-btn>
+
+    </v-form>
+  </v-sheet>
 </template>
 
 <script>
@@ -62,3 +74,10 @@ export default {
   }
 }
 </script>
+
+<style>
+  .submit-button {
+    background-color: #4CAF50; /* Green */
+    color: white
+  }
+</style>

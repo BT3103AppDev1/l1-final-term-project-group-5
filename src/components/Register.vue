@@ -107,8 +107,8 @@ export default {
     const RegisterWithGoogle = async () => {
       try {
         await store.dispatch("registerWithGoogle", {
-        }).then(
-        router.push("/registerDetails"));
+        })
+        router.push("/registerDetails");
       } catch (err) {
         error.value = err.message;
       }

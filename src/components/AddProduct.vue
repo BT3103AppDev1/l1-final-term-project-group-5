@@ -13,6 +13,7 @@
         v-model="product.category"
         :items="categories"
         label="Select Product Category"
+        required
       ></v-select>
 
       <v-text-field
@@ -23,9 +24,10 @@
       ></v-text-field>
       
       <v-file-input 
-        v-model="product.image"
         label="Upload Product Image"
         prepend-icon="mdi-paperclip" 
+        @change="onFileChange"
+        chips
         required>
       </v-file-input>
 

@@ -121,7 +121,7 @@
           console.log("displayName:", displayName.value);
           console.log("selectedUserType:", selectedUserType.value);
           console.log("About:", about.value);
-            console.log("Address:", address.value);
+          console.log("Address:", address.value);
           await store.dispatch("registerDetails", {
             displayName: displayName.value,
             userType: selectedUserType.value,

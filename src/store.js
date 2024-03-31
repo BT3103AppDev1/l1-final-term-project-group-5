@@ -240,7 +240,7 @@ const store = createStore({
           prompt: "select_account",
         });
         try {
-          const result = await signInWithPopup(auth, provider);
+          await signInWithPopup(auth, provider).then(async (result) => {
           const user = result.user;
           const credential = GoogleAuthProvider.credentialFromResult(result);
           const token = credential.accessToken;
@@ -278,6 +278,7 @@ const store = createStore({
               address: userData.address,
             });
           }
+        });
         } catch (error) {
           console.error("Failed to register with Google:", error);
         }
@@ -300,17 +301,20 @@ const store = createStore({
         const uid = context.state.user.uid;
         console.log(uid);
         const userRef = doc(db, "users", uid);
+
         await updateDoc(userRef, {
           displayName: displayName,
           userType: userType,
           about: about,
           address: address,
         });
+        const docSnap = await getDoc(userRef);
+        console.log(docSnap.get("photoURL"));
 
-        context.commit("SET_USER", {
+        context.commit("SET_USER_DETAILS", {
           displayName: displayName,
           userType: userType,
-          photoURL: userRef.get("photoURL"),
+          photoURL: docSnap.get("photoURL"),
           about: about,
           address: address,
         });

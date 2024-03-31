@@ -11,17 +11,17 @@
       <v-btn to="/">Home</v-btn>
       
       <template v-if="userDetails.userType == 'ecoSeeker'">
-        <router-link to="/seeker/marketplace">Marketplace</router-link>
+        <v-btn to="/seeker/marketplace">Marketplace</v-btn>
       </template>
       <template v-else>
-        <router-link to="/partner/marketplace">Marketplace</router-link>
+        <v-btn to="/partner/marketplace">Marketplace</v-btn>
       </template>
       
       <template v-if="userDetails.userType == 'ecoSeeker'">
-        <router-link to="/seeker/order-dashboard">My Orders</router-link>
+        <v-btn to="/seeker/order-dashboard">My Orders</v-btn>
       </template>
       <template v-else>
-        <router-link to="/partner/order-dashboard">My Orders</router-link>
+        <v-btn to="/partner/order-dashboard">My Orders</v-btn>
       </template>
       </v-toolbar-items>
 

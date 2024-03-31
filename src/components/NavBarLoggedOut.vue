@@ -1,10 +1,10 @@
 <template>
   <v-app-bar fixed color="#B0E487">
-    <v-toolbar-title>
+    <v-toolbar-items>
       <router-link to="/">
         <img src="../assets/GreenHarborLogo.png" alt="Green Harbor Logo" class="logo" />
       </router-link>
-    </v-toolbar-title>
+    </v-toolbar-items>
     <v-spacer></v-spacer>
     <v-btn text to="/Register">Sign Up</v-btn>
     <v-btn text to="/Login">Login</v-btn>

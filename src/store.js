@@ -6,15 +6,14 @@ import {
   deleteUser,
   onAuthStateChanged,
   reauthenticateWithCredential,
+  sendEmailVerification, 
   sendPasswordResetEmail,
-  signInWithEmailAndPassword,
+  signInWithEmailAndPassword,  
   signInWithPopup,
-  signInWithRedirect,
   signOut,
   updateEmail,
   updatePassword,
   updateProfile,
-  fetchSignInMethodsForEmail,
 } from "firebase/auth";
 import { auth, db, googleProvider, storage } from "./firebase";
 import {
@@ -195,6 +194,13 @@ const store = createStore({
           });
           context.commit("SET_USER_REGISTERED", true);
         } else {
+          await deleteDoc(userRef);
+          await deleteUser(auth.currentUser);
+          context.commit("SET_LOGGED_IN", false);
+          context.commit("ADD_NOTIFICATION", {
+            type: "error", 
+            message: "User not found in database, please register again."
+          });
           console.log("No such document!");
         }
       } catch (error) {
@@ -308,6 +314,15 @@ const store = createStore({
             } else {
               const userSnap = await getDoc(userRef);
               const userData = userSnap.data();
+              if (userData.userType === "") {
+                await deleteDoc(userRef);
+                await deleteUser(auth.currentUser);
+                context.commit("ADD_NOTIFICATION", {
+                  type: "error",
+                  message: "User not found in database, please register again.",
+                });
+                context.commit("SET_USER_REGISTERED", false);
+              } else {
               context.commit("SET_USER_DETAILS", {
                 displayName: userData.displayName,
                 email: userData.email,
@@ -316,6 +331,7 @@ const store = createStore({
                 address: userData.address,
               });
               context.commit("SET_USER_REGISTERED", true);
+              }
             }
           });
         } catch (error) {

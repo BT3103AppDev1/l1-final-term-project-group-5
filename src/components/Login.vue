@@ -103,6 +103,7 @@ export default {
           password: password.value,
         });
         router.push("/");
+        store.dispatch("addNotification", { type: "success", message:"Successfully logged in!"});
       } catch (err) {
         error.value = err.message;
       }
@@ -112,6 +113,7 @@ export default {
       try {
         await store.dispatch("registerWithGoogle", {})
         router.push("/");
+        store.dispatch("addNotification", { type: "success", message:"Successfully logged in!"});
       } catch (err) {
         error.value = err.message;
       }

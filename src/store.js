@@ -17,7 +17,18 @@ import {
   fetchSignInMethodsForEmail,
 } from "firebase/auth";
 import { auth, db, googleProvider, storage } from "./firebase";
-import { query, doc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDoc, getDocs, where } from "firebase/firestore";
+import {
+  query,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+  collection,
+  getDoc,
+  getDocs,
+  where,
+} from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const store = createStore({
@@ -36,7 +47,8 @@ const store = createStore({
     products: [],
     listings: [],
     activeListings: [],
-    inactiveListings: []
+    inactiveListings: [],
+    notification: null,
   },
   getters: {
     user(state) {
@@ -44,7 +56,7 @@ const store = createStore({
     },
     getUser(state) {
       return state.user;
-    }
+    },
   },
   mutations: {
     SET_LOGGED_IN(state, value) {
@@ -70,7 +82,7 @@ const store = createStore({
     SET_USER_REGISTERED(state, value) {
       state.user.detailsSubmitted = value;
     },
-    
+
     ADD_PRODUCT(state, product) {
       state.products.push(product);
     },
@@ -93,7 +105,9 @@ const store = createStore({
 
     UPDATE_LISTING_STATUS(state, { listingId, isActive }) {
       // Find the listing and update its 'isActive' status
-      const index = state.listings.findIndex(listing => listing.id === listingId);
+      const index = state.listings.findIndex(
+        (listing) => listing.id === listingId
+      );
       if (index !== -1) {
         const listing = state.listings[index];
         listing.isActive = isActive;
@@ -102,7 +116,17 @@ const store = createStore({
     },
 
     REMOVE_LISTING(state, listingId) {
-      state.listings = state.listings.filter(listing => listing.id !== listingId);
+      state.listings = state.listings.filter(
+        (listing) => listing.id !== listingId
+      );
+    },
+
+    SET_NOTIFICATION(state, notification) {
+      state.notification = notification;
+    },
+
+    CLEAR_NOTIFICATION(state) {
+      state.notification = null;
     },
   },
   actions: {
@@ -156,13 +180,13 @@ const store = createStore({
           email,
           password
         );
-        context.commit("SET_LOGGED_IN", true);        
+        context.commit("SET_LOGGED_IN", true);
         context.commit("SET_USER_ID", response.user.uid);
         const userRef = doc(db, "users", response.user.uid);
         const docSnap = await getDoc(userRef);
         if (docSnap.exists()) {
           context.commit("SET_USER_TYPE", docSnap.get("userType"));
-          context.commit('SET_USER_DETAILS', {
+          context.commit("SET_USER_DETAILS", {
             displayName: docSnap.get("displayName"),
             email: docSnap.get("email"),
             photoURL: docSnap.get("photoURL"),
@@ -190,7 +214,7 @@ const store = createStore({
           about: "",
           address: "",
         });
-        context.commit("SET_USER_ID", "")
+        context.commit("SET_USER_ID", "");
         context.commit("SET_USER_REGISTERED", false);
       } catch (error) {
         console.error("Failed to log out:", error);
@@ -227,23 +251,23 @@ const store = createStore({
     async fetchUpdatedData({ commit }) {
       const user = auth.currentUser;
       if (user) {
-        const userRef = doc(db, 'users', user.uid);
+        const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           const userData = userSnap.data();
-          commit('SET_USER_DETAILS', {
+          commit("SET_USER_DETAILS", {
             displayName: userData.displayName,
             email: userData.email,
             photoURL: userData.photoURL,
             about: userData.about,
             address: userData.address,
           });
-          console.log(userData)
+          console.log(userData);
         } else {
-          console.log('No such document!');
+          console.log("No such document!");
         }
       } else {
-        console.log('No user logged in');
+        console.log("No user logged in");
       }
     },
 
@@ -255,45 +279,45 @@ const store = createStore({
         });
         try {
           await signInWithPopup(auth, provider).then(async (result) => {
-          const user = result.user;
-          const credential = GoogleAuthProvider.credentialFromResult(result);
-          const token = credential.accessToken;
-          context.commit("SET_LOGGED_IN", true);        
-          context.commit("SET_USER_ID", user.uid);
+            const user = result.user;
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            context.commit("SET_LOGGED_IN", true);
+            context.commit("SET_USER_ID", user.uid);
 
-          const userRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(userRef);
-          if (!docSnap.exists()) {
-            await setDoc(userRef, {
-              userType: "",
-              uid: user.uid,
-              displayName: user.displayName,
-              authProvider: "google",
-              email: user.email,
-              about: "",
-              address: "",
-              photoURL: user.photoURL,
-            });
-            context.commit('SET_USER_DETAILS', {
-              displayName: user.displayName,
-              email: user.email,
-              photoURL: user.photoURL,
-              about: "",
-              address: "",
-            });
-          } else {
-            const userSnap = await getDoc(userRef);
-            const userData = userSnap.data();
-            context.commit('SET_USER_DETAILS', {
-              displayName: userData.displayName,
-              email: userData.email,
-              photoURL: userData.photoURL,
-              about: userData.about,
-              address: userData.address,
-            });
-            context.commit("SET_USER_REGISTERED", true);
-          }
-        });
+            const userRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userRef);
+            if (!docSnap.exists()) {
+              await setDoc(userRef, {
+                userType: "",
+                uid: user.uid,
+                displayName: user.displayName,
+                authProvider: "google",
+                email: user.email,
+                about: "",
+                address: "",
+                photoURL: user.photoURL,
+              });
+              context.commit("SET_USER_DETAILS", {
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+                about: "",
+                address: "",
+              });
+            } else {
+              const userSnap = await getDoc(userRef);
+              const userData = userSnap.data();
+              context.commit("SET_USER_DETAILS", {
+                displayName: userData.displayName,
+                email: userData.email,
+                photoURL: userData.photoURL,
+                about: userData.about,
+                address: userData.address,
+              });
+              context.commit("SET_USER_REGISTERED", true);
+            }
+          });
         } catch (error) {
           console.error("Failed to register with Google:", error);
         }
@@ -348,12 +372,12 @@ const store = createStore({
         await uploadBytes(storageRef, file);
         console.log("Upload completed");
         const downloadURL = await getDownloadURL(storageRef);
-        await updateProfile(auth.currentUser, 
-          { photoURL: downloadURL }).then(
-        await updateDoc(doc(db, "users", user.uid), {
-          photoURL: downloadURL,
-        }));
-        context.commit('SET_USER_DETAILS', {
+        await updateProfile(auth.currentUser, { photoURL: downloadURL }).then(
+          await updateDoc(doc(db, "users", user.uid), {
+            photoURL: downloadURL,
+          })
+        );
+        context.commit("SET_USER_DETAILS", {
           displayName: context.state.user.displayName,
           email: context.state.user.email,
           photoURL: downloadURL,
@@ -361,8 +385,9 @@ const store = createStore({
           address: context.state.user.address,
         });
 
-        await context.dispatch('fetchUpdatedData').then(console.log("Profile picture uploaded"));
-
+        await context
+          .dispatch("fetchUpdatedData")
+          .then(console.log("Profile picture uploaded"));
       } catch (error) {
         console.error("Error uploading profile picture: ", error);
       }
@@ -383,14 +408,19 @@ const store = createStore({
       try {
         const user = context.state.user;
         if (email != user.email) {
-          await updateEmail(auth.currentUser, email).then(console.log("Email updated"));
+          await updateEmail(auth.currentUser, email).then(
+            console.log("Email updated")
+          );
           await updateDoc(doc(db, "users", user.uid), { email: email });
           context.commit("SET_USER_DETAILS", { ...user, email: email });
         } else {
           console.log("Email is the same");
         }
       } catch (error) {
-        if (error == "FirebaseError: Firebase: Please verify the new email before changing email. (auth/operation-not-allowed).") {
+        if (
+          error ==
+          "FirebaseError: Firebase: Please verify the new email before changing email. (auth/operation-not-allowed)."
+        ) {
           console.log("Please verify the new email before changing email.");
         }
         console.error("Failed to update email:", error);
@@ -421,9 +451,9 @@ const store = createStore({
 
     async addProductToDB({ commit }, product) {
       try {
-        const storageRef = ref(storage, `products/${product.image.name}`);    // Create a reference to the storage location
-        const snapshot = await uploadBytes(storageRef, product.image);        // Upload the file
-        const imageUrl = await getDownloadURL(snapshot.ref);                  // Get the URL of the uploaded file
+        const storageRef = ref(storage, `products/${product.image.name}`); // Create a reference to the storage location
+        const snapshot = await uploadBytes(storageRef, product.image); // Upload the file
+        const imageUrl = await getDownloadURL(snapshot.ref); // Get the URL of the uploaded file
 
         // Prepare the product object with the image URL
         const productToAdd = {
@@ -431,152 +461,177 @@ const store = createStore({
           category: product.category,
           weight: product.weight,
           sellerId: product.sellerId,
-          imageUrl
+          imageUrl,
         };
 
         // Add the product object to Firestore
-        const docRef = await addDoc(collection(db, 'products'), productToAdd);
-        await updateDoc(doc(db, 'products', docRef.id), {
-          productId: docRef.id
+        const docRef = await addDoc(collection(db, "products"), productToAdd);
+        await updateDoc(doc(db, "products", docRef.id), {
+          productId: docRef.id,
         });
         productToAdd.productId = docRef.id;
 
         // Commit to Vuex state
-        commit('ADD_PRODUCT', productToAdd);
+        commit("ADD_PRODUCT", productToAdd);
       } catch (error) {
         console.error("Error adding product: ", error);
       }
     },
 
     async fetchProducts({ commit }) {
-      const querySnapshot = await getDocs(collection(db, 'products'));
-      const products = querySnapshot.docs.map(doc => ({
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const products = querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
-      commit('SET_PRODUCTS', products);
+      commit("SET_PRODUCTS", products);
     },
 
     async addListing({ commit }, newListing) {
       const now = new Date();
-      now.setHours(0, 0, 0, 0) // Set now to beginning of the day
+      now.setHours(0, 0, 0, 0); // Set now to beginning of the day
       newListing.unitsRemaining = newListing.unitsToSell;
       newListing.createdDate = now;
-      newListing.isActive = (newListing.unitsRemaining > 0) && (new Date(newListing.expirationDate) >= now);
-  
-      const docRef = await addDoc(collection(db, 'listings'), newListing);
-      await updateDoc(doc(db, 'listings', docRef.id), {
-        listingId: docRef.id
+      newListing.isActive =
+        newListing.unitsRemaining > 0 &&
+        new Date(newListing.expirationDate) >= now;
+
+      const docRef = await addDoc(collection(db, "listings"), newListing);
+      await updateDoc(doc(db, "listings", docRef.id), {
+        listingId: docRef.id,
       });
       newListing.listingId = docRef.id;
-      commit('ADD_LISTING', { id: docRef.id, ...newListing });
+      commit("ADD_LISTING", { id: docRef.id, ...newListing });
     },
 
     async fetchActiveListingsWithProductDetails({ commit }, sellerId) {
       const activeListingsQuery = query(
-        collection(db, 'listings'), 
-        where('isActive', '==', true),
-        where('sellerId', '==', sellerId)
+        collection(db, "listings"),
+        where("isActive", "==", true),
+        where("sellerId", "==", sellerId)
       );
       const querySnapshot = await getDocs(activeListingsQuery);
-  
-      const listings = await Promise.all(querySnapshot.docs.map(async (listingDoc) => {
-        const listing = listingDoc.data();
-        const productRef = doc(db, 'products', String(listing.productId));
-        const productSnap = await getDoc(productRef);
-        
-        // Assuming the product exists and adding a check for the same
-        if (productSnap.exists()) {
-          const product = productSnap.data();
-          // Return the listing with additional product details
-          return {
-            ...listing,
-            productName: product.name,
-            productImage: product.imageUrl,
-            productCategory: product.category
-          };
-        }
-        
-        // If the product does not exist, return the listing without product details
-        return listing;
-      }));
-  
-      commit('SET_ACTIVE_LISTINGS', listings);
+
+      const listings = await Promise.all(
+        querySnapshot.docs.map(async (listingDoc) => {
+          const listing = listingDoc.data();
+          const productRef = doc(db, "products", String(listing.productId));
+          const productSnap = await getDoc(productRef);
+
+          // Assuming the product exists and adding a check for the same
+          if (productSnap.exists()) {
+            const product = productSnap.data();
+            // Return the listing with additional product details
+            return {
+              ...listing,
+              productName: product.name,
+              productImage: product.imageUrl,
+              productCategory: product.category,
+            };
+          }
+
+          // If the product does not exist, return the listing without product details
+          return listing;
+        })
+      );
+
+      commit("SET_ACTIVE_LISTINGS", listings);
     },
 
     async fetchInactiveListingsWithProductDetails({ commit }, sellerId) {
       const inactiveListingsQuery = query(
-        collection(db, 'listings'), 
-        where('isActive', '==', false),
-        where('sellerId', '==', sellerId)
+        collection(db, "listings"),
+        where("isActive", "==", false),
+        where("sellerId", "==", sellerId)
       );
       const querySnapshot = await getDocs(inactiveListingsQuery);
-  
-      const listings = await Promise.all(querySnapshot.docs.map(async (listingDoc) => {
-        const listing = listingDoc.data();
-        const productRef = doc(db, 'products', listing.productId);
-        const productSnap = await getDoc(productRef);
-        
-        // Assuming the product exists and adding a check for the same
-        if (productSnap.exists()) {
-          const product = productSnap.data();
-          // Return the listing with additional product details
-          return {
-            ...listing,
-            productName: product.name,
-            productImage: product.imageUrl,
-            productCategory: product.category
-          };
-        }
-        
-        // If the product does not exist, return the listing without product details
-        return listing;
-      }));
-  
-      commit('SET_INACTIVE_LISTINGS', listings);
+
+      const listings = await Promise.all(
+        querySnapshot.docs.map(async (listingDoc) => {
+          const listing = listingDoc.data();
+          const productRef = doc(db, "products", listing.productId);
+          const productSnap = await getDoc(productRef);
+
+          // Assuming the product exists and adding a check for the same
+          if (productSnap.exists()) {
+            const product = productSnap.data();
+            // Return the listing with additional product details
+            return {
+              ...listing,
+              productName: product.name,
+              productImage: product.imageUrl,
+              productCategory: product.category,
+            };
+          }
+
+          // If the product does not exist, return the listing without product details
+          return listing;
+        })
+      );
+
+      commit("SET_INACTIVE_LISTINGS", listings);
     },
 
     async checkAndUpdateListingStatus({ commit }) {
       const now = new Date();
       now.setHours(0, 0, 0, 0); // Use start of the day for comparison
-      const listingsRef = collection(db, 'listings');
-  
+      const listingsRef = collection(db, "listings");
+
       const querySnapshot = await getDocs(listingsRef);
-      
+
       const updates = [];
       querySnapshot.forEach((doc) => {
         const listing = doc.data();
         //const listingExpirationDate = new Date(listing.expirationDate.seconds * 1000);
-        
+
         // Determine if the listing should be marked as inactive
-        const shouldBeInactive = listing.unitsRemaining <= 0 || new Date(listing.expirationDate) < now;
-        
+        const shouldBeInactive =
+          listing.unitsRemaining <= 0 || new Date(listing.expirationDate) < now;
+
         if (listing.isActive && shouldBeInactive) {
           // Only update if the listing is currently active but should be inactive
           updates.push({
             id: doc.id,
-            updateFn: updateDoc(doc.ref, { isActive: false })
+            updateFn: updateDoc(doc.ref, { isActive: false }),
           });
         }
       });
-      
+
       // Execute all update operations
-      await Promise.all(updates.map(u => u.updateFn));
-      
+      await Promise.all(updates.map((u) => u.updateFn));
+
       // Commit updates to the Vuex store
       updates.forEach(({ id }) => {
-        commit('UPDATE_LISTING_STATUS', { listingId: id, isActive: false });
+        commit("UPDATE_LISTING_STATUS", { listingId: id, isActive: false });
       });
     },
 
     async deleteListing({ commit }, listingId) {
       try {
-        await deleteDoc(doc(db, 'listings', listingId));
-        commit('REMOVE_LISTING', listingId);
+        await deleteDoc(doc(db, "listings", listingId));
+        commit("REMOVE_LISTING", listingId);
       } catch (error) {
-        console.error('Error deleting listing:', error);
+        console.error("Error deleting listing:", error);
         // Handle the error appropriately
       }
+    },
+
+    addNotification({ commit }, { type, message }) {
+      // Assign a unique ID to the notification
+      const notification = {};
+      notification.id = Date.now();
+      notification.type = type;
+      notification.icon = "$" + type;
+      notification.message = message;
+      commit("SET_NOTIFICATION", notification);
+      // Automatically remove notification after a certain duration (e.g., 5 seconds)
+      setTimeout(() => {
+        commit("CLEAR_NOTIFICATION");
+      }, 5000);
+    },
+
+    removeNotification({ commit }) {
+      commit("CLEAR_NOTIFICATION");
     },
   },
 });

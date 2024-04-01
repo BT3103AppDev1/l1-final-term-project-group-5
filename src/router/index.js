@@ -5,6 +5,7 @@ import Register from '../components/Register.vue';
 import NotFound from '../components/NotFound.vue';
 
 import ForgetPassword from '../components/ForgetPassword.vue';
+import ChangeEmail from '../components/ChangeEmail.vue';
 import ProfilePage from '../components/ProfilePage.vue';
 import RegisterDetails from '@/components/RegisterDetails.vue';
 import { auth } from '../firebase';

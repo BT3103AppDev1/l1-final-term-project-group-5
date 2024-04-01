@@ -98,32 +98,15 @@
                 label="Email"
                 required
                 v-model="email"
-                :readonly="!editingEmail"
+                :readonly="true"
               >
                 <template v-slot:append>
                   <v-btn
                     small
                     color="primary"
-                    v-if="!editingEmail"
                     @click="startEditingEmail"
                   >
                     Edit
-                  </v-btn>
-                  <v-btn
-                    small
-                    color="green"
-                    v-if="editingEmail"
-                    @click="confirmEmailChange"
-                  >
-                    Confirm
-                  </v-btn>
-                  <v-btn
-                    small
-                    color="red"
-                    v-if="editingEmail"
-                    @click="cancelEmailChange"
-                  >
-                    Cancel
                   </v-btn>
                 </template>
               </v-text-field>
@@ -214,7 +197,6 @@
             </v-col>
 
             <v-col cols="12" md="12">
-              <v-btn id="password" label="Password" color="#B0E487"
                 >Reset Password</v-btn
               >
             </v-col>
@@ -235,6 +217,7 @@
 import { ref, watch, computed, onMounted } from "vue";
 import { useStore } from "vuex";
 import { mapState } from "vuex";
+import router from "../router/index";
 import SvgIcon from "@jamescoyle/vue-icon";
 import { mdiCameraOutline } from "@mdi/js";
 
@@ -268,7 +251,6 @@ export default {
 
     const editingName = ref(false);
     const originalName = ref("");
-    const editingEmail = ref(false);
     const originalEmail = ref("");
     const editingAbout = ref(false);
     const originalAbout = ref("");
@@ -340,29 +322,13 @@ export default {
       return store.dispatch("updateDisplayName", originalName.value);
     };
 
-    const startEditingEmail = () => {
+    const startEditingEmail = async () => {
       originalEmail.value = user.value.email;
-      editingEmail.value = true;
-    };
-
-    const confirmEmailChange = async () => {
-      // Confirm the email change here
-      editingEmail.value = false;
-      const result = await store.dispatch("updateEmail", email.value);
-      if (result === "error") {
-        email.value = originalEmail.value;
+      const result = await store.dispatch("checkEmailVerified");
+      console.log(result)
+      if (result) {
+        router.push("/changeEmail");
       }
-      store.dispatch("addNotification", {
-        type: "success",
-        message: "Email updated successfully",
-      });
-    };
-
-    const cancelEmailChange = () => {
-      // Cancel the email change here
-      editingEmail.value = false;
-      email.value = originalEmail.value;
-      return store.dispatch("updateEmail", originalEmail.value);
     };
 
     const startEditingAbout = () => {
@@ -432,11 +398,8 @@ export default {
       startEditingName,
       confirmNameChange,
       cancelNameChange,
-      editingEmail,
       originalEmail,
       startEditingEmail,
-      confirmEmailChange,
-      cancelEmailChange,
       editingAbout,
       originalAbout,
       startEditingAbout,

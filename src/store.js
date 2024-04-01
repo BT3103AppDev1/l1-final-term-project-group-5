@@ -6,9 +6,9 @@ import {
   deleteUser,
   onAuthStateChanged,
   reauthenticateWithCredential,
-  sendEmailVerification, 
+  sendEmailVerification,
   sendPasswordResetEmail,
-  signInWithEmailAndPassword,  
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
   updateEmail,
@@ -198,8 +198,8 @@ const store = createStore({
           await deleteUser(auth.currentUser);
           context.commit("SET_LOGGED_IN", false);
           context.commit("ADD_NOTIFICATION", {
-            type: "error", 
-            message: "User not found in database, please register again."
+            type: "error",
+            message: "User not found in database, please register again.",
           });
           console.log("No such document!");
         }
@@ -323,14 +323,14 @@ const store = createStore({
                 });
                 context.commit("SET_USER_REGISTERED", false);
               } else {
-              context.commit("SET_USER_DETAILS", {
-                displayName: userData.displayName,
-                email: userData.email,
-                photoURL: userData.photoURL,
-                about: userData.about,
-                address: userData.address,
-              });
-              context.commit("SET_USER_REGISTERED", true);
+                context.commit("SET_USER_DETAILS", {
+                  displayName: userData.displayName,
+                  email: userData.email,
+                  photoURL: userData.photoURL,
+                  about: userData.about,
+                  address: userData.address,
+                });
+                context.commit("SET_USER_REGISTERED", true);
               }
             }
           });
@@ -344,14 +344,27 @@ const store = createStore({
 
     async forgetPassword(context, email) {
       try {
-        await sendPasswordResetEmail(auth, email);
+        await sendPasswordResetEmail(auth, email).catch((error) => {
+          context.dispatch("addNotification", {
+            type: "error",
+            message: error,
+          });
+          return "error";
+        });
+        context.dispatch("addNotification", {
+          type: "success",
+          message: "Password reset email sent for: " + email,
+        });
         // console.log('Password reset email sent', email);
       } catch (error) {
         console.error("Failed to send password reset email:", error);
       }
     },
 
-    async registerDetails({ dispatch, state, commit }, { displayName, userType, about, address }) {
+    async registerDetails(
+      { dispatch, state, commit },
+      { displayName, userType, about, address }
+    ) {
       try {
         const uid = state.user.uid;
         console.log(uid);
@@ -402,8 +415,9 @@ const store = createStore({
 
     async updateNewPassword(context, { newPassword }) {
       try {
-        await updatePassword(auth.currentUser, newPassword
-        ).then(console.log("Password updated"));
+        await updatePassword(auth.currentUser, newPassword).then(
+          console.log("Password updated")
+        );
       } catch (error) {
         console.error("Failed to update password:", error);
       }
@@ -428,7 +442,7 @@ const store = createStore({
         dispatch("addNotification", {
           type: "error",
           message: error,
-        })
+        });
       }
     },
 
@@ -472,28 +486,55 @@ const store = createStore({
       }
     },
 
-    async updateEmail({ dispatch, state, commit }, email) {
+    checkEmailVerified({ dispatch, state }) {
+      if (!state.user.emailVerified) {
+        dispatch("addNotification", {
+          type: "error",
+          message: "Please verify your email before proceeding",
+        });
+        return true;
+      } else {
+        return true;
+      }
+    },
+
+    async updateEmail(
+      { dispatch, state, commit },
+      { oldEmail, newEmail, password }
+    ) {
       try {
         const user = state.user;
         if (email != user.email) {
           if (!auth.currentUser.emailVerified) {
-            dispatch('addNotification', { type: "error", message: "Please verify the new email before changing email." })
-            return 'error'
+            dispatch("addNotification", {
+              type: "error",
+              message: "Please verify the new email before changing email.",
+            });
+            return "error";
             //throw new Error("Please verify the new email before changing email.");
+          } else {
+            const credential = EmailAuthProvider.credential(oldEmail, password);
+            await reauthenticateWithCredential(
+              auth.currentUser,
+              credential
+            ).catch((error) => {
+              dispatch("addNotification", { type: "error", message: error });
+              return "error";
+            });
+            await updateEmail(auth.currentUser, newEmail);
+            dispatch("addNotification", {
+              type: "success",
+              message: "Email updated successfully",
+            });
+            await updateDoc(doc(db, "users", user.uid), { email: newEmail });
+            commit("SET_USER_DETAILS", { ...user, email: newEmail });
           }
-          else {
-            await updateEmail(auth.currentUser, email).then(
-              console.log("Email updated")
-            );
-            await updateDoc(doc(db, "users", user.uid), { email: email });
-            commit("SET_USER_DETAILS", { ...user, email: email });
-          }  
         } else {
           console.log("Email is the same");
         }
       } catch (error) {
         console.error("Failed to update email:", error);
-        return 'error';
+        return "error";
       }
     },
 

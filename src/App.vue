@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <div>
+    <div style="height: 50px">
       <v-alert
         v-if="notification"
         :key="notification.id"

@@ -129,7 +129,7 @@
               </v-text-field>
             </v-col>
 
-            <v-col cols="12" md="12">
+            <v-col cols="12" md="12" v-if="user.type !== 'ecoSeeker'">
               <v-text-field
                 id="about"
                 label="About"
@@ -165,7 +165,8 @@
                 </template>
               </v-text-field>
             </v-col>
-            <v-col cols="12" md="12">
+
+            <v-col cols="12" md="12" v-if="user.type !== 'ecoSeeker'">
               <v-text-field
                 id="address"
                 label="Address"
@@ -207,6 +208,13 @@
                 >Reset Password</v-btn
               >
             </v-col>
+
+            <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
+              <v-btn id="bankDetails" label="BankDetails" color="#B0E487"
+                >Enter Bank Details</v-btn
+              >
+            </v-col>
+
           </v-form>
         </v-card-text>
       </v-card>
@@ -287,6 +295,10 @@ export default {
       const file = e.target.files[0];
       if (file) {
         store.dispatch("uploadProfilePicture", file);
+        store.dispatch("addNotification", {
+          type: "success",
+          message: "Profile picture updated successfully",
+        });
       }
     };
 
@@ -303,7 +315,11 @@ export default {
     const confirmNameChange = () => {
       // Confirm the name change here
       editingName.value = false;
-      return store.dispatch("updateDisplayName", displayName.value);
+      store.dispatch("updateDisplayName", displayName.value);
+      store.dispatch("addNotification", {
+        type: "success",
+        message: "Name updated successfully",
+      })
     };
 
     const cancelNameChange = () => {
@@ -320,10 +336,17 @@ export default {
       editingEmail.value = true;
     };
 
-    const confirmEmailChange = () => {
+    const confirmEmailChange = async () => {
       // Confirm the email change here
       editingEmail.value = false;
-      return store.dispatch("updateEmail", email.value);
+      const result = await store.dispatch("updateEmail", email.value);
+      if (result === 'error') {
+        email.value = originalEmail.value;
+      }
+      store.dispatch("addNotification", {
+        type: "success",
+        message: "Email updated successfully",
+      })
     };
 
     const cancelEmailChange = () => {
@@ -341,7 +364,11 @@ export default {
     const confirmAboutChange = () => {
       // Confirm the about change here
       editingAbout.value = false;
-      return store.dispatch("updateAbout", about.value);
+      store.dispatch("updateAbout", about.value);
+      store.dispatch("addNotification", {
+        type: "success",
+        message: "About updated successfully",
+      })
     };
 
     const cancelAboutChange = () => {
@@ -359,7 +386,11 @@ export default {
     const confirmAddressChange = () => {
       // Confirm the address change here
       editingAddress.value = false;
-      return store.dispatch("updateAddress", address.value);
+      store.dispatch("updateAddress", address.value);
+      store.dispatch("addNotification", {
+        type: "success",
+        message: "Address updated successfully",
+      })
     };
 
     const cancelAddressChange = () => {

@@ -404,26 +404,28 @@ const store = createStore({
       }
     },
 
-    async updateEmail(context, email) {
+    async updateEmail({ dispatch, state, commit }, email) {
       try {
-        const user = context.state.user;
+        const user = state.user;
         if (email != user.email) {
-          await updateEmail(auth.currentUser, email).then(
-            console.log("Email updated")
-          );
-          await updateDoc(doc(db, "users", user.uid), { email: email });
-          context.commit("SET_USER_DETAILS", { ...user, email: email });
+          if (!auth.currentUser.emailVerified) {
+            dispatch('addNotification', { type: "error", message: "Please verify the new email before changing email." })
+            return 'error'
+            //throw new Error("Please verify the new email before changing email.");
+          }
+          else {
+            await updateEmail(auth.currentUser, email).then(
+              console.log("Email updated")
+            );
+            await updateDoc(doc(db, "users", user.uid), { email: email });
+            commit("SET_USER_DETAILS", { ...user, email: email });
+          }  
         } else {
           console.log("Email is the same");
         }
       } catch (error) {
-        if (
-          error ==
-          "FirebaseError: Firebase: Please verify the new email before changing email. (auth/operation-not-allowed)."
-        ) {
-          console.log("Please verify the new email before changing email.");
-        }
         console.error("Failed to update email:", error);
+        return 'error';
       }
     },
 
@@ -627,7 +629,7 @@ const store = createStore({
       // Automatically remove notification after a certain duration (e.g., 5 seconds)
       setTimeout(() => {
         commit("CLEAR_NOTIFICATION");
-      }, 5000);
+      }, 7000);
     },
 
     removeNotification({ commit }) {

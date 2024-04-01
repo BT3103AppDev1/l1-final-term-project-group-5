@@ -479,4 +479,3 @@ export default {
   object-fit: cover;
 }
 </style>
-@/store/store

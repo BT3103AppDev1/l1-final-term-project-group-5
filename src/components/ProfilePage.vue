@@ -220,7 +220,6 @@ import { useStore } from "vuex";
 import { mapState } from "vuex";
 import SvgIcon from "@jamescoyle/vue-icon";
 import { mdiCameraOutline } from "@mdi/js";
-import store from "@/store";
 
 export default {
   name: "ProfileComponent",
@@ -435,3 +434,4 @@ export default {
   object-fit: cover;
 }
 </style>
+@/store/store

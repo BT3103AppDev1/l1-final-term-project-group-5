@@ -31,6 +31,7 @@ const store = createStore({
       photoURL: "",
       about: "",
       address: "",
+      detailsSubmitted: false,
     },
     products: [],
     listings: [],
@@ -49,18 +50,25 @@ const store = createStore({
     SET_LOGGED_IN(state, value) {
       state.user.loggedIn = value;
     },
+
     SET_USER_TYPE(state, data) {
       state.user.type = data;
     },
+
     SET_USER_ID(state, value) {
       state.user.uid = value;
     },
+
     SET_USER_DETAILS(state, details) {
       state.user.displayName = details.displayName || state.user.displayName;
       state.user.email = details.email || state.user.email;
       state.user.photoURL = details.photoURL || state.user.photoURL || "";
       state.user.about = details.about || state.user.about || "";
       state.user.address = details.address || state.user.address || "";
+    },
+
+    SET_USER_REGISTERED(state, value) {
+      state.user.detailsSubmitted = value;
     },
     
     ADD_PRODUCT(state, product) {
@@ -137,6 +145,10 @@ const store = createStore({
       context.commit("SET_USER_TYPE", userType);
     },
 
+    async setUserRegistered(context, { value }) {
+      context.commit("SET_USER_REGISTERED", value);
+    },
+
     async loginWithEmail(context, { email, password }) {
       try {
         const response = await signInWithEmailAndPassword(
@@ -157,6 +169,7 @@ const store = createStore({
             about: docSnap.get("about"),
             address: docSnap.get("address"),
           });
+          context.commit("SET_USER_REGISTERED", true);
         } else {
           console.log("No such document!");
         }
@@ -178,6 +191,7 @@ const store = createStore({
           address: "",
         });
         context.commit("SET_USER_ID", "")
+        context.commit("SET_USER_REGISTERED", false);
       } catch (error) {
         console.error("Failed to log out:", error);
       }
@@ -277,6 +291,7 @@ const store = createStore({
               about: userData.about,
               address: userData.address,
             });
+            context.commit("SET_USER_REGISTERED", true);
           }
         });
         } catch (error) {
@@ -319,6 +334,7 @@ const store = createStore({
           address: address,
         });
         context.commit("SET_USER_TYPE", userType);
+        context.commit("SET_USER_REGISTERED", true);
       } catch (error) {
         console.error("Error updating user details: ", error);
       }

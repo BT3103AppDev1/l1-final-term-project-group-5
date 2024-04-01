@@ -1,35 +1,51 @@
 <template>
   <v-app-bar fixed color="#B0E487">
     <v-toolbar-items>
-      <router-link to="/">
+      <v-btn to="/" :disabled="!user.detailsSubmitted">
         <img
           src="../assets/GreenHarborLogo.png"
           alt="Green Harbor Logo"
           class="logo"
         />
-      </router-link>
-      <v-btn to="/">Home</v-btn>
-      
-      <template v-if="userDetails.userType == 'ecoSeeker'">
-        <v-btn to="/seeker/marketplace">Marketplace</v-btn>
+      </v-btn>
+      <v-btn to="/" :disabled="!user.detailsSubmitted">Home</v-btn>
+
+      <template v-if="user.type == 'ecoSeeker'">
+        <v-btn
+          to="/seeker/marketplace"
+          :disabled="!user.detailsSubmitted"
+          >Marketplace</v-btn
+        >
       </template>
       <template v-else>
-        <v-btn to="/partner/marketplace">Marketplace</v-btn>
+        <v-btn
+          to="/partner/marketplace"
+          :disabled="!user.detailsSubmitted"
+          >Marketplace</v-btn
+        >
       </template>
-      
-      <template v-if="userDetails.userType == 'ecoSeeker'">
-        <v-btn to="/seeker/order-dashboard">My Orders</v-btn>
+
+      <template v-if="user.type == 'ecoSeeker'">
+        <v-btn
+          to="/seeker/order-dashboard"
+          :disabled="!user.detailsSubmitted"
+          >My Orders</v-btn
+        >
       </template>
       <template v-else>
-        <v-btn to="/partner/order-dashboard">My Orders</v-btn>
+        <v-btn
+          to="/partner/order-dashboard"
+          :disabled="!user.detailsSubmitted"
+          >My Orders</v-btn
+        >
       </template>
-      </v-toolbar-items>
+    </v-toolbar-items>
 
     <v-spacer></v-spacer>
 
-    <v-menu min-width="200px" rounded>
+    <v-menu :disabled="!user.detailsSubmitted" min-width="200px" rounded>
       <template v-slot:activator="{ props }">
-        <v-btn icon v-bind="props" >
+        <v-btn icon v-bind="props">
           <v-avatar size="large">
             <v-img :src="user.photoURL" />
           </v-avatar>
@@ -39,6 +55,7 @@
         <v-card-text>
           <div class="mx-auto text-center">
             <h3>{{ user.displayName }}</h3>
+            <h3>{{ user.type }}</h3>
             <p class="text-caption mt-1">
               {{ user.email }}
             </p>
@@ -72,7 +89,7 @@ import { auth, db } from "../firebase.js";
 
 export default {
   name: "NavLoggedIn",
-  
+
   props: {
     user: {
       type: Object,
@@ -85,9 +102,8 @@ export default {
     const router = useRouter();
     const userDetails = ref({});
     const userData = computed(() => store.getters.user);
-    console.log(userData.value)
+    // console.log(userData.value);
     //console.log(userData.value.photoURL)
-
 
     const signOut = async () => {
       await store.dispatch("logOut");
@@ -95,6 +111,7 @@ export default {
     };
 
     onMounted(() => {
+      console.log(userData)
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           // Fetch basic details from the auth user object
@@ -103,6 +120,7 @@ export default {
             email: user.email,
             name: user.name,
             userType: user.userType,
+            detailsSubmitted: user.detailsSubmitted,
           };
 
           // Attempt to fetch additional details from Firestore

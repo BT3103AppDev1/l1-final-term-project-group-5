@@ -204,6 +204,16 @@
             </v-col>
 
             <v-col cols="12" md="12">
+              <v-btn
+                id="emailVerification"
+                label="EmailVerification"
+                color="#B0E487"
+                @click="sendEmailVerification"
+                >Send Email Verification</v-btn
+              >
+            </v-col>
+
+            <v-col cols="12" md="12">
               <v-btn id="password" label="Password" color="#B0E487"
                 >Reset Password</v-btn
               >
@@ -214,7 +224,6 @@
                 >Enter Bank Details</v-btn
               >
             </v-col>
-
           </v-form>
         </v-card-text>
       </v-card>
@@ -319,7 +328,7 @@ export default {
       store.dispatch("addNotification", {
         type: "success",
         message: "Name updated successfully",
-      })
+      });
     };
 
     const cancelNameChange = () => {
@@ -340,13 +349,13 @@ export default {
       // Confirm the email change here
       editingEmail.value = false;
       const result = await store.dispatch("updateEmail", email.value);
-      if (result === 'error') {
+      if (result === "error") {
         email.value = originalEmail.value;
       }
       store.dispatch("addNotification", {
         type: "success",
         message: "Email updated successfully",
-      })
+      });
     };
 
     const cancelEmailChange = () => {
@@ -368,7 +377,7 @@ export default {
       store.dispatch("addNotification", {
         type: "success",
         message: "About updated successfully",
-      })
+      });
     };
 
     const cancelAboutChange = () => {
@@ -390,7 +399,7 @@ export default {
       store.dispatch("addNotification", {
         type: "success",
         message: "Address updated successfully",
-      })
+      });
     };
 
     const cancelAddressChange = () => {
@@ -398,6 +407,10 @@ export default {
       editingAddress.value = false;
       address.value = originalAddress.value;
       return store.dispatch("updateAddress", originalAddress.value);
+    };
+
+    const sendEmailVerification = () => {
+      store.dispatch("sendEmailVerification");
     };
 
     return {
@@ -434,6 +447,7 @@ export default {
       startEditingAddress,
       confirmAddressChange,
       cancelAddressChange,
+      sendEmailVerification,
     };
   },
   data() {

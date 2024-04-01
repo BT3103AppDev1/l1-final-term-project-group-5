@@ -351,9 +351,9 @@ const store = createStore({
       }
     },
 
-    async registerDetails(context, { displayName, userType, about, address }) {
+    async registerDetails({ dispatch, state, commit }, { displayName, userType, about, address }) {
       try {
-        const uid = context.state.user.uid;
+        const uid = state.user.uid;
         console.log(uid);
         const userRef = doc(db, "users", uid);
 
@@ -366,17 +366,69 @@ const store = createStore({
         const docSnap = await getDoc(userRef);
         console.log(docSnap.get("photoURL"));
 
-        context.commit("SET_USER_DETAILS", {
+        commit("SET_USER_DETAILS", {
           displayName: displayName,
           userType: userType,
           photoURL: docSnap.get("photoURL"),
           about: about,
           address: address,
         });
-        context.commit("SET_USER_TYPE", userType);
-        context.commit("SET_USER_REGISTERED", true);
+        commit("SET_USER_TYPE", userType);
+        commit("SET_USER_REGISTERED", true);
+        await sendEmailVerification(auth.currentUser).catch((error) => {
+          dispatch("addNotification", {
+            type: "error",
+            message: error,
+          });
+        });
+        dispatch("addNotification", {
+          type: "success",
+          message: "Details submitted successfully! Please verify your email.",
+        });
       } catch (error) {
         console.error("Error updating user details: ", error);
+      }
+    },
+
+    async reauthenticate(context, { email, password }) {
+      try {
+        const credential = EmailAuthProvider.credential(email, password);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+        console.log("Reauthenticated successfully");
+      } catch (error) {
+        console.error("Failed to reauthenticate:", error);
+      }
+    },
+
+    async updateNewPassword(context, { newPassword }) {
+      try {
+        await updatePassword(auth.currentUser, newPassword
+        ).then(console.log("Password updated"));
+      } catch (error) {
+        console.error("Failed to update password:", error);
+      }
+    },
+
+    async resendEmailVerification({ dispatch, state, commit }, {}) {
+      try {
+        if (auth.currentUser.emailVerified) {
+          dispatch("addNotification", {
+            type: "error",
+            message: "Email already verified",
+          });
+        } else {
+          await sendEmailVerification(auth.currentUser).then(
+            dispatch("addNotification", {
+              type: "success",
+              message: "Verification email sent",
+            })
+          );
+        }
+      } catch (error) {
+        dispatch("addNotification", {
+          type: "error",
+          message: error,
+        })
       }
     },
 

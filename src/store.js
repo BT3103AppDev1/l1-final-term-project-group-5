@@ -172,39 +172,44 @@ const store = createStore({
       context.commit("SET_USER_REGISTERED", value);
     },
 
-    async loginWithEmail(context, { email, password }) {
+    async loginWithEmail({ dispatch, state, commit }, { email, password }) {
       try {
         const response = await signInWithEmailAndPassword(
           auth,
           email,
           password
         );
-        context.commit("SET_LOGGED_IN", true);
-        context.commit("SET_USER_ID", response.user.uid);
+        commit("SET_LOGGED_IN", true);
+        commit("SET_USER_ID", response.user.uid);
         const userRef = doc(db, "users", response.user.uid);
         const docSnap = await getDoc(userRef);
         if (docSnap.exists()) {
-          context.commit("SET_USER_TYPE", docSnap.get("userType"));
-          context.commit("SET_USER_DETAILS", {
+          commit("SET_USER_TYPE", docSnap.get("userType"));
+          commit("SET_USER_DETAILS", {
             displayName: docSnap.get("displayName"),
             email: docSnap.get("email"),
             photoURL: docSnap.get("photoURL"),
             about: docSnap.get("about"),
             address: docSnap.get("address"),
           });
-          context.commit("SET_USER_REGISTERED", true);
+          commit("SET_USER_REGISTERED", true);
+          return true;
         } else {
           await deleteDoc(userRef);
           await deleteUser(auth.currentUser);
-          context.commit("SET_LOGGED_IN", false);
-          context.commit("ADD_NOTIFICATION", {
+          commit("SET_LOGGED_IN", false);
+          commit("ADD_NOTIFICATION", {
             type: "error",
             message: "User not found in database, please register again.",
           });
           console.log("No such document!");
         }
       } catch (error) {
-        console.error(error);
+        dispatch("addNotification", {
+          type: "error",
+          message: error,
+        });
+        return false;
       }
     },
 

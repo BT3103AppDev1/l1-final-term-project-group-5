@@ -98,22 +98,34 @@ export default {
 
     const LoginWithEmail = async () => {
       try {
-        await store.dispatch("loginWithEmail", {
+        const result = await store.dispatch("loginWithEmail", {
           email: email.value,
           password: password.value,
         });
-        router.push("/");
-        store.dispatch("addNotification", { type: "success", message:"Successfully logged in!"});
+        if (result) {
+          router.push("/");
+          store.dispatch("addNotification", {
+            type: "success",
+            message: "Successfully logged in!",
+          });
+        }
+        
       } catch (err) {
-        error.value = err.message;
+        store.dispatch("addNotification", {
+            type: "error",
+            message: err.message,
+          });
       }
     };
 
     const LoginWithGoogle = async () => {
       try {
-        await store.dispatch("registerWithGoogle", {})
+        await store.dispatch("registerWithGoogle", {});
         router.push("/");
-        store.dispatch("addNotification", { type: "success", message:"Successfully logged in!"});
+        store.dispatch("addNotification", {
+          type: "success",
+          message: "Successfully logged in!",
+        });
       } catch (err) {
         error.value = err.message;
       }

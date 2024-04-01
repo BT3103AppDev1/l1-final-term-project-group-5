@@ -197,6 +197,11 @@
             </v-col>
 
             <v-col cols="12" md="12">
+              <v-btn 
+                id="password" 
+                label="Password" 
+                color="#B0E487" 
+                to="/resetPassword"
                 >Reset Password</v-btn
               >
             </v-col>

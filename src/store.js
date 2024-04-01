@@ -413,11 +413,33 @@ const store = createStore({
       }
     },
 
-    async updateNewPassword(context, { newPassword }) {
+    async updateNewPassword({ dispatch, state, commit },
+      { email, oldPassword, newPassword }) {
       try {
-        await updatePassword(auth.currentUser, newPassword).then(
-          console.log("Password updated")
-        );
+        if (!auth.currentUser.emailVerified) {
+          dispatch("addNotification", {
+            type: "error",
+            message: "Please verify the new email before changing password.",
+          });
+          return "error";
+          //throw new Error("Please verify the new email before changing email.");
+        } else {
+          const credential = EmailAuthProvider.credential(email, oldPassword);
+            await reauthenticateWithCredential(
+              auth.currentUser,
+              credential
+            ).catch((error) => {
+              dispatch("addNotification", { type: "error", message: error });
+              return "error";
+            });
+          await updatePassword(auth.currentUser, newPassword).then(
+            console.log("Password updated")
+          );
+          dispatch("addNotification", {
+            type: "success",
+            message: "Password updated successfully",
+          });
+        }
       } catch (error) {
         console.error("Failed to update password:", error);
       }
@@ -492,7 +514,7 @@ const store = createStore({
           type: "error",
           message: "Please verify your email before proceeding",
         });
-        return true;
+        return false;
       } else {
         return true;
       }

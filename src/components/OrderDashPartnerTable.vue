@@ -36,6 +36,7 @@
 import { firebaseApp } from '../firebase.js'
 import { getFirestore, query, where, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import trash from "@/assets/Trash.svg"
+import { getAuth } from "firebase/auth";
 
 const db = getFirestore(firebaseApp);
 
@@ -85,6 +86,9 @@ export default {
     },
 
     async display() {
+      const auth = getAuth()
+      this.sellerId = auth.currentUser.uid
+
       // Clear existing table content
       const tableBody = document.getElementById("table").getElementsByTagName('tbody')[0];
       tableBody.innerHTML = '';
@@ -93,8 +97,16 @@ export default {
       const startIndex = (this.currentPage - 1) * this.entriesPerPage;
       const endIndex = this.currentPage * this.entriesPerPage;
 
+      // Get the logged-in user's partnerUID 
+      const currentUser = this.sellerId;
+
       // Create a Firestore query
       let queryRef = collection(db, 'order');
+
+      // Apply filter for partnerUID
+      if (currentUser) {
+        queryRef = query(queryRef, where('sellerId', '==', currentUser));
+      }
 
       // Apply search filter if searchQuery is not empty
       if (this.searchQuery) {

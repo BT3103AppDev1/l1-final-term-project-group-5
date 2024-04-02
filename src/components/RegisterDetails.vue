@@ -47,7 +47,7 @@
                   ></v-text-field>
                 </v-col>
 
-                <v-col cols="12" md="12">
+                <v-col cols="12" md="12" v-if="selectedUserType !== 'ecoSeeker'">
                   <v-text-field
                     id="about"
                     label="About"
@@ -58,7 +58,7 @@
                   ></v-text-field>
                 </v-col>
   
-                <v-col cols="12" md="12">
+                <v-col cols="12" md="12" v-if="selectedUserType !== 'ecoSeeker'">
                   <v-text-field
                     id="address"
                     label="Address"

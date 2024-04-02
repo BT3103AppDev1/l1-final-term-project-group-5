@@ -1,53 +1,70 @@
 <template>
   <v-app>
+    <div style="height: 50px;">
+      <v-alert
+        v-if="notification"
+        :key="notification.id"
+        :type="notification.type"
+        closable
+        :icon="notification.icon"
+        class="alert-custom"
+        transition="scale-transition"
+        absolute
+        width="600"
+        @click:dismiss="dismissNotification(notification.id)"
+      >
+        {{ notification.message }}
+      </v-alert>
+    </div>
     <template v-if="isLoggedIn">
-      <NavLoggedIn :user="user"/>
+      <NavLoggedIn :user="user" />
     </template>
     <template v-else>
       <div class="nav">
         <NavLoggedOut />
       </div>
     </template>
-    
-    <div style="padding-top: 120px;"> 
+
+    <div style="padding-top: 120px">
       <router-view />
     </div>
   </v-app>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import NavLoggedOut from './components/NavBarLoggedOut.vue';
-import NavLoggedIn from './components/NavBarLoggedIn.vue';
+import { mapState } from "vuex";
+import NavLoggedOut from "./components/NavBarLoggedOut.vue";
+import NavLoggedIn from "./components/NavBarLoggedIn.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     NavLoggedOut,
-    NavLoggedIn
+    NavLoggedIn,
   },
   computed: {
     ...mapState({
       isLoggedIn: (state) => state.user.loggedIn,
       user: (state) => state.user,
+      notification: (state) => state.notification,
     }),
   },
-}
+};
 </script>
 
 <style scoped>
-
-
-
 /* Import Montserrat font from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
 /* Apply Montserrat font to specific elements */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Montserrat', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Montserrat", sans-serif;
 }
-
-
 
 .nav {
   position: fixed;
@@ -60,7 +77,13 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 1000; /* to ensure the navbar stays on top of other elements */
 }
 
-
+.alert-custom {
+  position: fixed;
+  top: 0; /* Position at the top */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Center horizontally */
+  z-index: 9999; /* Ensure it's above other content */
+}
 
 /*
 header {

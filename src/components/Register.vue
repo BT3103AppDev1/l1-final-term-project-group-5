@@ -7,7 +7,6 @@
           <v-card-text class="text-center">
             <v-alert v-if="error" type="error">{{ error }}</v-alert>
             <v-form @submit.prevent="RegisterWithEmail">
-
               <v-col cols="12" md="12">
                 <v-text-field
                   id="email"
@@ -27,7 +26,9 @@
                   type="password"
                   required
                   v-model="password"
+                  :rules="passwordRules"
                   autocomplete="false"
+                  @input="validate"
                 ></v-text-field>
               </v-col>
 
@@ -37,6 +38,7 @@
                     append-icon="$vuetify"
                     type="submit"
                     color="primary"
+                    :disabled="!valid"
                     @click="RegisterWithEmail"
                   >
                     Register
@@ -64,7 +66,6 @@
                   </v-card-text>
                 </v-col>
               </v-row>
-
             </v-form>
           </v-card-text>
         </v-card>
@@ -85,9 +86,31 @@ export default {
     const email = ref("");
     const password = ref("");
     const error = ref(null);
+    const valid = ref(false);
 
     const store = useStore();
     const router = useRouter();
+
+    const passwordRules = [
+      (v) => !!v || "Password is required",
+      (v) => (v && v.length >= 8) || "Password must be at least 8 characters",
+      (v) => (v && /\d/.test(v)) || "Password must contain at least one number",
+      (v) =>
+        (v && /[a-z]/.test(v)) ||
+        "Password must contain at least one lowercase letter",
+      (v) =>
+        (v && /[A-Z]/.test(v)) ||
+        "Password must contain at least one uppercase letter",
+      (v) =>
+        (v && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(v)) ||
+        "Password must contain at least one special character",
+    ];
+
+    const validate = () => {
+      valid.value = passwordRules.every(
+        (rule) => rule(password.value) === true
+      );
+    };
 
     const RegisterWithEmail = async () => {
       try {
@@ -96,9 +119,8 @@ export default {
         await store.dispatch("registerWithEmail", {
           email: email.value,
           password: password.value,
-        })
-        router.push("/registerDetails")
-        
+        });
+        router.push("/registerDetails");
       } catch (err) {
         error.value = err.message;
       }
@@ -106,8 +128,7 @@ export default {
 
     const RegisterWithGoogle = async () => {
       try {
-        await store.dispatch("registerWithGoogle", {
-        })
+        await store.dispatch("registerWithGoogle", {});
         router.push("/registerDetails");
       } catch (err) {
         error.value = err.message;
@@ -120,6 +141,9 @@ export default {
       email,
       password,
       error,
+      passwordRules,
+      validate,
+      valid,
     };
   },
 };

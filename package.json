@@ -12,6 +12,7 @@
     "@firebase/auth": "^1.6.1",
     "@jamescoyle/vue-icon": "^0.1.2",
     "@mdi/js": "^7.4.47",
+    "crypto-js": "^4.2.0",
     "firebase": "^10.8.1",
     "vite-plugin-vuetify": "^2.0.3",
     "vue": "^3.4.15",

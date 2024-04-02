@@ -198,7 +198,7 @@ const store = createStore({
           await deleteDoc(userRef);
           await deleteUser(auth.currentUser);
           commit("SET_LOGGED_IN", false);
-          commit("ADD_NOTIFICATION", {
+          commit("SET_NOTIFICATION", {
             type: "error",
             message: "User not found in database, please register again.",
           });
@@ -322,7 +322,7 @@ const store = createStore({
               if (userData.userType === "") {
                 await deleteDoc(userRef);
                 await deleteUser(auth.currentUser);
-                context.commit("ADD_NOTIFICATION", {
+                context.commit("SET_NOTIFICATION", {
                   type: "error",
                   message: "User not found in database, please register again.",
                 });
@@ -336,6 +336,7 @@ const store = createStore({
                   address: userData.address,
                 });
                 context.commit("SET_USER_REGISTERED", true);
+                context.commit("SET_USER_TYPE", userData.userType);
               }
             }
           });
@@ -450,20 +451,29 @@ const store = createStore({
       }
     },
 
-    async resendEmailVerification({ dispatch, state, commit }, {}) {
+    async resendEmailVerification( {dispatch} ) {
       try {
-        if (auth.currentUser.emailVerified) {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
           dispatch("addNotification", {
             type: "error",
-            message: "Email already verified",
+            message: "No user is currently signed in",
           });
-        } else {
-          await sendEmailVerification(auth.currentUser).then(
+          throw new Error("No user is currently signed in");
+        }
+        else {
+          if (currentUser.emailVerified) {
+            dispatch("addNotification", {
+              type: "error",
+              message: "Email already verified",
+            });
+          } else {
+            await sendEmailVerification(currentUser)
             dispatch("addNotification", {
               type: "success",
               message: "Verification email sent",
             })
-          );
+          }
         }
       } catch (error) {
         dispatch("addNotification", {

@@ -5,8 +5,6 @@ import Register from '../components/Register.vue';
 import NotFound from '../components/NotFound.vue';
 
 import ForgetPassword from '../components/ForgetPassword.vue';
-import ResetPassword from '../components/ResetPassword.vue';
-import ChangeEmail from '../components/ChangeEmail.vue';
 import ProfilePage from '../components/ProfilePage.vue';
 import RegisterDetails from '@/components/RegisterDetails.vue';
 import { auth } from '../firebase';
@@ -81,34 +79,6 @@ const router = createRouter({
           next({ name: "notFound" });
         }
       }
-    },
-    {
-      path: '/resetPassword',
-      name: 'resetPassword',
-      component: ResetPassword,
-      // beforeEnter(to, from, next) {
-      //   const authUser = auth.currentUser;
-      //   // console.log(user)
-      //   if (!authUser) {
-      //     next();
-      //   } else {
-      //     next({ name: "notFound" });
-      //   }
-      // },
-    },
-    {
-      path: '/changeEmail',
-      name: 'changeEmail',
-      component: ChangeEmail,
-      // beforeEnter(to, from, next) {
-      //   const authUser = auth.currentUser;
-      //   // console.log(user)
-      //   if (!authUser) {
-      //     next();
-      //   } else {
-      //     next({ name: "notFound" });
-      //   }
-      // },
     },
     {
        path: '/partner/marketplace',

@@ -101,13 +101,60 @@
                 :readonly="true"
               >
                 <template v-slot:append>
-                  <v-btn
-                    small
-                    color="primary"
-                    @click="startEditingEmail"
-                  >
+                  <v-btn small color="primary" @click="startEditingEmail">
                     Edit
                   </v-btn>
+
+                  <v-dialog v-model="dialogEmail" persistent max-width="600px">
+                    <v-card>
+                      <v-card-title class="text-center"
+                        >Update Email</v-card-title
+                      >
+                      <v-card-text class="text-center">
+                        <v-form>
+                          <!-- ... -->
+                          <v-text-field
+                            id="newEmail"
+                            label="New Email"
+                            type="email"
+                            required
+                            autofocus
+                            v-model="newEmail"
+                            autocomplete="false"
+                          ></v-text-field>
+
+                          <!-- ... -->
+                          <v-text-field
+                            id="emailPassword"
+                            label="Password"
+                            type="password"
+                            required
+                            autofocus
+                            v-model="emailPassword"
+                            autocomplete="false"
+                          ></v-text-field>
+
+                          <!-- ... -->
+                          <v-btn
+                            color="#B0E487"
+                            append-icon="$vuetify"
+                            @click="updateEmail"
+                            style="margin-right: 16px"
+                          >
+                            Confirm
+                          </v-btn>
+
+                          <v-btn
+                            color="red"
+                            append-icon="$vuetify"
+                            @click="dialogEmail = false"
+                          >
+                            Cancel
+                          </v-btn>
+                        </v-form>
+                      </v-card-text>
+                    </v-card>
+                  </v-dialog>
                 </template>
               </v-text-field>
             </v-col>
@@ -197,13 +244,89 @@
             </v-col>
 
             <v-col cols="12" md="12">
-              <v-btn 
-                id="password" 
-                label="Password" 
-                color="#B0E487" 
-                to="/resetPassword"
-                >Reset Password</v-btn
+              <v-btn
+                id="resetPassword"
+                label="Password"
+                color="#B0E487"
+                @click="dialogPassword = true"
               >
+                Reset Password
+              </v-btn>
+
+              <v-dialog v-model="dialogPassword" persistent max-width="600px">
+                <v-card>
+                  <v-card-title class="text-center"
+                    >Reset Password</v-card-title
+                  >
+                  <v-card-text class="text-center">
+                    <v-form>
+                      <!-- ... -->
+                      <v-text-field
+                        id="emailPwReset"
+                        label="Email"
+                        type="email"
+                        required
+                        autofocus
+                        v-model="emailPwReset"
+                        autocomplete="false"
+                      ></v-text-field>
+
+                      <v-text-field
+                        id="password"
+                        label="Old Password"
+                        type="password"
+                        required
+                        autofocus
+                        v-model="oldPassword"
+                        autocomplete="false"
+                      ></v-text-field>
+
+                      <!-- ... -->
+                      <v-text-field
+                        id="newPassword"
+                        label="New Password"
+                        type="password"
+                        required
+                        autofocus
+                        v-model="newPassword"
+                        autocomplete="false"
+                        :rules="passwordRules"
+                        @input="validate"
+                      ></v-text-field>
+
+                      <v-text-field
+                        id="repeatPassword"
+                        label="Retype New Password"
+                        type="password"
+                        required
+                        autofocus
+                        v-model="repeatPassword"
+                        autocomplete="false"
+                        :rules="passwordRules"
+                        @input="validate2"
+                      ></v-text-field>
+
+                      <!-- ... -->
+                      <v-btn
+                        color="#B0E487"
+                        append-icon="$vuetify"
+                        style="margin-right: 16px"
+                        @click="updatePassword"
+                      >
+                        Confirm
+                      </v-btn>
+
+                      <v-btn
+                        color="red"
+                        append-icon="$vuetify"
+                        @click="dialogPassword = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-form>
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
             </v-col>
 
             <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
@@ -217,7 +340,6 @@
                 You have saved: <span style="color: green;">{{ user.weight }} kg</span>!
               </p>
             </v-col>
-
           </v-form>
         </v-card-text>
       </v-card>
@@ -268,6 +390,33 @@ export default {
     const originalAbout = ref("");
     const editingAddress = ref(false);
     const originalAddress = ref("");
+
+
+    const dialogPassword = ref(false);
+    const oldPassword = ref("");
+    const newPassword = ref("");
+    const repeatPassword = ref("");
+    const valid = ref(false);
+    const valid2 = ref(false);
+    const emailPwReset = ref("");
+    const passwordRules = [
+      (v) => !!v || "Password is required",
+      (v) => (v && v.length >= 8) || "Password must be at least 8 characters",
+      (v) => (v && /\d/.test(v)) || "Password must contain at least one number",
+      (v) =>
+        (v && /[a-z]/.test(v)) ||
+        "Password must contain at least one lowercase letter",
+      (v) =>
+        (v && /[A-Z]/.test(v)) ||
+        "Password must contain at least one uppercase letter",
+      (v) =>
+        (v && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(v)) ||
+        "Password must contain at least one special character",
+    ];
+
+    const dialogEmail = ref(false);
+    const newEmail = ref("");
+    const emailPassword = ref("");
 
     watch(user, (newUser) => {
       displayName.value = newUser.displayName;
@@ -337,9 +486,9 @@ export default {
     const startEditingEmail = async () => {
       originalEmail.value = user.value.email;
       const result = await store.dispatch("checkEmailVerified");
-      console.log(result)
+      console.log(result);
       if (result) {
-        router.push("/changeEmail");
+        dialogEmail = true;
       }
     };
 
@@ -391,6 +540,67 @@ export default {
       store.dispatch("resendEmailVerification");
     };
 
+    const validate = () => {
+      valid.value = passwordRules.every(
+        (rule) => rule(newPassword.value) === true
+      );
+    };
+
+    const validate2 = () => {
+      valid2.value = passwordRules.every(
+        (rule) => rule(repeatPassword.value) === true
+      );
+    };
+
+    const updatePassword = async () => {
+      if (
+        valid.value &&
+        valid2.value &&
+        newPassword.value === repeatPassword.value
+      ) {
+        try {
+          await store.dispatch("updateNewPassword", {
+            email: email.value,
+            password: oldPassword.value,
+            newPassword: newPassword.value,
+          });
+          router.push("/profile");
+        } catch (error) {
+          await store.dispatch("addNotification", {
+            type: "error",
+            message: error,
+          });
+        }
+      } else {
+        if (valid.value === false || valid2.value === false) {
+          await store.dispatch("addNotification", {
+            type: "error",
+            message: "Password does not meet requirements",
+          });
+        } else if (newPassword.value !== repeatPassword.value) {
+          await store.dispatch("addNotification", {
+            type: "error",
+            message: "Passwords do not match",
+          });
+        }
+      }
+    };
+
+    const updateEmail = async () => {
+        try {
+          await store.dispatch("updateEmail", 
+          { oldEmail: email.value, 
+            newEmail: newEmail.value, 
+            password: emailPassword.value});
+          router.push("/profile");
+        } catch (error) {
+          store.dispatch("addNotification", {
+            type: "error",
+            message: "Error updating email: " + error,
+          });
+        }
+      };
+
     return {
       editing,
       displayName,
@@ -405,24 +615,47 @@ export default {
       onUploadButtonClick,
       onFileChange,
       fetchUpdatedData,
+
       editingName,
       originalName,
       startEditingName,
       confirmNameChange,
       cancelNameChange,
+
       originalEmail,
       startEditingEmail,
+
       editingAbout,
       originalAbout,
       startEditingAbout,
       confirmAboutChange,
       cancelAboutChange,
+
       editingAddress,
       originalAddress,
       startEditingAddress,
       confirmAddressChange,
       cancelAddressChange,
+
       sendEmailVerification,
+
+
+      dialogPassword,
+      oldPassword,
+      newPassword,
+      repeatPassword,
+      valid,
+      valid2,
+      passwordRules,
+      validate,
+      validate2,
+      updatePassword,
+      emailPwReset,
+
+      dialogEmail,
+      newEmail,
+      emailPassword,
+      updateEmail,
     };
   },
   data() {

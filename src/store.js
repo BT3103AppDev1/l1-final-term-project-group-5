@@ -29,6 +29,7 @@ import {
   where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import CryptoJS from "crypto-js";
 
 const store = createStore({
   state: {
@@ -43,6 +44,8 @@ const store = createStore({
       address: "",
       detailsSubmitted: false,
       weight: 0,
+      bankDetails: "",
+      authProvider: "",
     },
     products: [],
     listings: [],
@@ -131,8 +134,15 @@ const store = createStore({
 
     SET_WEIGHT(state, weight) {
       state.user.weight = weight;
-    }
+    },
 
+    SET_BANK_DETAILS(state, bankDetails) {
+      state.user.bankDetails = bankDetails;
+    },
+
+    SET_PROVIDER(state, provider) {
+      state.user.authProvider = provider;
+    }
   },
   actions: {
     async registerWithEmail(context, { email, password }) {
@@ -156,6 +166,7 @@ const store = createStore({
             address: "",
             photoURL: defaultProfilePictureURL,
             weight: 0,
+            bankDetails: "",
           });
           context.commit("SET_USER_DETAILS", {
             displayName: "",
@@ -165,6 +176,7 @@ const store = createStore({
             address: "",
           });
           context.commit("SET_USER_ID", response.user.uid);
+          context.commit("SET_PROVIDER", "local");
         }
       } catch (error) {
         throw new Error(error);
@@ -201,6 +213,8 @@ const store = createStore({
           });
           commit("SET_USER_REGISTERED", true);
           commit("SET_WEIGHT", docSnap.get("weight"));
+          commit("SET_BANK_DETAILS", docSnap.get("bankDetails"));
+          commit("SET_PROVIDER", "local");
           return true;
         } else {
           await deleteDoc(userRef);
@@ -317,6 +331,7 @@ const store = createStore({
                 address: "",
                 photoURL: user.photoURL,
                 weight: 0,
+                bankDetails: "",
               });
               context.commit("SET_USER_DETAILS", {
                 displayName: user.displayName,
@@ -325,6 +340,7 @@ const store = createStore({
                 about: "",
                 address: "",
               });
+              context.commit("SET_PROVIDER", "google");
             } else {
               const userSnap = await getDoc(userRef);
               const userData = userSnap.data();
@@ -347,6 +363,8 @@ const store = createStore({
                 context.commit("SET_USER_REGISTERED", true);
                 context.commit("SET_USER_TYPE", userData.userType);
                 context.commit("SET_WEIGHT", userData.weight);
+                context.commit("SET_BANK_DETAILS", userData.bankDetails);
+                context.commit("SET_PROVIDER", "google");
               }
             }
           });
@@ -419,18 +437,29 @@ const store = createStore({
       }
     },
 
-    async reauthenticate(context, { email, password }) {
+    async reauthenticate({ dispatch, state, commit }, { email, password }) {
       try {
-        const credential = EmailAuthProvider.credential(email, password);
-        await reauthenticateWithCredential(auth.currentUser, credential);
-        console.log("Reauthenticated successfully");
+        const user = state.user;
+        if (user.authProvider === "google") { 
+          const credential = GoogleAuthProvider.credential(email, password);
+          await reauthenticateWithCredential(auth.currentUser, credential).catch((error) => {
+            dispatch("addNotification", { type: "error", message: "Failed email validation:" + error });
+          });
+        } else {
+          const credential = EmailAuthProvider.credential(email, password);
+          await reauthenticateWithCredential(auth.currentUser, credential).catch((error) => {
+            dispatch("addNotification", { type: "error", message: "Failed email validation:" + error });
+          });
+        }
       } catch (error) {
         console.error("Failed to reauthenticate:", error);
       }
     },
 
-    async updateNewPassword({ dispatch, state, commit },
-      { email, oldPassword, newPassword }) {
+    async updateNewPassword(
+      { dispatch, state, commit },
+      { email, oldPassword, newPassword }
+    ) {
       try {
         if (!auth.currentUser.emailVerified) {
           dispatch("addNotification", {
@@ -440,14 +469,7 @@ const store = createStore({
           return "error";
           //throw new Error("Please verify the new email before changing email.");
         } else {
-          const credential = EmailAuthProvider.credential(email, oldPassword);
-            await reauthenticateWithCredential(
-              auth.currentUser,
-              credential
-            ).catch((error) => {
-              dispatch("addNotification", { type: "error", message: error });
-              return "error";
-            });
+          await dispatch("reauthenticate", { email, oldPassword });
           await updatePassword(auth.currentUser, newPassword).then(
             console.log("Password updated")
           );
@@ -461,7 +483,7 @@ const store = createStore({
       }
     },
 
-    async resendEmailVerification( {dispatch} ) {
+    async resendEmailVerification({ dispatch }) {
       try {
         const currentUser = auth.currentUser;
         if (!currentUser) {
@@ -470,19 +492,18 @@ const store = createStore({
             message: "No user is currently signed in",
           });
           throw new Error("No user is currently signed in");
-        }
-        else {
+        } else {
           if (currentUser.emailVerified) {
             dispatch("addNotification", {
               type: "error",
               message: "Email already verified",
             });
           } else {
-            await sendEmailVerification(currentUser)
+            await sendEmailVerification(currentUser);
             dispatch("addNotification", {
               type: "success",
               message: "Verification email sent",
-            })
+            });
           }
         }
       } catch (error) {
@@ -560,14 +581,7 @@ const store = createStore({
             return "error";
             //throw new Error("Please verify the new email before changing email.");
           } else {
-            const credential = EmailAuthProvider.credential(oldEmail, password);
-            await reauthenticateWithCredential(
-              auth.currentUser,
-              credential
-            ).catch((error) => {
-              dispatch("addNotification", { type: "error", message: error });
-              return "error";
-            });
+            await dispatch("reauthenticate", { oldEmail, password });
             await updateEmail(auth.currentUser, newEmail);
             dispatch("addNotification", {
               type: "success",
@@ -782,7 +796,6 @@ const store = createStore({
       notification.icon = "$" + type;
       notification.message = message;
       commit("SET_NOTIFICATION", notification);
-      // Automatically remove notification after a certain duration (e.g., 5 seconds)
       setTimeout(() => {
         commit("CLEAR_NOTIFICATION");
       }, 7000);
@@ -790,6 +803,34 @@ const store = createStore({
 
     removeNotification({ commit }) {
       commit("CLEAR_NOTIFICATION");
+    },
+
+    async updateBankDetails({ dispatch, state, commit }, {bankDetails, password}) {
+      try {
+        const secretKey = import.meta.env.VITE_APP_SECRET_KEY;
+        const ciphertext = CryptoJS.AES.encrypt(
+          JSON.stringify(bankDetails),
+          secretKey
+        ).toString();
+        const uid = state.user.uid;
+        const userRef = doc(db, "users", uid);
+        const email = state.user.email;
+        await dispatch("reauthenticate", { email, password });
+        await updateDoc(userRef, {
+          bankDetails: ciphertext,
+        });
+        commit("SET_BANK_DETAILS", ciphertext);
+        dispatch("addNotification", {
+          type: "success",
+          message: "Bank details updated successfully",
+        });
+      } catch (error) {
+        dispatch("addNotification", {
+          type: "error",
+          message: error,
+        });
+        //console.error("Error updating bank details:", error);
+      }
     },
   },
 });

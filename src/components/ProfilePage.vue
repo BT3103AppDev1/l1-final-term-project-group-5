@@ -330,9 +330,50 @@
             </v-col>
 
             <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
-              <v-btn id="bankDetails" label="BankDetails" color="#B0E487"
-                >Enter Bank Details</v-btn
+              <v-btn
+                id="bankDetails"
+                label="BankDetails"
+                color="#B0E487"
+                @click="dialogBank = true"
               >
+              {{ bankButtonText }}
+              </v-btn>
+
+              <v-dialog v-model="dialogBank" persistent max-width="600px">
+                <v-card>
+                  <v-card-title>
+                    <span class="headline">Enter Bank Details</span>
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-form ref="bankForm">
+                      <v-text-field
+                        label="Account Number"
+                        v-model="bankNumber"
+                        required
+                        type="text"
+                      ></v-text-field>
+
+                      <v-text-field
+                        label="Confirm with Password"
+                        v-model="password"
+                        type="password"
+                        required
+                      ></v-text-field>
+                    </v-form>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="red" text @click="dialogBank = false"
+                      >Close</v-btn
+                    >
+                    <v-btn color="green darken-1" text @click="saveBankDetails"
+                      >Save</v-btn
+                    >
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </v-col>
 
             <v-col cols="12" md="12">
@@ -368,6 +409,7 @@ export default {
     user() {
       return store.state.user;
     },
+    
   },
 
   setup() {
@@ -392,6 +434,9 @@ export default {
     const editingAddress = ref(false);
     const originalAddress = ref("");
 
+    const bankForm = ref(null);
+    const dialogBank = ref(false);
+    const bankNumber = ref("");
 
     const dialogPassword = ref(false);
     const oldPassword = ref("");
@@ -418,6 +463,14 @@ export default {
     const dialogEmail = ref(false);
     const newEmail = ref("");
     const emailPassword = ref("");
+    const bankButtonText = computed(() =>{
+      // Replace 'bankDetails' with the actual data property or getter that holds the bank details
+      if (user.value.bankDetails === "") {
+        return "Enter Bank Details";
+      } else {
+        return "Change Bank Details";      
+      }
+    })
 
     watch(user, (newUser) => {
       displayName.value = newUser.displayName;
@@ -541,6 +594,15 @@ export default {
       store.dispatch("resendEmailVerification");
     };
 
+    const saveBankDetails = () => {
+      if (bankForm.value.validate()) {
+        store.dispatch("updateBankDetails", bankNumber.value);
+        dialogBank.value = false;
+      }
+      // store.dispatch("saveBankDetails", bankNumber.value);
+      // dialog.value = false;
+    };
+
     const validate = () => {
       valid.value = passwordRules.every(
         (rule) => rule(newPassword.value) === true
@@ -640,6 +702,10 @@ export default {
 
       sendEmailVerification,
 
+      bankForm,
+      dialogBank,
+      bankNumber,
+      saveBankDetails,
 
       dialogPassword,
       oldPassword,
@@ -657,6 +723,9 @@ export default {
       newEmail,
       emailPassword,
       updateEmail,
+
+      bankButtonText,
+
     };
   },
   data() {

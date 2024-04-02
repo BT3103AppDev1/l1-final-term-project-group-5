@@ -6,7 +6,8 @@
           <th>ID</th>
           <th>Order</th>
           <th>Customer</th>
-          <th>Date</th>
+          <th>Date Ordered</th>
+          <th>Expiry Date</th>
           <th>Price</th>
           <th>
             <div class="status-container">
@@ -26,7 +27,7 @@
     </table>
     <br>
     <div id="completeButtonContainer">
-      <button id="completeButton" @click="completeSelectedEntries">Mark as Completed</button>
+      <button id="completeButton" @click="completeSelectedEntries" :disabled="entriesToComplete.length === 0">Mark as Completed</button>
     </div>
     <br><br>
   </div>
@@ -66,6 +67,7 @@ export default {
   async mounted() {
     const auth = getAuth()
     this.sellerId = auth.currentUser.uid
+    await this.updateExpiredOrders();
     this.display();
   },
   watch: {
@@ -139,14 +141,18 @@ export default {
         let cell5 = row.insertCell(4);
         let cell6 = row.insertCell(5);
         let cell7 = row.insertCell(6);
+        let cell8 = row.insertCell(7);
 
         cell1.innerHTML = documentData.orderId;
         cell2.innerHTML = documentData.order;
         cell3.innerHTML = documentData.name;
-        const date = new Date(documentData.datePurchased.seconds * 1000);
-        const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        let date = new Date(documentData.datePurchased.seconds * 1000);
+        let formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
         cell4.innerHTML = formattedDate;
-        cell5.innerHTML = documentData.totalPrice;
+        date = new Date(documentData.expirationDate.seconds * 1000);
+        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        cell5.innerHTML = formattedDate;
+        cell6.innerHTML = documentData.totalPrice;
 
         // Apply oval border and color based on status
         const statusCellContent = document.createElement('div');
@@ -165,7 +171,7 @@ export default {
           }
           statusCellContent.appendChild(oval);
         });
-        cell6.appendChild(statusCellContent);
+        cell7.appendChild(statusCellContent);
 
         if (documentData.status === 'Ongoing' || documentData.status === 'Collected') {
           // Render a checkbox
@@ -173,9 +179,9 @@ export default {
           checkbox.type = 'checkbox'
           checkbox.name = 'completed'
           checkbox.addEventListener('change', (event) => {
-          this.handleCheckboxChange(event, documentData.orderId);
-        });
-          cell7.appendChild(checkbox)
+            this.handleCheckboxChange(event, documentData.orderId);
+          });
+          cell8.appendChild(checkbox)
         } else if (documentData.status === 'Expired') {
           // Render a delete button
           let deleteButton = document.createElement('img');
@@ -185,7 +191,7 @@ export default {
           deleteButton.addEventListener('click', () => {
             this.deleteInstrument(documentData.orderId)
           })
-          cell7.appendChild(deleteButton)
+          cell8.appendChild(deleteButton)
         }
       })
       this.entriesToComplete = []; // Ensure previously checked boxes are unchecked
@@ -209,9 +215,6 @@ export default {
       } else {
       this.$emit('handleStatus');
       }
-    },
-    sortBy(header) {
-      // insert code here
     },
     // Method to handle checkbox change
     handleCheckboxChange(event, orderId) {
@@ -245,6 +248,23 @@ export default {
       this.display();
       // Clear the selected entries list after completion
       this.entriesToComplete = [];
+    },
+    async updateExpiredOrders() {
+      // Get the current date
+      const currentDate = new Date();
+
+      // Create a Firestore query to fetch orders that are not completed
+      const queryRef = collection(db, 'order').where('status', '!=', 'Completed');
+      const querySnapshot = await getDocs(queryRef);
+      const ordersToUpdate = querySnapshot.docs.map(doc => doc.data());
+
+      // Update status of orders whose expiration date is before the current date
+      for (const order of ordersToUpdate) {
+        if (order.expirationDate.seconds * 1000 < currentDate.getTime()) {
+          const docRef = doc(db, 'order', order.orderId);
+          await updateDoc(docRef, { status: 'Expired' });
+        }
+      }
     },
   }
 }
@@ -364,7 +384,7 @@ tbody tr:nth-child(odd) {
   color: #FFBF00;
 }
 
-/* Complete button styles */
+/* Button styles */
 #completeButton {
   background-color: #4CAF50; /* Green background color */
   border: none; /* Remove border */
@@ -383,9 +403,15 @@ tbody tr:nth-child(odd) {
   display: flex;
 }
 
+/* Hover effect for button */
 #completeButton:hover {
   background-color: #45a049; /* Darker green color on hover */
 }
 
+/* Disabled button styles */
+#completeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed; /* Change cursor to 'not-allowed' */
+}
 
 </style>

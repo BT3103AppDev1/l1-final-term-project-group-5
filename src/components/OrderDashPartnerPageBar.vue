@@ -131,5 +131,6 @@ export default {
 
 .fade-out {
   opacity: 0.5; /* Adjust the opacity value as needed */
+  cursor: not-allowed;
 }
 </style>

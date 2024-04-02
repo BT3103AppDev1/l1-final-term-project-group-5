@@ -64,6 +64,8 @@ export default {
     },
   },
   async mounted() {
+    const auth = getAuth()
+    this.sellerId = auth.currentUser.uid
     this.display();
   },
   watch: {
@@ -86,8 +88,7 @@ export default {
     },
 
     async display() {
-      const auth = getAuth()
-      this.sellerId = auth.currentUser.uid
+      console.log("display() ran")
 
       // Clear existing table content
       const tableBody = document.getElementById("table").getElementsByTagName('tbody')[0];
@@ -106,6 +107,7 @@ export default {
       // Apply filter for partnerUID
       if (currentUser) {
         queryRef = query(queryRef, where('sellerId', '==', currentUser));
+        console.log('currentUser: ' + currentUser)
       }
 
       // Apply search filter if searchQuery is not empty

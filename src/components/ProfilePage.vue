@@ -211,6 +211,13 @@
                 >Enter Bank Details</v-btn
               >
             </v-col>
+
+            <v-col cols="12" md="12">
+              <p style="font-size:20px">
+                You have saved: <span style="color: green;">{{ user.weight }} kg</span>!
+              </p>
+            </v-col>
+
           </v-form>
         </v-card-text>
       </v-card>
@@ -381,7 +388,7 @@ export default {
     };
 
     const sendEmailVerification = () => {
-      store.dispatch("sendEmailVerification");
+      store.dispatch("resendEmailVerification");
     };
 
     return {

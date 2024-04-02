@@ -42,6 +42,7 @@ const store = createStore({
       about: "",
       address: "",
       detailsSubmitted: false,
+      weight: 0,
     },
     products: [],
     listings: [],
@@ -127,6 +128,11 @@ const store = createStore({
     CLEAR_NOTIFICATION(state) {
       state.notification = null;
     },
+
+    SET_WEIGHT(state, weight) {
+      state.user.weight = weight;
+    }
+
   },
   actions: {
     async registerWithEmail(context, { email, password }) {
@@ -149,6 +155,7 @@ const store = createStore({
             about: "",
             address: "",
             photoURL: defaultProfilePictureURL,
+            weight: 0,
           });
           context.commit("SET_USER_DETAILS", {
             displayName: "",
@@ -193,6 +200,7 @@ const store = createStore({
             address: docSnap.get("address"),
           });
           commit("SET_USER_REGISTERED", true);
+          commit("SET_WEIGHT", docSnap.get("weight"));
           return true;
         } else {
           await deleteDoc(userRef);
@@ -308,6 +316,7 @@ const store = createStore({
                 about: "",
                 address: "",
                 photoURL: user.photoURL,
+                weight: 0,
               });
               context.commit("SET_USER_DETAILS", {
                 displayName: user.displayName,
@@ -337,6 +346,7 @@ const store = createStore({
                 });
                 context.commit("SET_USER_REGISTERED", true);
                 context.commit("SET_USER_TYPE", userData.userType);
+                context.commit("SET_WEIGHT", userData.weight);
               }
             }
           });

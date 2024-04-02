@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <div style="height: 50px">
+    <div style="height: 50px;">
       <v-alert
         v-if="notification"
         :key="notification.id"
@@ -78,6 +78,7 @@ h6 {
 }
 
 .alert-custom {
+  position: fixed;
   top: 0; /* Position at the top */
   left: 50%; /* Center horizontally */
   transform: translateX(-50%); /* Center horizontally */

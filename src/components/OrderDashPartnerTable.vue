@@ -44,8 +44,6 @@ const db = getFirestore(firebaseApp);
 export default {
   data() {
     return {
-      sortField: null,
-      sortDirection: 'asc',
       statusField: 'All',
       entriesToComplete: [],
     };
@@ -67,7 +65,6 @@ export default {
   async mounted() {
     const auth = getAuth()
     this.sellerId = auth.currentUser.uid
-    await this.updateExpiredOrders();
     this.display();
   },
   watch: {
@@ -90,7 +87,7 @@ export default {
     },
 
     async display() {
-      console.log("display() ran")
+      console.log("display() ran");
 
       // Clear existing table content
       const tableBody = document.getElementById("table").getElementsByTagName('tbody')[0];
@@ -109,7 +106,7 @@ export default {
       // Apply filter for partnerUID
       if (currentUser) {
         queryRef = query(queryRef, where('sellerId', '==', currentUser));
-        console.log('currentUser: ' + currentUser)
+        console.log('currentUser: ' + currentUser);
       }
 
       // Apply search filter if searchQuery is not empty
@@ -119,14 +116,19 @@ export default {
 
       // Filter based on status
       if (this.statusField != 'All') {
-        queryRef = query(queryRef, where('status', '==', this.statusField))
+        queryRef = query(queryRef, where('status', '==', this.statusField));
       }
 
       const querySnapshot = await getDocs(queryRef);
       const filteredDocuments = querySnapshot.docs.map(doc => doc.data());
 
       // Update number of pages
-      this.$emit('total-page', filteredDocuments.length)
+      this.$emit('total-page', filteredDocuments.length);
+
+      // Sort documents by date ordered
+      filteredDocuments.sort((a, b) => {
+          return b.datePurchased.seconds - a.datePurchased.seconds;
+      });
 
       // Filter documents based on pagination
       const paginatedDocuments = filteredDocuments.slice(startIndex, endIndex);
@@ -248,23 +250,6 @@ export default {
       this.display();
       // Clear the selected entries list after completion
       this.entriesToComplete = [];
-    },
-    async updateExpiredOrders() {
-      // Get the current date
-      const currentDate = new Date();
-
-      // Create a Firestore query to fetch orders that are not completed
-      const queryRef = collection(db, 'order').where('status', '!=', 'Completed');
-      const querySnapshot = await getDocs(queryRef);
-      const ordersToUpdate = querySnapshot.docs.map(doc => doc.data());
-
-      // Update status of orders whose expiration date is before the current date
-      for (const order of ordersToUpdate) {
-        if (order.expirationDate.seconds * 1000 < currentDate.getTime()) {
-          const docRef = doc(db, 'order', order.orderId);
-          await updateDoc(docRef, { status: 'Expired' });
-        }
-      }
     },
   }
 }

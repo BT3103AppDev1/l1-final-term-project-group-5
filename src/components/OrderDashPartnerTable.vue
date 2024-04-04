@@ -6,7 +6,8 @@
           <th>ID</th>
           <th>Order</th>
           <th>Customer</th>
-          <th>Date</th>
+          <th>Date Ordered</th>
+          <th>Expiry Date</th>
           <th>Price</th>
           <th>
             <div class="status-container">
@@ -26,7 +27,7 @@
     </table>
     <br>
     <div id="completeButtonContainer">
-      <button id="completeButton" @click="completeSelectedEntries">Mark as Completed</button>
+      <button id="completeButton" @click="completeSelectedEntries" :disabled="entriesToComplete.length === 0">Mark as Completed</button>
     </div>
     <br><br>
   </div>
@@ -36,14 +37,13 @@
 import { firebaseApp } from '../firebase.js'
 import { getFirestore, query, where, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import trash from "@/assets/Trash.svg"
+import { getAuth } from "firebase/auth";
 
 const db = getFirestore(firebaseApp);
 
 export default {
   data() {
     return {
-      sortField: null,
-      sortDirection: 'asc',
       statusField: 'All',
       entriesToComplete: [],
     };
@@ -63,6 +63,8 @@ export default {
     },
   },
   async mounted() {
+    const auth = getAuth()
+    this.sellerId = auth.currentUser.uid
     this.display();
   },
   watch: {
@@ -85,6 +87,8 @@ export default {
     },
 
     async display() {
+      console.log("display() ran");
+
       // Clear existing table content
       const tableBody = document.getElementById("table").getElementsByTagName('tbody')[0];
       tableBody.innerHTML = '';
@@ -93,8 +97,17 @@ export default {
       const startIndex = (this.currentPage - 1) * this.entriesPerPage;
       const endIndex = this.currentPage * this.entriesPerPage;
 
+      // Get the logged-in user's partnerUID 
+      const currentUser = this.sellerId;
+
       // Create a Firestore query
       let queryRef = collection(db, 'order');
+
+      // Apply filter for partnerUID
+      if (currentUser) {
+        queryRef = query(queryRef, where('sellerId', '==', currentUser));
+        console.log('currentUser: ' + currentUser);
+      }
 
       // Apply search filter if searchQuery is not empty
       if (this.searchQuery) {
@@ -103,14 +116,19 @@ export default {
 
       // Filter based on status
       if (this.statusField != 'All') {
-        queryRef = query(queryRef, where('status', '==', this.statusField))
+        queryRef = query(queryRef, where('status', '==', this.statusField));
       }
 
       const querySnapshot = await getDocs(queryRef);
       const filteredDocuments = querySnapshot.docs.map(doc => doc.data());
 
       // Update number of pages
-      this.$emit('total-page', filteredDocuments.length)
+      this.$emit('total-page', filteredDocuments.length);
+
+      // Sort documents by date ordered
+      filteredDocuments.sort((a, b) => {
+          return b.datePurchased.seconds - a.datePurchased.seconds;
+      });
 
       // Filter documents based on pagination
       const paginatedDocuments = filteredDocuments.slice(startIndex, endIndex);
@@ -125,14 +143,18 @@ export default {
         let cell5 = row.insertCell(4);
         let cell6 = row.insertCell(5);
         let cell7 = row.insertCell(6);
+        let cell8 = row.insertCell(7);
 
         cell1.innerHTML = documentData.orderId;
         cell2.innerHTML = documentData.order;
         cell3.innerHTML = documentData.name;
-        const date = new Date(documentData.datePurchased.seconds * 1000);
-        const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        let date = new Date(documentData.datePurchased.seconds * 1000);
+        let formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
         cell4.innerHTML = formattedDate;
-        cell5.innerHTML = documentData.totalPrice;
+        date = new Date(documentData.expirationDate.seconds * 1000);
+        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        cell5.innerHTML = formattedDate;
+        cell6.innerHTML = documentData.totalPrice;
 
         // Apply oval border and color based on status
         const statusCellContent = document.createElement('div');
@@ -151,7 +173,7 @@ export default {
           }
           statusCellContent.appendChild(oval);
         });
-        cell6.appendChild(statusCellContent);
+        cell7.appendChild(statusCellContent);
 
         if (documentData.status === 'Ongoing' || documentData.status === 'Collected') {
           // Render a checkbox
@@ -159,9 +181,9 @@ export default {
           checkbox.type = 'checkbox'
           checkbox.name = 'completed'
           checkbox.addEventListener('change', (event) => {
-          this.handleCheckboxChange(event, documentData.orderId);
-        });
-          cell7.appendChild(checkbox)
+            this.handleCheckboxChange(event, documentData.orderId);
+          });
+          cell8.appendChild(checkbox)
         } else if (documentData.status === 'Expired') {
           // Render a delete button
           let deleteButton = document.createElement('img');
@@ -171,7 +193,7 @@ export default {
           deleteButton.addEventListener('click', () => {
             this.deleteInstrument(documentData.orderId)
           })
-          cell7.appendChild(deleteButton)
+          cell8.appendChild(deleteButton)
         }
       })
       this.entriesToComplete = []; // Ensure previously checked boxes are unchecked
@@ -195,9 +217,6 @@ export default {
       } else {
       this.$emit('handleStatus');
       }
-    },
-    sortBy(header) {
-      // insert code here
     },
     // Method to handle checkbox change
     handleCheckboxChange(event, orderId) {
@@ -350,7 +369,7 @@ tbody tr:nth-child(odd) {
   color: #FFBF00;
 }
 
-/* Complete button styles */
+/* Button styles */
 #completeButton {
   background-color: #4CAF50; /* Green background color */
   border: none; /* Remove border */
@@ -369,9 +388,15 @@ tbody tr:nth-child(odd) {
   display: flex;
 }
 
+/* Hover effect for button */
 #completeButton:hover {
   background-color: #45a049; /* Darker green color on hover */
 }
 
+/* Disabled button styles */
+#completeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed; /* Change cursor to 'not-allowed' */
+}
 
 </style>

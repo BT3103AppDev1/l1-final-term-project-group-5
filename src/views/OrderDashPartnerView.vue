@@ -14,7 +14,8 @@ import OrderDashPartnerSearchBar from '@/components/OrderDashPartnerSearchBar.vu
 import OrderDashPartnerTable from '@/components/OrderDashPartnerTable.vue';
 import OrderDashPartnerPageBar from '@/components/OrderDashPartnerPageBar.vue';
 import { db } from '@/firebase.js';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { getAuth } from "firebase/auth";
 
 export default {
   name: 'OrderDashPartner',
@@ -26,7 +27,7 @@ export default {
   data() {
     return {
       currentPage: 1,
-      entriesPerPage: 5,
+      entriesPerPage: 3,
       totalEntries: 0,
       searchQuery: '',
       entriesToComplete: [],
@@ -38,13 +39,16 @@ export default {
     }
   },
   async mounted() {
+    const auth = getAuth()
+    this.sellerId = auth.currentUser.uid
     await this.fetchTotalEntries(); // Fetch total entries when the component is mounted
   },
   methods: {
     async fetchTotalEntries() {
       try {
-        const querySnapshot = await getDocs(collection(db, 'order'))
-        this.totalEntries = querySnapshot.size; // Update totalEntries with the number of documents in the collection
+        const queryRef = query(collection(db, 'order'), where('sellerId', '==', this.sellerId));
+        const querySnapshot = await getDocs(queryRef);
+        this.totalEntries = querySnapshot.size; // Update totalEntries with the number of documents in the filtered collection
       } catch (error) {
         console.error('Error fetching total entries:', error);
       }

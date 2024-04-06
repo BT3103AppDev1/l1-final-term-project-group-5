@@ -1,11 +1,11 @@
 <template>
     <div class="product-card">
-        <img :src="listing.imageUrl" alt="Product Image" class="img">
+        <img :src="listing.productImage" alt="Product Image" class="img">
         <div class="product-details">
-            <h2 class="name">{{ listing.name }}</h2>
-            <h3 class="category">{{ listing.category }}</h3>
-            <h3 class="price">Price: ${{ listing.price.toFixed(2) }}</h3>
-            <h3 class="expiry">Expires: {{ listing.expirationDate }}</h3>
+            <h2 class="name">{{ listing.productName }}</h2>
+            <h3 class="category">{{ listing.productCategory }} </h3>
+            <h3 class="price">Price: ${{ parseFloat(listing.price).toFixed(2) }}</h3>
+            <h3 class="expiry">Expires: {{ listing.expirationDate }} </h3>
         </div>
         <div class="qty-btn-container">
             <div class="qty-selector">
@@ -61,7 +61,7 @@ export default {
     flex-direction: column;
     align-items: left;
     border: 4px solid lightslategray;
-    border-radius: 30px;
+    border-radius: 15px;
     padding: 16px;
     margin: 8px;
     width: 250px;
@@ -70,12 +70,16 @@ export default {
 }
 
 .img {
-    border-radius: 20px;
+    border-radius: 15px;
     align-self: center;
     height: 200px;
     width: 220px;
     margin-bottom: 0px;
     object-fit: cover; /* Ensures the image fills the container without distortion */
+}
+
+.product-details {
+    color:white;
 }
 
 .name {
@@ -100,6 +104,7 @@ export default {
 }
 
 .qty-btn-container {
+    color:white;
     display:flex;
     justify-content: space-between;
     width: 100%;

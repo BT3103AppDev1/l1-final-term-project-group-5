@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <div style="height: 50px;">
+    <div style="height: 64px">
       <v-alert
         v-if="notification"
         :key="notification.id"
@@ -17,7 +17,9 @@
       </v-alert>
     </div>
     <template v-if="isLoggedIn">
-      <NavLoggedIn :user="user" />
+      <div class="nav">
+        <NavLoggedIn :user="user" />
+      </div>
     </template>
     <template v-else>
       <div class="nav">
@@ -25,7 +27,7 @@
       </div>
     </template>
 
-    <div style="padding-top: 120px">
+    <div>
       <router-view />
     </div>
   </v-app>

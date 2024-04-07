@@ -12,11 +12,11 @@
           :min="today" required></v-text-field>
 
         <label for="price">Price</label>
-        <v-text-field v-model="newListing.price" id="price" label="Price of product ($)" type="number" min="0"
+        <v-text-field v-model.number="newListing.price" id="price" label="Price of product ($)" type="number" min="0"
           step="0.01" required></v-text-field>
 
         <label for="price">Units To Sell</label>
-        <v-text-field v-model="newListing.unitsToSell" id="unitsToSell" label="# of quantity" type="number" min="1"
+        <v-text-field v-model.number="newListing.unitsToSell" id="unitsToSell" label="# of quantity" type="number" min="1"
           required></v-text-field>
 
         <v-btn block variant="tonal" elevation="3" class="submit-button" type="submit">List to Marketplace</v-btn>

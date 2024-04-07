@@ -25,7 +25,7 @@
                   <v-select v-model="editedProduct.category" :items="categories" label="Select Product Category"
                     required></v-select>
 
-                  <v-text-field v-model="editedProduct.weight" label="Enter Product Weight" type="number"
+                  <v-text-field v-model.number="editedProduct.weight" label="Enter Product Weight" type="number"
                     required></v-text-field>
 
                   <v-file-input label="Upload Product Image" prepend-icon="mdi-paperclip" @change="onFileChange" chips>
@@ -75,13 +75,13 @@
                   <v-text-field v-model="editedListing.expirationDate" id="expirationDate" label="Expiration Date"
                     type="date" :min="today" required></v-text-field>
 
-                  <v-text-field v-model="editedListing.price" id="price" label="Price of product ($)" type="number" min="0"
+                  <v-text-field v-model.number="editedListing.price" id="price" label="Price of product ($)" type="number" min="0"
                     step="0.01" required></v-text-field>
 
-                  <v-text-field v-model="editedListing.unitsRemaining" id="unitsRemaining" label="# of units remaining" type="number"
+                  <v-text-field v-model.number="editedListing.unitsRemaining" id="unitsRemaining" label="# of units remaining" type="number"
                     min="0" required></v-text-field>
 
-                  <v-text-field v-model="editedListing.unitsToSell" id="unitsToSell" label="# of quantity to sell" type="number"
+                  <v-text-field v-model.number="editedListing.unitsToSell" id="unitsToSell" label="# of quantity to sell" type="number"
                     min="0" required></v-text-field>
 
                 </v-form>

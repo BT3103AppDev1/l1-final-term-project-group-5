@@ -106,6 +106,13 @@ const store = createStore({
       state.inactiveListings = listings;
     },
 
+    updateListing(state, { id, updates }) {
+      const index = state.listings.findIndex(listing => listing.id === id);
+      if (index !== -1) {
+        state.listings[index] = updates;
+      }
+    },
+
     UPDATE_LISTING_STATUS(state, { listingId, isActive }) {
       // Find the listing and update its 'isActive' status
       const index = state.listings.findIndex(
@@ -662,18 +669,28 @@ const store = createStore({
     async addListing({ commit }, newListing) {
       const now = new Date();
       now.setHours(0, 0, 0, 0); // Set now to beginning of the day
-      newListing.unitsRemaining = newListing.unitsToSell;
+      newListing.unitsRemaining = Number(newListing.unitsToSell);
       newListing.createdDate = now;
       newListing.isActive =
         newListing.unitsRemaining > 0 &&
         new Date(newListing.expirationDate) >= now;
-
       const docRef = await addDoc(collection(db, "listings"), newListing);
       await updateDoc(doc(db, "listings", docRef.id), {
         listingId: docRef.id,
       });
       newListing.listingId = docRef.id;
       commit("ADD_LISTING", { id: docRef.id, ...newListing });
+    },
+
+    async editListing({ commit }, editedListing) {
+      try {
+        const id = editedListing.listingId;
+        const listingRef = doc(db, 'listings', id);
+        await updateDoc(listingRef, editedListing);
+        commit('updateListing', { id, editedListing });
+      } catch (error) {
+        console.error('Error updating listing:', error);
+      }
     },
 
     async fetchActiveListingsWithProductDetails({ commit }, sellerId) {

@@ -9,10 +9,10 @@
             <div class="cart-contents">
                 <div v-for="item in cart" :key="item.listingId" class="item">
                 <img :src="item.imageUrl" alt="Product Image" class="item-img">
-                <h2 class="item-name"> {{ item.name }}</h2>
-                <p class="item-price">Price: ${{ item.price.toFixed(2) }}</p>
+                <h2 class="item-name"> {{ item.productName }}</h2>
+                <p class="item-price">Price: ${{ parseFloat(item.price).toFixed(2) }}</p>
                 <p class="item-qty"> Qty: x{{ item.quantity }}</p>
-                <p class="item-subtotal"> Subtotal : ${{ (item.price * item.quantity).toFixed(2) }}</p>
+                <p class="item-subtotal"> Subtotal : $ {{ (parseFloat(item.price) * item.quantity).toFixed(2) }}</p>
                 </div>
                 <div class="cart-fotter">
                 <button class="clear-cart" @click="clearCart">Clear Cart</button>
@@ -93,7 +93,9 @@ export default {
         },
 
         totalPrice() {
-            return this.cart.reduce((total, item) => total + item.price * item.quantity, 0);
+            return this.cart.reduce((total, item) => {
+                return total + parseFloat(item.price) * item.quantity;
+            }, 0).toFixed(2);
         }
     },
 
@@ -180,14 +182,12 @@ export default {
 }
 
 .item-name {
-    color:white;
+    color:black;
 }
 
 .item-subtotal {
-    font-weight:bold;
+    color:black;
 }
-
-
 
 .cart-overlay {
     position:fixed;
@@ -251,7 +251,7 @@ export default {
     overflow: auto;
     top: 16px;
     right: 24px;
-    color:white;
+    color:black;
     margin-top: auto;
     margin-bottom: 8px;
     font-weight:bold;

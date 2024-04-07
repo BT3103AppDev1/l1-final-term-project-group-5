@@ -12,12 +12,14 @@
           <th>
             <div class="status-container">
               <span>Status</span>
+              <div class="status-option">
               <select @change="filterByStatus(statusField)" v-model="statusField" >
                 <option value="All">All</option>
                 <option value="Completed">Completed</option>
                 <option value="Ongoing">Ongoing</option>
                 <option value="Expired">Expired</option>
               </select>
+              </div>
             </div>
           </th>
           <th>Select</th>
@@ -175,7 +177,7 @@ export default {
         });
         cell7.appendChild(statusCellContent);
 
-        if (documentData.status === 'Ongoing' || documentData.status === 'Collected') {
+        if (documentData.status === 'Ongoing') {
           // Render a checkbox
           let checkbox = document.createElement('input')
           checkbox.type = 'checkbox'
@@ -184,7 +186,7 @@ export default {
             this.handleCheckboxChange(event, documentData.orderId);
           });
           cell8.appendChild(checkbox)
-        } else if (documentData.status === 'Expired') {
+        } else if (documentData.status === 'Expired' || documentData.status === 'Completed') {
           // Render a delete button
           let deleteButton = document.createElement('img');
           deleteButton.src = trash;
@@ -292,37 +294,37 @@ td {
 
 /* Alternate row background color for better readability */
 tbody tr:nth-child(even) {
-    background-color: #F0F4F0;
+  background-color: #F0F4F0;
 }
 
 tbody tr:nth-child(odd) {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 /* Button style for delete button */
 .bwt {
-    color: #fff;
-    background-color: transparent; /* Remove background color */
-    border: none; /* Remove border */
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
+  color: #fff;
+  background-color: transparent; /* Remove background color */
+  border: none; /* Remove border */
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 /* Hover effect for delete button */
 .bwt:hover {
-    background-color: transparent; /* Keep the hover effect */
+  background-color: transparent; /* Keep the hover effect */
 }
 
 /* Adjust the width and height of the trash button */
 .trash-bwt {
-    width: 20px;
-    height: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .trash-bwt:hover {
-    transform: scale(1.1); /* Scale up by 10% on hover */
+  transform: scale(1.1); /* Scale up by 10% on hover */
 }
 
 /* Styles for status container */
@@ -332,9 +334,19 @@ tbody tr:nth-child(odd) {
   justify-content: center; /* Center the content horizontally */
 }
 
+.status-container span {
+  margin-right: 10px;
+}
+
 .status-container select {
-  margin-left: 8px;
-  vertical-align: middle; /* Align the select element vertically */
+  border-radius: 4px;
+  border: 2px solid #ccc;
+  background-color: #fff;
+  font-size: 14px;
+}
+
+.status-option:hover select {
+  border-color: black; /* Change border color on hover */
 }
 
 /* Oval border styles */

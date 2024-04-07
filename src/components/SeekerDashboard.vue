@@ -157,7 +157,7 @@ const clearSearch = () => {
               <div @click="selectFilter('Expired')">Expired</div>
             </div>
           </th>
-          <th>Mark as Collected</th>
+          <th>Mark as Completed</th>
         </tr>
       </thead>
       <tbody>

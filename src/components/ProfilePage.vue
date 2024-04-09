@@ -137,7 +137,6 @@
                           <!-- ... -->
                           <v-btn
                             color="#B0E487"
-                            append-icon="$vuetify"
                             @click="updateEmail"
                             style="margin-right: 16px"
                           >
@@ -146,7 +145,6 @@
 
                           <v-btn
                             color="red"
-                            append-icon="$vuetify"
                             @click="dialogEmail = false"
                           >
                             Cancel
@@ -309,7 +307,6 @@
                       <!-- ... -->
                       <v-btn
                         color="#B0E487"
-                        append-icon="$vuetify"
                         style="margin-right: 16px"
                         @click="updatePassword"
                       >
@@ -318,7 +315,6 @@
 
                       <v-btn
                         color="red"
-                        append-icon="$vuetify"
                         @click="dialogPassword = false"
                       >
                         Cancel

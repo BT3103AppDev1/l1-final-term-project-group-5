@@ -74,7 +74,6 @@
                 <v-row justify="center">
                   <v-col cols="12" md="3" sm="2">
                     <v-btn
-                      append-icon="$vuetify"
                       color="primary"
                       @click="RegisterDetails"
                     >

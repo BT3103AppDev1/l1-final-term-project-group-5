@@ -17,8 +17,7 @@
                   autocomplete="email"
                 ></v-text-field>
                 <v-btn
-                  color="#B0E487"
-                  append-icon="$vuetify"
+                  color="primary"
                   @click="submitForm"
                   >Confirm</v-btn
                 >

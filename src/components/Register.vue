@@ -35,7 +35,7 @@
               <v-row justify="center">
                 <v-col cols="12" md="2" sm="2">
                   <v-btn
-                    append-icon="$vuetify"
+                    append-icon="mdi-email-outline"
                     type="submit"
                     color="primary"
                     :disabled="!valid"
@@ -49,7 +49,7 @@
               <v-row justify="center">
                 <v-col cols="12" md="3" sm="2">
                   <v-btn
-                    append-icon="$vuetify"
+                    append-icon="mdi-google"
                     color="primary"
                     @click="RegisterWithGoogle"
                   >

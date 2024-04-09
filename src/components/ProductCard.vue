@@ -1,10 +1,19 @@
 <template>
     <div class="product-card">
-        <img :src="listing.productImage" alt="Product Image" class="img">
+        <div class="img-container" @mouseover="showOverlay = true" @mouseleave="showOverlay = false">
+            <img :src="listing.imageUrl" alt="Product Image" class="img">
+            <transition name="fade">
+            <div class="company-overlay" v-show="showOverlay">
+                <img :src="seller?.photoURL" alt="Company Logo" class="company-logo">
+                <h3>{{ seller?.displayName }}</h3>
+                <p>Address: {{ seller?.address }}</p>  
+            </div>
+            </transition>
+        </div>
         <div class="product-details">
-            <h2 class="name">{{ listing.productName }}</h2>
-            <h3 class="category">{{ listing.productCategory }} </h3>
-            <h3 class="price">Price: ${{ parseFloat(listing.price).toFixed(2) }}</h3>
+            <h2 class="name">{{ listing.name }}</h2>
+            <h3 class="category">{{ listing.category }} </h3>
+            <h3 class="price">Price: ${{ listing.price.toFixed(2) }}</h3>
             <h3 class="expiry">Expires: {{ listing.expirationDate }} </h3>
         </div>
         <div class="qty-btn-container">
@@ -22,17 +31,33 @@
 </template>
 
 <script>
+import { doc, getDoc } from "firebase/firestore";
+import { db } from '@/firebase';
+import { useStore } from 'vuex';
+
 export default {
     props: ['listing'],
 
     data() {
         return {
             cart : [],
+            showOverlay:false,
+            seller:null,
         };
     },
 
-    created() {
+    async created() {
         this.listing.quantity = 1;
+
+        const sellerRef = doc(db, 'users', this.listing.sellerId);
+        const sellerDoc = await getDoc(sellerRef);
+        
+
+        if (sellerDoc.exists()) {
+            this.seller = sellerDoc.data();
+        } else {
+            console.log("No such document!");
+        }
     },
 
     methods : {
@@ -47,8 +72,8 @@ export default {
                     quantity: listing.quantity || 1, // Set quantity to 1 if no quantity is selected
                 });
             }
-
             this.$emit('add-to-cart', listing);
+
         }
     },
 };
@@ -69,11 +94,47 @@ export default {
     background-color:darkslategray;
 }
 
+.img-container {
+    position:relative;
+    width:100%;
+    height:100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.company-overlay {
+    border-radius: 15px;
+    color:white;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color: aliceblue;
+    color:green;
+    display:flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items:center;
+    opacity:50;
+    transition:opacity 1s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to {
+    transition: opacity 0.5s ease;
+    opacity: 0;
+}
+
 .img {
     border-radius: 15px;
     align-self: center;
     height: 200px;
-    width: 220px;
+    width: 210px;
     margin-bottom: 0px;
     object-fit: cover; /* Ensures the image fills the container without distortion */
 }

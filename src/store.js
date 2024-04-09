@@ -46,6 +46,7 @@ const store = createStore({
       weight: 0,
       bankDetails: "",
       authProvider: "",
+      rank: 3,
     },
     products: [],
     listings: [],
@@ -161,6 +162,10 @@ const store = createStore({
     SET_PROVIDER(state, provider) {
       state.user.authProvider = provider;
     },
+
+    SET_RANK(state, rank) {
+      state.user.rank = rank;
+    },
     SET_PRODUCTS(state, products) {
       state.products = products;
     },
@@ -217,6 +222,7 @@ const store = createStore({
             photoURL: defaultProfilePictureURL,
             weight: 0,
             bankDetails: "",
+            rank: 3,
           });
           context.commit("SET_USER_DETAILS", {
             displayName: "",
@@ -227,6 +233,7 @@ const store = createStore({
           });
           context.commit("SET_USER_ID", response.user.uid);
           context.commit("SET_PROVIDER", "local");
+          context.commit("SET_RANK", 3);
         }
       } catch (error) {
         throw new Error(error);
@@ -382,6 +389,7 @@ const store = createStore({
                 photoURL: user.photoURL,
                 weight: 0,
                 bankDetails: "",
+                rank: 3,
               });
               context.commit("SET_USER_DETAILS", {
                 displayName: user.displayName,
@@ -391,6 +399,7 @@ const store = createStore({
                 address: "",
               });
               context.commit("SET_PROVIDER", "google");
+              context.commit("SET_RANK", 3);
             } else {
               const userSnap = await getDoc(userRef);
               const userData = userSnap.data();
@@ -415,6 +424,7 @@ const store = createStore({
                 context.commit("SET_WEIGHT", userData.weight);
                 context.commit("SET_BANK_DETAILS", userData.bankDetails);
                 context.commit("SET_PROVIDER", "google");
+                context.commit("SET_RANK", userData.rank);
               }
             }
           });

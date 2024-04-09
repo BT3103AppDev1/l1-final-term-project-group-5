@@ -378,6 +378,14 @@
                 <span style="color: green">{{ user.weight }} kg</span>!
               </p>
             </v-col>
+
+            <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
+              <p style="font-size: 20px">
+                You are currently 
+                <span style="color: green">EcoRank {{ user.rank }}</span>!
+              </p>
+            </v-col>
+
           </v-form>
         </v-card-text>
       </v-card>

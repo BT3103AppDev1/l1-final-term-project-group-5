@@ -147,7 +147,6 @@ const clearSearch = () => {
                 {{ dateSortOrder === "desc" ? "🔽" : "🔼" }}
               </button>
             </th>
-
             <th>Price</th>
             <th>
               Status <button @click="toggleFilterDropdown">⚙️</button>
@@ -158,7 +157,7 @@ const clearSearch = () => {
                 <div @click="selectFilter('Expired')">Expired</div>
               </div>
             </th>
-            <th>Mark as Collected</th>
+            <th>Mark as Completed</th>
           </tr>
         </thead>
         <tbody>

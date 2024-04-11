@@ -35,7 +35,7 @@ const store = createStore({
   state: {
     user: {
       loggedIn: false,
-      type: "ecoSeeker",
+      type: "",
       displayName: "",
       email: "",
       uid: "",

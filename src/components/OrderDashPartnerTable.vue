@@ -40,6 +40,7 @@ import { firebaseApp } from '../firebase.js'
 import { getFirestore, query, where, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import trash from "@/assets/Trash.svg"
 import { getAuth } from "firebase/auth";
+import { useStore } from "vuex";
 
 const db = getFirestore(firebaseApp);
 
@@ -48,6 +49,7 @@ export default {
     return {
       statusField: 'All',
       entriesToComplete: [],
+      store: null // initialize store
     };
   },
   props: {
@@ -65,6 +67,8 @@ export default {
     },
   },
   async mounted() {
+    this.checkAndExpireOrders();
+    this.store = this.$store;
     const auth = getAuth()
     this.sellerId = auth.currentUser.uid
     this.display();
@@ -108,7 +112,6 @@ export default {
       // Apply filter for partnerUID
       if (currentUser) {
         queryRef = query(queryRef, where('sellerId', '==', currentUser));
-        console.log('currentUser: ' + currentUser);
       }
 
       // Apply search filter if searchQuery is not empty
@@ -208,8 +211,16 @@ export default {
         }
         await deleteDoc(doc(db, 'order', id));
         this.display(); // Refresh table after deletion
+        this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully deleted order!",
+          });
       } catch (error) {
         console.error('Error deleting document:', error);
+        this.store.dispatch("addNotification", { // use store from instance
+            type: "error",
+            message: err.message,
+          });
       }
     },
     filterByStatus(status) {
@@ -250,12 +261,30 @@ export default {
         await updateDoc(docRef, { status: 'Completed' });
       }
       this.display();
+      this.store.dispatch("addNotification", { // use store from instance
+          type: "success",
+          message: "Order(s) successfully completed!",
+      });
       // Clear the selected entries list after completion
       this.entriesToComplete = [];
+    },
+    async checkAndExpireOrders() {
+      console.log('checkAndExpireOrders() ran')
+      const currentDate = new Date();
+      const queryRef = collection(db, 'order');
+      const querySnapshot = await getDocs(queryRef);
+      querySnapshot.forEach(async (documentData) => {
+        const order = documentData.data();
+        if (order.status === 'Ongoing' && order.expirationDate.toDate() < currentDate) {
+          const docRef = doc(db, 'order', order.orderId);
+          await updateDoc(docRef, { status: 'Expired' });
+        }
+      });
     },
   }
 }
 </script>
+
 
 <style>
 /* Shared styles for both components */

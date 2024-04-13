@@ -298,6 +298,7 @@ export default {
 /* Table styles */
 table {
   font-family: 'Montserrat', sans-serif;
+  table-layout: fixed;
   border-collapse: collapse;
   width: 100%; /* Set table width to 100% of its container */
   border: none;

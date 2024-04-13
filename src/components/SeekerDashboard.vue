@@ -9,7 +9,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { db } from "../firebase.js";
+import { auth, db } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
 import {
   mdiTrashCanOutline,
@@ -17,6 +17,7 @@ import {
   mdiFilterCogOutline,
   mdiChevronUpBox,
   mdiChevronDownBox,
+  mdiAlphaX,
 } from "@mdi/js";
 
 // vuetify icons
@@ -25,6 +26,7 @@ const checkCircle = mdiCheckCircle;
 const filterCog = mdiFilterCogOutline;
 const chevronUp = mdiChevronUpBox;
 const chevronDown = mdiChevronDownBox;
+const alphaX = mdiAlphaX;
 
 // Reactive reference to store the documents
 const orders = ref([]);
@@ -88,7 +90,7 @@ const filteredOrders = computed(() => {
   let filtered = searchedOrders.value.filter(
     (order) =>
       (currentFilter.value === "All" || order.status === currentFilter.value) &&
-      order.buyerId === currentUserUID
+      order.buyerId === auth.currentUser.uid
   );
 
   // Then, apply pagination to the filtered list.
@@ -144,7 +146,9 @@ const clearSearch = () => {
           @keyup.enter="applySearch"
           placeholder="Search orders..."
         />
-        <button @click="clearSearch" :disabled="!searchTerm">✕</button>
+        <button @click="clearSearch" :disabled="!searchTerm">
+          <svg-icon type="mdi" :path="alphaX"></svg-icon>
+        </button>
       </div>
       <button @click="applySearch">Search</button>
     </div>
@@ -232,7 +236,11 @@ const clearSearch = () => {
             <td v-else></td>
           </tr>
         </tbody>
-        <div v-else>No orders found</div>
+        <tbody v-else class="emptyTable">
+          <tr>
+            <td colspan="8">No orders found</td>
+          </tr>
+        </tbody>
       </table>
 
       <div
@@ -302,11 +310,14 @@ th {
   background-color: #00350a;
   color: white;
 }
-tbody tr:nth-child(odd) {
+tbody tr:nth-child(even) {
   background-color: #b3d2b3;
 }
-tbody tr:nth-child(even) {
+tbody tr:nth-child(odd) {
   background-color: #e6e6e6;
+}
+tbody.emptyTable {
+  text-align: center;
 }
 
 .orderStatus {

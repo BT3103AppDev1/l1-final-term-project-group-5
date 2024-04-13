@@ -10,6 +10,21 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db } from "../firebase.js";
+import SvgIcon from "@jamescoyle/vue-icon";
+import {
+  mdiTrashCanOutline,
+  mdiCheckCircle,
+  mdiFilterCogOutline,
+  mdiChevronUpBox,
+  mdiChevronDownBox,
+} from "@mdi/js";
+
+// vuetify icons
+const trashCan = mdiTrashCanOutline;
+const checkCircle = mdiCheckCircle;
+const filterCog = mdiFilterCogOutline;
+const chevronUp = mdiChevronUpBox;
+const chevronDown = mdiChevronDownBox;
 
 // Reactive reference to store the documents
 const orders = ref([]);
@@ -72,7 +87,8 @@ const filteredOrders = computed(() => {
   // Apply the filter first on searched orders.
   let filtered = searchedOrders.value.filter(
     (order) =>
-      currentFilter.value === "All" || order.status === currentFilter.value
+      (currentFilter.value === "All" || order.status === currentFilter.value) &&
+      order.buyerId === currentUserUID
   );
 
   // Then, apply pagination to the filtered list.
@@ -144,12 +160,19 @@ const clearSearch = () => {
             <th>
               Date
               <button @click="toggleDateSortOrder">
-                {{ dateSortOrder === "desc" ? "🔽" : "🔼" }}
+                <svg-icon
+                  :type="'mdi'"
+                  :path="dateSortOrder === 'desc' ? chevronUp : chevronDown"
+                  style="color: white"
+                ></svg-icon>
               </button>
             </th>
             <th>Price</th>
             <th>
-              Status <button @click="toggleFilterDropdown">⚙️</button>
+              Status
+              <button @click="toggleFilterDropdown">
+                <svg-icon type="mdi" :path="filterCog"></svg-icon>
+              </button>
               <div v-if="showFilterDropdown" class="customDropdown">
                 <div @click="selectFilter('All')">All</div>
                 <div @click="selectFilter('Ongoing')">Ongoing</div>
@@ -174,19 +197,37 @@ const clearSearch = () => {
               </div>
             </td>
             <td v-if="order.status === 'Ongoing'" style="text-align: center">
-              <button @click="updateOrderStatus(order.id)">✓</button>
+              <button @click="updateOrderStatus(order.id)">
+                <svg-icon
+                  type="mdi"
+                  :path="checkCircle"
+                  style="color: green"
+                ></svg-icon>
+              </button>
             </td>
             <td
               v-else-if="order.status === 'Completed'"
               style="text-align: center"
             >
-              <button disabled>✓</button>
+              <button disabled>
+                <svg-icon
+                  type="mdi"
+                  :path="checkCircle"
+                  style="color: rgba(0, 128, 0, 0.317)"
+                ></svg-icon>
+              </button>
             </td>
             <td
               v-else-if="order.status === 'Expired'"
               style="text-align: center"
             >
-              <button @click="deleteOrder(order.id)">🗑</button>
+              <button @click="deleteOrder(order.id)">
+                <svg-icon
+                  type="mdi"
+                  :path="trashCan"
+                  style="color: darkred"
+                ></svg-icon>
+              </button>
             </td>
             <td v-else></td>
           </tr>

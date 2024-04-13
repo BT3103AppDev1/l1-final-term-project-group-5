@@ -26,6 +26,10 @@
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
+  padding: 5px;
+  border: 3px solid lightslategray;
+  border-radius: 10px;
+  width: 100%;
 }
 
 </style>

@@ -6,18 +6,26 @@
         <button v-if="!showCart" @click="showCart = !showCart" class="view-cart-btn">View Cart</button>
         <div v-if="showCart" class="cart-overlay">
             <button @click="showCart = false" class="close-btn">Close</button>
+            <div class="cart-items">
+                <div v-for="item in cartItems" :key="item.listingId" class="cart-item">
+                    <h3> {{ item.name }} - ${{ item.price.toFixed(2) }} x {{ item.quantity }}</h3>
+                    <p> Subtotal: $ {{ (item.price * item.quantity).toFixed(2) }}</p>
+                    <button @click="removeFromCart(item)">Remove From Cart</button>
+                </div>
+            </div>
             <div class="cart-contents">
-                <div v-for="item in cart" :key="item.listingId" class="item">
+                <div v-for="item in cartItems" :key="item.listingId" class="item">
                 <img :src="item.imageUrl" alt="Product Image" class="item-img">
-                <h2 class="item-name"> {{ item.productName }}</h2>
+                <h2 class="item-name"> {{ item.name }}</h2>
                 <p class="item-price">Price: ${{ parseFloat(item.price).toFixed(2) }}</p>
                 <p class="item-qty"> Qty: x{{ item.quantity }}</p>
                 <p class="item-subtotal"> Subtotal : $ {{ (parseFloat(item.price) * item.quantity).toFixed(2) }}</p>
                 </div>
-                <div class="cart-fotter">
-                <button class="clear-cart" @click="clearCart">Clear Cart</button>
-                <button class="checkout">Checkout</button>
+                <div class="cart-footer">
+                <button class="clear-cart">Clear Cart</button>
+                <button class="checkout" @click="checkout">Checkout</button>
             </div>
+            
             </div>
             <div class="total-price">
                 <h2> Total: $ {{ totalPrice }}</h2>
@@ -28,6 +36,7 @@
 
 <script>
 import ProductCard from './ProductCard.vue';
+import { mapGetters, mapActions, mapMutations } from 'vuex';
 import { firebaseApp } from '@/firebase';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 const db = getFirestore(firebaseApp);
@@ -40,15 +49,17 @@ export default {
 
     props: {
         searchQuery : String,
-        selectedCategories: Array
+        selectedCategories: Array,
+        sortOption: String, 
     }, 
 
     data() {
         return {
             products : [],
             listings: [],
+            //cart: [],
+            //totalPrice:0,
             filteredActiveListings: [], // holds filtered listings
-            cart: [],
             showCart:false,
         };
     },
@@ -62,7 +73,7 @@ export default {
         this.listings = listingSnapshot.docs.map(doc => doc.data());
 
         this.filteredActiveListings = this.activeListings;
-        console.log(this.filteredActiveListings)
+        //console.log(this.filteredActiveListings)
 
         //sort listings by expiry-date
         this.filteredActiveListings.sort((a,b) => {
@@ -77,10 +88,26 @@ export default {
 
         selectedCategories() {
             this.applyFilters();
-        }
+        },
+
+        sortOption() {
+            this.sortProducts();
+        },
     },
 
     computed: {
+
+        ...mapGetters(['cartItems', 'totalPrice']),
+
+        cartItems() {
+            console.log('Cart items: ', this.$store.getters.cartItems);
+            return this.$store.getters.cartItems;
+        },
+
+        totalPrice() {
+            return this.$store.getters.totalPrice;
+        },
+
         activeListings() {
             return this.listings.filter(listing => listing.isActive)
                 .map(listing => {
@@ -92,22 +119,26 @@ export default {
                 });
         },
 
-        totalPrice() {
+        /*totalPrice() {
             return this.cart.reduce((total, item) => {
                 return total + parseFloat(item.price) * item.quantity;
             }, 0).toFixed(2);
-        }
+        }*/
     },
 
     methods: {
-        /*filterActiveListings(query) {
-            if (query) {
-                this.filteredActiveListings = this.activeListings.filter(listing=> 
-                    listing.name.toLowerCase().includes(query.toLowerCase()));
-            } else {
-                this.filteredActiveListings = this.activeListings;
-            }
+
+        ...mapActions(['addToCart', 'clearCart', 'removeFromCart']),
+        
+        /*handleAddToCart(item) {
+            this.addToCart(item);
         },*/
+
+        /*addToCart(listing) {
+            this.$store.dispatch('addToCart', listing);
+            console.log(this.$store.getters.cartItems);
+        },*/
+
 
         applyFilters() {
             // initialise with all active listings first
@@ -128,14 +159,31 @@ export default {
             this.filteredActiveListings = filtered;
         },
 
-        addToCart(listing) {
-            this.cart.push(listing);
+        /*clearCart() {
+            this.cart = [];
+        },*/
+
+        sortProducts() {
+            if (this.sortOption === 'lowToHigh') {
+                this.filteredActiveListings = [...this.filteredActiveListings].sort((a, b) => {
+                    return Number(a.price) - Number(b.price);
+                });
+            } else if (this.sortOption === 'highToLow') {
+                this.filteredActiveListings = [...this.filteredActiveListings].sort((a, b) => {
+                    return Number(b.price) - Number(a.price);
+                });
+            } else {
+            this.filteredActiveListings = this.activeListings;
+            }
         },
 
-        clearCart() {
-            this.cart = [];
+        checkout() {
+            this.$router.push('/seeker/checkout');
+            //this.$router.push({ name: 'CheckoutPage', params: { cart: this.cart, totalPrice: this.totalPrice } });
+            
+            //this.$router.push('/seeker/checkout');
         },
-    }
+    },
 };
 </script>
 
@@ -191,6 +239,7 @@ export default {
 
 .cart-overlay {
     position:fixed;
+    background-color: white;
     bottom: 0;
     right: 0;
     width: 500px;

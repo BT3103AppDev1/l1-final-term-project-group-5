@@ -13,12 +13,12 @@ export default {
     data() {
         return {
             selectedCategories: [],
-            categories: ['Fruit', 'Vegetable']
+            categories: ['Dairy', 'Baked Good','Fruit', 'Vegetable']
         };
     },
 
     methods : {
-        emiteCategories() {
+        emitCategories() {
             this.$emit('update-categories', this.selectedCategories);
         }
     }
@@ -28,8 +28,22 @@ export default {
 <style scoped>
 
 .category-filter {
-    align-items: right;
-    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 20px;
 }
-</style>
 
+.category-filter .category {
+    margin: 5px 0;
+}
+
+.category-filter input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.category-filter label {
+    cursor: pointer;
+}
+
+</style>

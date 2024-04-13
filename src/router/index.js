@@ -10,6 +10,7 @@ import RegisterDetails from '@/components/RegisterDetails.vue';
 import { auth } from '../firebase';
 import AddProduct from '../components/AddProduct.vue';
 import AddListing from '../components/AddListing.vue';
+import CheckoutPageView from '../views/CheckoutPageView.vue';
 import SeekerMarketplaceView from '../views/SeekerMarketplaceView.vue';
 import SeekerDashboardView from "../views/SeekerDashboardView.vue";
 import OrderDashPartnerView from '../views/OrderDashPartnerView.vue';
@@ -159,6 +160,22 @@ const router = createRouter({
       path: "/seeker/order-dashboard",
       name: "seekerDashboard",
       component: SeekerDashboardView,
+      beforeEnter(to, from, next) {
+        const store = useStore();
+        const user = store.state.user;
+        const authUser = auth.currentUser;
+        if (authUser && user.type === "ecoSeeker") {
+          next();
+        } else {
+          next({ name: "notFound" });
+        }
+      }
+    },
+    {
+      path: '/seeker/checkout',
+      name: 'CheckoutPage',
+      component: CheckoutPageView,
+      props: true,
       beforeEnter(to, from, next) {
         const store = useStore();
         const user = store.state.user;

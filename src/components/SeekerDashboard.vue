@@ -183,7 +183,7 @@ const clearSearch = () => {
             <th>Mark as Completed</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="filteredOrders.length > 0">
           <tr v-for="order in filteredOrders" :key="order.id">
             <td>{{ order.orderId }}</td>
             <td>{{ order.order }}</td>
@@ -232,9 +232,13 @@ const clearSearch = () => {
             <td v-else></td>
           </tr>
         </tbody>
+        <div v-else>No orders found</div>
       </table>
 
-      <div class="pageNavigation">
+      <div
+        class="pageNavigation"
+        v-if="totalPages > 1 && filteredOrders.length > 10"
+      >
         <button @click="currentPage--" :disabled="currentPage <= 1">
           Previous
         </button>
@@ -249,6 +253,17 @@ const clearSearch = () => {
         </button>
         <button @click="currentPage++" :disabled="currentPage >= totalPages">
           Next
+        </button>
+      </div>
+      <div
+        class="pageNavigation"
+        v-else-if="totalPages === 1 && filteredOrders.length > 0"
+      >
+        <button
+          @click="navigateToPage(1)"
+          :class="{ activePage: currentPage === 1 }"
+        >
+          1
         </button>
       </div>
     </div>

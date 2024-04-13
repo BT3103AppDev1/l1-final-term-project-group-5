@@ -61,7 +61,7 @@ function formatDate(timestamp) {
 
 // Pagination
 const currentPage = ref(1);
-const ordersPerPage = 10;
+const ordersPerPage = 4;
 const totalOrders = computed(() => orders.value.length);
 const totalPages = computed(() => Math.ceil(totalOrders.value / ordersPerPage));
 
@@ -89,8 +89,8 @@ const filteredOrders = computed(() => {
   // Apply the filter first on searched orders.
   let filtered = searchedOrders.value.filter(
     (order) =>
-      (currentFilter.value === "All" || order.status === currentFilter.value) &&
-      order.buyerId === auth.currentUser.uid
+      currentFilter.value === "All" || order.status === currentFilter.value
+    // order.buyerId === auth.currentUser.uid
   );
 
   // Then, apply pagination to the filtered list.
@@ -124,11 +124,16 @@ const searchedOrders = computed(() => {
   if (appliedSearchTerm.value.trim() === "") {
     return orders.value;
   }
-  return orders.value.filter((order) =>
-    (order.order ? order.order.toLowerCase() : "").includes(
-      appliedSearchTerm.value.toLowerCase()
-    )
-  );
+  return orders.value.filter((order) => {
+    // Check if order.order is a string before calling toLowerCase()
+    if (typeof order.order === "string") {
+      return order.order
+        .toLowerCase()
+        .includes(appliedSearchTerm.value.toLowerCase());
+    } else {
+      return false; // Return false if order.order is not a string
+    }
+  });
 });
 const clearSearch = () => {
   searchTerm.value = "";
@@ -147,7 +152,9 @@ const clearSearch = () => {
           placeholder="Search orders..."
         />
         <button @click="clearSearch" :disabled="!searchTerm">
-          <svg-icon type="mdi" :path="alphaX"></svg-icon>
+          <div class="removeSearch">
+            <svg-icon type="mdi" :path="alphaX"></svg-icon>
+          </div>
         </button>
       </div>
       <button @click="applySearch">Search</button>
@@ -162,26 +169,30 @@ const clearSearch = () => {
             <th>Company</th>
             <th>Address</th>
             <th>
-              Date
-              <button @click="toggleDateSortOrder">
-                <svg-icon
-                  :type="'mdi'"
-                  :path="dateSortOrder === 'desc' ? chevronUp : chevronDown"
-                  style="color: white"
-                ></svg-icon>
-              </button>
+              <div class="headerContent">
+                Date
+                <button @click="toggleDateSortOrder" class="headerIcons">
+                  <svg-icon
+                    :type="'mdi'"
+                    :path="dateSortOrder === 'desc' ? chevronUp : chevronDown"
+                    style="color: white"
+                  ></svg-icon>
+                </button>
+              </div>
             </th>
             <th>Price</th>
             <th>
-              Status
-              <button @click="toggleFilterDropdown">
-                <svg-icon type="mdi" :path="filterCog"></svg-icon>
-              </button>
-              <div v-if="showFilterDropdown" class="customDropdown">
-                <div @click="selectFilter('All')">All</div>
-                <div @click="selectFilter('Ongoing')">Ongoing</div>
-                <div @click="selectFilter('Completed')">Completed</div>
-                <div @click="selectFilter('Expired')">Expired</div>
+              <div class="headerContent">
+                Status
+                <button @click="toggleFilterDropdown" class="headerIcons">
+                  <svg-icon type="mdi" :path="filterCog"></svg-icon>
+                </button>
+                <div v-if="showFilterDropdown" class="customDropdown">
+                  <div @click="selectFilter('All')">All</div>
+                  <div @click="selectFilter('Ongoing')">Ongoing</div>
+                  <div @click="selectFilter('Completed')">Completed</div>
+                  <div @click="selectFilter('Expired')">Expired</div>
+                </div>
               </div>
             </th>
             <th>Mark as Completed</th>
@@ -195,7 +206,7 @@ const clearSearch = () => {
             <td>{{ order.companyAddress }}</td>
             <td>{{ formatDate(order.datePurchased) }}</td>
             <td>{{ order.totalPrice }}</td>
-            <td class="orderStatus">
+            <td>
               <div :class="`orderStatus-${order.status.toLowerCase()}`">
                 {{ order.status }}
               </div>
@@ -243,10 +254,7 @@ const clearSearch = () => {
         </tbody>
       </table>
 
-      <div
-        class="pageNavigation"
-        v-if="totalPages > 1 && filteredOrders.length > 10"
-      >
+      <div class="pageNavigation" v-if="totalPages > 1">
         <button @click="currentPage--" :disabled="currentPage <= 1">
           Previous
         </button>
@@ -310,6 +318,17 @@ th {
   background-color: #00350a;
   color: white;
 }
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.headerIcons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 4px;
+}
 tbody tr:nth-child(even) {
   background-color: #b3d2b3;
 }
@@ -318,6 +337,34 @@ tbody tr:nth-child(odd) {
 }
 tbody.emptyTable {
   text-align: center;
+}
+th,
+td {
+  white-space: normal;
+}
+th:nth-child(1),
+td:nth-child(1) {
+  width: 5%;
+}
+th:nth-child(2),
+td:nth-child(2) {
+  width: 30%;
+}
+th:nth-child(3),
+td:nth-child(3),
+th:nth-child(4),
+td:nth-child(4),
+th:nth-child(5),
+td:nth-child(5),
+th:nth-child(6),
+td:nth-child(6),
+th:nth-child(7),
+td:nth-child(7) {
+  width: 10%;
+}
+th:nth-child(8),
+td:nth-child(8) {
+  width: 15%;
 }
 
 .orderStatus {
@@ -360,8 +407,10 @@ tbody.emptyTable {
   border: none;
 }
 .pageNavigation button {
-  margin-right: 5px;
+  padding-left: 8px;
+  padding-right: 8px;
   cursor: pointer;
+  border-radius: 5px;
 }
 .pageNavigation button:disabled {
   cursor: default;
@@ -406,7 +455,7 @@ tbody.emptyTable {
   color: #333;
 }
 .inputWithClear button:disabled {
-  cursor: not-allowed;
+  pointer-events: none;
   color: #ccc;
 }
 .searchContainer {
@@ -437,5 +486,10 @@ tbody.emptyTable {
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+.removeSearch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

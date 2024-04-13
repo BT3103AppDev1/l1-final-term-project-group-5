@@ -67,6 +67,7 @@ export default {
     },
   },
   async mounted() {
+    this.checkAndExpireOrders();
     this.store = this.$store;
     const auth = getAuth()
     this.sellerId = auth.currentUser.uid
@@ -111,7 +112,6 @@ export default {
       // Apply filter for partnerUID
       if (currentUser) {
         queryRef = query(queryRef, where('sellerId', '==', currentUser));
-        console.log('currentUser: ' + currentUser);
       }
 
       // Apply search filter if searchQuery is not empty
@@ -267,6 +267,19 @@ export default {
       });
       // Clear the selected entries list after completion
       this.entriesToComplete = [];
+    },
+    async checkAndExpireOrders() {
+      console.log('checkAndExpireOrders() ran')
+      const currentDate = new Date();
+      const queryRef = collection(db, 'order');
+      const querySnapshot = await getDocs(queryRef);
+      querySnapshot.forEach(async (documentData) => {
+        const order = documentData.data();
+        if (order.status === 'Ongoing' && order.expirationDate.toDate() < currentDate) {
+          const docRef = doc(db, 'order', order.orderId);
+          await updateDoc(docRef, { status: 'Expired' });
+        }
+      });
     },
   }
 }

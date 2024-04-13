@@ -21,7 +21,7 @@
                 <label for="quantity">Quantity:</label>
                 <input type="number" id="quantity" name="quantity" min="1" :max="listing.unitsRemaining" v-model="listing.quantity">
             </div>
-            <div class="add-btn" @click="addToCart(listing)">
+            <div class="add-btn" @click="addToCart">
                 <img src="@/assets/cart.svg" alt="Add to Cart">
             </div>
         </div>
@@ -40,7 +40,7 @@ export default {
 
     data() {
         return {
-            cart : [],
+            quantity:1,
             showOverlay:false,
             seller:null,
         };
@@ -61,8 +61,9 @@ export default {
     },
 
     methods : {
-        addToCart(listing) {
+        /*addToCart(listing) {
             const itemInCart = this.cart.find(item => item.listingId === listing.listingId);
+            console.log(itemInCart);
 
             if (itemInCart) {
                 itemInCart.quantity += listing.quantity || 1; // Add 1 if no quantity is selected
@@ -73,9 +74,13 @@ export default {
                 });
             }
             this.$emit('add-to-cart', listing);
+            console.log('Added to Cart:', listing.name, 'x', listing.quantity, 'id:', listing.listingId);
 
-        }
-    },
+        }*/
+        addToCart() {
+            this.$emit('add-to-cart', {... this.listing, quantity:this.quantity});
+        },
+    },  
 };
 </script>
 

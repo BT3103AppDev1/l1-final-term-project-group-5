@@ -3,10 +3,20 @@
         <div class="search-bar">
             <SearchBar @update-search-query="updateSearchQuery" />
         </div>
-        <div class="product-card">
-            <ProductGrid :searchQuery="searchQuery" :selectedCategories="selectedCategories" />
-        </div>
-        <div class="sidebar">
+        <div class="main-content">
+             <div class="product-grid">
+                <ProductGrid :searchQuery="searchQuery" :selectedCategories="selectedCategories" />
+            </div>
+            <div class="sidebar">
+                <div class="filter">
+                    <CategoryFilter @update-categories="updateSelectedCategories" />
+                </div>
+                <div class="sort-by">
+                    <p> Sort By</p>
+                    <PriceSorter @update-sort="updateSort" />
+                </div>
+            </div>
+            
         </div>
     </div>
 </template>
@@ -15,6 +25,7 @@
 import ProductGrid from "@/components/ProductGrid.vue";
 import SearchBar from "@/components/SearchBar.vue";
 import CategoryFilter from "@/components/CategoryFilter.vue";
+import PriceSorter from "@/components/PriceSorter.vue";
 import NavBarLoggedIn from "@/components/NavBarLoggedIn.vue";
 
 export default {
@@ -22,13 +33,15 @@ export default {
         NavBarLoggedIn,
         ProductGrid,
         SearchBar,
-        CategoryFilter
+        CategoryFilter,
+        PriceSorter,
     },
 
     data() {
         return {
             searchQuery: '',
-            selectedCategories: []
+            selectedCategories: [],
+            sortOption: '',
         };
     },
 
@@ -39,6 +52,10 @@ export default {
 
         updateSelectedCategories(categories) {
             this.selectedCategories = categories;
+        },
+
+        updateSort(sortOption) {
+            this.sortOption = sortOption;
         }
     },
 };
@@ -51,19 +68,56 @@ export default {
     align-items: center;
 }
 
-.content {
-    display:flex;
-    justify-content: space-between;
-    width: 80%;
+.search-bar {
+    margin-top: 30px;
+    flex: 0;
+    align-self: center;
 }
 
-.product-grid {
-    flex: 3;
+.main-content {
+    display:flex;
+    justify-content: space-between;
+    width:100%;
 }
 
 .sidebar {
-    flex: 1;
+    display:flex;
+    flex-direction: column;
+    width:200px;
+    padding:20px;
+    border-left: 1px solid #ccc;
 }
+
+.filter {
+    padding-bottom: 8px;
+}
+
+.filter, .sort-by {
+    margin-bottom:20px;
+}
+.sidebar .category-filter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+
+.sidebar .category-filter .category {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.sidebar .category-filter input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.sidebar .category-filter label {
+    cursor: pointer;
+}
+
+
 
 
 </style>

@@ -37,7 +37,7 @@
 
 <script>
 import { firebaseApp } from '../firebase.js'
-import { getFirestore, query, where, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, query, where, collection, getDoc, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import trash from "@/assets/Trash.svg"
 import { getAuth } from "firebase/auth";
 import { useStore } from "vuex";
@@ -258,7 +258,25 @@ export default {
       }
       for (const orderId of this.entriesToComplete) {
         const docRef = doc(db, 'order', orderId);
+        const docSnapshot = await getDoc(docRef);
+        const docData = docSnapshot.data();
+        const sellerId = docData.sellerId;
+        const buyerId = docData.buyerId;
+        const foodWeight = docData.weight;
+
+        const sellerDocRef = doc(db, 'users', sellerId);
+        const sellerDocSnapshot = await getDoc(sellerDocRef);
+        const sellerDocData = sellerDocSnapshot.data();
+        const sellerWeight = sellerDocData.weight + foodWeight;
+
+        const buyerDocRef = doc(db, 'users', buyerId);
+        const buyerDocSnapshot = await getDoc(buyerDocRef);
+        const buyerDocData = buyerDocSnapshot.data();
+        const buyerWeight = buyerDocData.weight + foodWeight;
+
         await updateDoc(docRef, { status: 'Completed' });
+        await updateDoc(sellerDocRef, { weight: sellerWeight});
+        await updateDoc(buyerDocRef, { weight: buyerWeight});
       }
       this.display();
       this.store.dispatch("addNotification", { // use store from instance

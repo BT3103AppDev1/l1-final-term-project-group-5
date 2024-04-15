@@ -336,7 +336,7 @@ td {
   padding: 8px;
   text-align: center;
   font-size: 14px;
-  white-space: nowrap; /* Prevent text wrapping in cells */
+  white-space: normal;
 }
 
 /* Alternate row background color for better readability */

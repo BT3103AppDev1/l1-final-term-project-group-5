@@ -53,6 +53,9 @@ const store = createStore({
     activeListings: [],
     inactiveListings: [],
     notification: null,
+    cart: {
+      items: [],
+    },
   },
   getters: {
     user(state) {
@@ -60,6 +63,14 @@ const store = createStore({
     },
     getUser(state) {
       return state.user;
+    },
+    cartItems(state) {
+      return state.cart.items;
+    },
+    totalPrice: (state) => {
+      return state.cart && state.cart.items 
+      ? state.cart.items.reduce((total,item) => total + item.price * item.quantity, 0)
+      : 0;
     },
   },
   mutations: {
@@ -150,8 +161,40 @@ const store = createStore({
 
     SET_PROVIDER(state, provider) {
       state.user.authProvider = provider;
-    }
+    },
+    SET_PRODUCTS(state, products) {
+      state.products = products;
+    },
+    ADD_TO_CART(state, item) {
+      const found = state.cart.items.find(product => product.listingId === item.listingId);
+      if (found) {
+        found.quantity+= item.quantity;
+        console.log('Added existing ' + item.name +  ' to cart');
+
+      } else {
+        state.cart.items.push({...item, quantity: item.quantity});
+        console.log('Added ' + item.name +  ' to cart');
+      }
+    },
+    CLEAR_CART(state) {
+      state.cart.items = [];
+      state.totalPrice = 0;
+      console.log('Cart cleared');
+    },
+
+    REMOVE_FROM_CART(state, item) {
+      const index = state.cart.items.findIndex(cartItem => cartItem.listingId === item.listingId);
+      if (index !== -1) {
+        console.log('Removed ' + item.name + ' from cart');
+        state.cart.items.splice(index,1);
+      } else {
+        console.log(item.name + ' not found in cart');
+      }
+      console.log('Current Cart: ', state.cart.items);
+    },
+
   },
+
   actions: {
     async registerWithEmail(context, { email, password }) {
       try {
@@ -863,6 +906,21 @@ const store = createStore({
           }
         });
       }
+
+    fetchProducts({commit}) {
+      const products = [];
+      commit('SET_PRODUCTS', products.filter(p => p.isActive));
+    },
+
+    addToCart({ commit }, item) {
+      commit("ADD_TO_CART", item);
+    },
+    removeFromCart({ commit }, listingId) {
+      commit("REMOVE_FROM_CART", listingId);
+    },
+
+    clearCart({ commit }) {
+      commit("CLEAR_CART");
     },
   },
 });

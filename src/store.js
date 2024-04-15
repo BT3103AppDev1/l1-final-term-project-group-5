@@ -67,12 +67,13 @@ const store = createStore({
       return state.cart.items;
     },
     totalPrice: (state) => {
-      return state.cart && state.cart.items 
-      ? state.cart.items.reduce((total,item) => total + item.price * item.quantity, 0)
-      : 0;
+      //console.log(state.cart.items);
+        return state.cart && state.cart.items 
+        ? state.cart.items.reduce((total,item) => (total + item.price * item.quantity), 0).toFixed(2)
+        : 0;
     },
   },
-  mutations: {
+    mutations: {
     SET_LOGGED_IN(state, value) {
       state.user.loggedIn = value;
     },
@@ -164,32 +165,35 @@ const store = createStore({
     SET_PRODUCTS(state, products) {
       state.products = products;
     },
-    ADD_TO_CART(state, item) {
+    ADD_TO_CART(state, item ) {
       const found = state.cart.items.find(product => product.listingId === item.listingId);
       if (found) {
-        found.quantity+= item.quantity;
-        console.log('Added existing ' + item.name +  ' to cart');
+        found.quantity += item.quantity;
+        //console.log('Added existing ' + item.name +  ' to cart x ', item.quantity);
 
       } else {
-        state.cart.items.push({...item, quantity: item.quantity});
-        console.log('Added ' + item.name +  ' to cart');
+        state.cart.items.push({
+          ...item, 
+          quantity: item.quantity
+        });
+        //console.log('Added ' + item.name +  ' to cart x ', item.quantity);
       }
     },
     CLEAR_CART(state) {
       state.cart.items = [];
       state.totalPrice = 0;
-      console.log('Cart cleared');
+      //console.log('Cart cleared');
     },
 
     REMOVE_FROM_CART(state, item) {
       const index = state.cart.items.findIndex(cartItem => cartItem.listingId === item.listingId);
       if (index !== -1) {
-        console.log('Removed ' + item.name + ' from cart');
+        //console.log('Removed ' + item.name + ' from cart');
         state.cart.items.splice(index,1);
       } else {
-        console.log(item.name + ' not found in cart');
+        //console.log(item.name + ' not found in cart');
       }
-      console.log('Current Cart: ', state.cart.items);
+      //console.log('Current Cart: ', state.cart.items);
     },
 
   },

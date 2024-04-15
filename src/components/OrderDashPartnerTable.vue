@@ -149,8 +149,8 @@ export default {
         let cell7 = row.insertCell(6);
         let cell8 = row.insertCell(7);
 
-        cell1.innerHTML = documentData.orderId;
-        cell2.innerHTML = documentData.order;
+        cell1.innerHTML = documentData.orderId.toString().padStart(3, '00');
+        cell2.innerHTML = documentData.order.map(item => (item.name + " x" + item.quantity + '<br>')).join('');
         cell3.innerHTML = documentData.name;
         let date = new Date(documentData.datePurchased.seconds * 1000);
         let formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;

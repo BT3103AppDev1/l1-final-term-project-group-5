@@ -23,6 +23,12 @@ import { firebaseApp } from '@/firebase';
 import { getFirestore, collection, doc, getDoc, setDoc } from "firebase/firestore";
   
   export default {
+    data() {
+      return {
+        currOrderId: 0,
+      }
+    },
+
     computed: {
       ...mapGetters(['cartItems', 'totalPrice','getUser'])
     },
@@ -47,7 +53,7 @@ import { getFirestore, collection, doc, getDoc, setDoc } from "firebase/firestor
 
         async placeOrder() {
         // Logic to handle order placement
-            const orderId = Math.floor(Math.random() * 900) + 100; // generate random orderID
+            const orderId = this.currOrderId + 1;
             const datePurchased = new Date(); // get current Date for purchase
             const sellerDetails = await this.fetchSeller(this.cartItems[0].sellerId);
 
@@ -69,7 +75,7 @@ import { getFirestore, collection, doc, getDoc, setDoc } from "firebase/firestor
                     order: this.cartItems.map(item => ({ name: item.name, quantity: item.quantity })),
                     orderId: orderId,
                     sellerId: this.cartItems[0].sellerId,
-                    status: 'To be collected',
+                    status: 'Ongoing',
                     totalPrice: this.totalPrice,
                 });
                     //await db.collection("order").add(orderRef);

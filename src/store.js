@@ -906,6 +906,7 @@ const store = createStore({
           }
         });
       }
+    },
 
     fetchProducts({commit}) {
       const products = [];
@@ -924,5 +925,6 @@ const store = createStore({
     },
   },
 });
+
 
 export default store;

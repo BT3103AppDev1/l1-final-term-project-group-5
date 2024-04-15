@@ -40,7 +40,6 @@ import { firebaseApp } from '../firebase.js'
 import { getFirestore, query, where, collection, getDoc, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import trash from "@/assets/Trash.svg"
 import { getAuth } from "firebase/auth";
-import { useStore } from "vuex";
 
 const db = getFirestore(firebaseApp);
 

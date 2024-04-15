@@ -27,6 +27,7 @@ import {
   getDoc,
   getDocs,
   where,
+  onSnapshot,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import CryptoJS from "crypto-js";
@@ -847,6 +848,20 @@ const store = createStore({
           message: error,
         });
         //console.error("Error updating bank details:", error);
+      }
+    },
+
+    async fetchWeight({ commit }) {
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        onSnapshot(userDocRef, (doc) => {
+          if (doc.exists()) {
+            const userData = doc.data();
+            // Commit mutation to update user state
+            commit("SET_WEIGHT", userData.weight);
+          }
+        });
       }
     },
   },

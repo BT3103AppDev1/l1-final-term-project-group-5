@@ -1,9 +1,14 @@
 <template>
     <div class="price-sorter">
-        <input type="radio" id="lowToHigh" value="lowToHigh" v-model="selected" @change="updateSort">
-        <label for="lowToHigh">Price - Low to High</label><br>
-        <input type="radio" id="highToLow" value="highToLow" v-model="selected" @change="updateSort">
-        <label for="highToLow">Price - High to Low</label><br>
+        <label for="sort">Sort By:</label>
+        <button @click="toggleSortDropdown">
+            <img src="@/assets/CaretDown.png" alt="Options">
+        </button>
+        <div v-if="showSortDropdown" class="customDropdown">
+            <div @click="selectSort('')">Please select one</div>
+            <div @click="selectSort('lowToHigh')">Price - Low to High</div>
+            <div @click="selectSort('highToLow')">Price - High to Low</div>
+        </div>
     </div>
 </template>
 
@@ -12,11 +17,19 @@ export default {
     data() {
         return {
             selected: '',
+            showSortDropdown: false,
         }
     },
     methods: {
+        toggleSortDropdown() {
+            this.showSortDropdown = !this.showSortDropdown;
+        },
+        selectSort(option) {
+            this.selected = option;
+            this.updateSort();
+        },
         updateSort() {
-            console.log('Selected Sort: ', this.selected);
+            //console.log('Selected Sort: ', this.selected);
             this.$emit('update-sort', this.selected);
         }
     }
@@ -24,8 +37,27 @@ export default {
 </script>
 
 <style scoped>
-.price-sorter {
-    margin-bottom: 20px;
-    width:100%;
+.pricesorter {
+    display:flex;
+    padding: 5px;
+    width:280px;
+    flex-wrap:nowrap;
+    gap:10px;
+    align-items: center;
 }
+
+.label {
+    width:85px;
+
+}
+
+.customDropdown {
+    cursor:pointer;
+    border:1px solid #00350a;
+}
+
+.customerDropdown:hover {
+    box-shadow: 0 0 5px darkgreen;
+}
+
 </style>

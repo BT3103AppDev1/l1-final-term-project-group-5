@@ -4,19 +4,18 @@
             <SearchBar @update-search-query="updateSearchQuery" />
         </div>
         <div class="main-content">
-             <div class="product-grid">
-                <ProductGrid :searchQuery="searchQuery" :selectedCategories="selectedCategories" />
+            <div class="grid">
+                <ProductGrid :searchQuery="searchQuery" :selectedCategories="selectedCategories" :sortOption="sortOption" />
             </div>
             <div class="sidebar">
+                <div class="sort-by">
+                    <PriceSorter @update-sort="updateSort"/>
+                </div>
                 <div class="filter">
                     <CategoryFilter @update-categories="updateSelectedCategories" />
                 </div>
-                <div class="sort-by">
-                    <p> Sort By</p>
-                    <PriceSorter @update-sort="updateSort" />
-                </div>
+                
             </div>
-            
         </div>
     </div>
 </template>
@@ -62,30 +61,57 @@ export default {
 </script>
 
 <style>
+.body {
+    background-image:url('~@/assets/image 18.png');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    height:100vh;
+    width:100vh;
+    margin:0;
+    padding:0;
+
+}
 .marketplace-view {
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    height:95vh;
+    width:100%;
     display:flex;
     flex-direction:column;
     align-items: center;
+    overflow:auto;
 }
 
 .search-bar {
     margin-top: 30px;
     flex: 0;
     align-self: center;
+    width: 500px;
+}
+
+.sort-by {
+    align-self:left;
+    width: 200px;
 }
 
 .main-content {
     display:flex;
     justify-content: space-between;
     width:100%;
+    
 }
 
+.grid {
+    align-self:center;
+
+}
 .sidebar {
     display:flex;
     flex-direction: column;
     width:200px;
     padding:20px;
-    border-left: 1px solid #ccc;
 }
 
 .filter {
@@ -116,9 +142,6 @@ export default {
 .sidebar .category-filter label {
     cursor: pointer;
 }
-
-
-
 
 </style>
 

@@ -3,7 +3,7 @@
     <v-toolbar-items>
       <v-btn to="/" :disabled="!user.detailsSubmitted">
         <img
-          src="../assets/GreenHarborLogo.png"
+          src="@/assets/GreenHarborLogo.png"
           alt="Green Harbor Logo"
           class="logo"
         />

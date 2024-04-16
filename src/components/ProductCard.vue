@@ -1,7 +1,10 @@
 <template>
     <div class="product-card">
-        <div class="img-container" @mouseover="showOverlay = true" @mouseleave="showOverlay = false">
+        <div class="img-container" @mouseleave="showOverlay = false">
             <img :src="listing.imageUrl" alt="Product Image" class="img">
+            <div class="company-picture">
+                <img :src="seller?.photoURL" alt="logo" class="company" @click="showOverlay =! showOverlay">
+            </div>
             <transition name="fade">
             <div class="company-overlay" v-show="showOverlay">
                 <img :src="seller?.photoURL" alt="Company Logo" class="company-logo">
@@ -12,20 +15,22 @@
         </div>
         <div class="product-details">
             <h2 class="name">{{ listing.name }}</h2>
+            <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
             <h3 class="category">{{ listing.category }} </h3>
-            <h3 class="price">Price: ${{ listing.price.toFixed(2) }}</h3>
             <h3 class="expiry">Expires: {{ listing.expirationDate }} </h3>
         </div>
         <div class="qty-btn-container">
             <div class="qty-selector">
-                <label for="quantity">Quantity:</label>
-                <input type="number" id="quantity" name="quantity" min="1" :max="listing.unitsRemaining" v-model="listing.quantity">
+                <label for="quantity">Quantity </label>
+                <button class="qty-edit" @mousedown="startDecrement" @mouseup="stopDecrement" @mouseleave="stopDecrement" :class="{pressed : isDecrementPressed}">-</button>
+                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" readonly>
+                <button class="qty-edit"@mousedown="startIncrement" @mouseup="stopIncrement" @mouseleave="stopIncrement":class="{pressed : isIncrementPressed}">+</button>
             </div>
-            <div class="add-btn" @click="addToCart">
-                <img src="@/assets/cart.svg" alt="Add to Cart">
+            <div class="add-btn" 
+                @click="handleAddToCart" @mousedown="isPressed=true" @mouseup="isPressed=false" @mouseleave="isPressed=false">
+                <img src="@/assets/cart.png" alt="Add to Cart" :class="{ pressed: isPressed }">
             </div>
         </div>
-
     </div>
 
 </template>
@@ -40,9 +45,12 @@ export default {
 
     data() {
         return {
-            quantity:1,
-            showOverlay:false,
-            seller:null,
+            quantity: 1,
+            showOverlay: false,
+            seller: null,
+            isPressed: false,
+            isIncrementPressed: false,
+            isDecrementPressed: false,
         };
     },
 
@@ -60,25 +68,74 @@ export default {
         }
     },
 
+    computed : {
+        formattedQuantity() {
+            return this.listing.quantity.toString().padStart(2, '0');
+        },
+    },
+
     methods : {
-        /*addToCart(listing) {
-            const itemInCart = this.cart.find(item => item.listingId === listing.listingId);
-            console.log(itemInCart);
+        handleAddToCart() {
+            //console.log(this.listing);
+            //console.log(this.listing.quantity);
+            this.$emit('add-to-cart', {... this.listing, quantity:this.listing.quantity});
+            this.$store.dispatch("addNotification", {type: "success", message: "Added to cart succesfully!"})
+        },
 
-            if (itemInCart) {
-                itemInCart.quantity += listing.quantity || 1; // Add 1 if no quantity is selected
-            } else {
-                this.cart.push({
-                    ...listing,
-                    quantity: listing.quantity || 1, // Set quantity to 1 if no quantity is selected
-                });
+        increment() {
+            if (this.listing.quantity < this.listing.unitsRemaining) {
+                this.listing.quantity++;
+                console.log("Increased listing quantity");
             }
-            this.$emit('add-to-cart', listing);
-            console.log('Added to Cart:', listing.name, 'x', listing.quantity, 'id:', listing.listingId);
+        },
 
-        }*/
-        addToCart() {
-            this.$emit('add-to-cart', {... this.listing, quantity:this.quantity});
+        decrement() {
+            if (this.listing.quantity >1) {
+                console.log("Decreased listing quantity");
+                this.listing.quantity--;
+            };
+        },
+
+        handleQtyInput(event) {
+            const qty = parseInt(event.target.value, 10);
+            if (!isNaN(qty) && qty >= 1 && qty <= this.listing.unitsRemaining) {
+                this.listing.quantity = qty;
+            }
+        },
+
+        onlyNumber($event) {
+            let keyCode = ($event.keyCode ? $event.keyCode : $event.which);
+            if ((keyCode < 48 || keyCode > 57) && keyCode !== 8) { // 8 is backspace
+                $event.preventDefault();
+            }
+        },
+
+        startIncrement() {
+            this.increment();
+            this.incrementPressed = true;
+            this.incrementTimeout = setTimeout(() => {
+                this.incrementInterval = setInterval(this.increment, 80);
+            }, 500);
+        },
+
+        stopIncrement() {
+            this.incrementPressed = false;
+            clearTimeout(this.incrementTimeout);
+            clearInterval(this.incrementInterval);
+        },
+
+        startDecrement() {
+            this.decrement();
+            this.decrementPressed = true;
+            this.decrementTimeout = setTimeout(() => {
+                this.decrementInterval = setInterval(this.decrement, 80);
+            }, 500);
+        },
+
+        stopDecrement() {
+            this.decrementPressed = false;
+            clearTimeout(this.decrementTimeout);
+            clearInterval(this.decrementInterval);
         },
     },  
 };
@@ -90,13 +147,14 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: left;
-    border: 4px solid lightslategray;
-    border-radius: 15px;
+    border: 4px groove #4B644C;
+    border-radius: 12px;
     padding: 16px;
     margin: 8px;
     width: 250px;
     height:400px;
-    background-color:darkslategray;
+    background-color:#4B644C;
+    box-shadow: 0 0 3px #4B644C;
 }
 
 .img-container {
@@ -106,32 +164,37 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    
 }
-
+.company-logo {
+    height:40px;
+    width:40px;
+}
 .company-overlay {
     border-radius: 15px;
-    color:white;
+    color:#ccc;
     position:absolute;
     top:0;
     left:0;
     width:100%;
     height:100%;
-    background-color: aliceblue;
-    color:green;
+    background-color: white;
+    color:#00350a;
+    font-weight:bold;
     display:flex;
     flex-direction:column;
     justify-content: center;
     align-items:center;
     opacity:50;
-    transition:opacity 1s ease;
+    transition:opacity 0.5s ease;
 }
 
 .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.5s ease;
+    transition: opacity 0.2s ease;
 }
 
 .fade-enter, .fade-leave-to {
-    transition: opacity 0.5s ease;
+    transition: opacity 0.2s ease;
     opacity: 0;
 }
 
@@ -140,12 +203,12 @@ export default {
     align-self: center;
     height: 200px;
     width: 210px;
-    margin-bottom: 0px;
+    margin-bottom: 3px;
     object-fit: cover; /* Ensures the image fills the container without distortion */
 }
 
 .product-details {
-    color:white;
+    color:#ccc;
 }
 
 .name {
@@ -155,6 +218,9 @@ export default {
     border-bottom: 2px white;
 }
 
+.price {
+    color:white;
+}
 .category {
     text-align:left;
 
@@ -162,7 +228,7 @@ export default {
 
 .expiry {
     text-align:left;
-    padding-bottom: 8px;
+    padding-bottom: 5px;
 }
 
 .qty-selector {
@@ -179,11 +245,47 @@ export default {
 .add-btn {
     align-self: flex-end;
     cursor: pointer;
+    display: inline-block;
+    padding: 0;
 }
 
 .add-btn img {
     width: 35px;
     height: 35px;
+    display:inline-block;
+    padding:0;
+}
+
+.input-qty {
+    width: 50px;
+    color:white;
+    text-align:center;
+    padding: 3px;
+    font-size: larger;
+}
+
+.qty-edit {
+    font-weight:bold;
+    width: 16px;
+    height:16px;
+    font-size:x-large;
+}
+
+.pressed {
+    transform: scale(0.8);
+    transition: transform 0.1s ease;
+}
+
+.company {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 80%;
+    position:absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
 }
 </style>
 

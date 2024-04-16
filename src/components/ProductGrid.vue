@@ -360,6 +360,30 @@ h3 {
 .cart-table td {
     height:80px;
 }
+.cart-table th:first-child {
+    width:50px;
+}
+
+.cart-table th:nth-child(2) {
+    width: 200px;
+}
+
+.cart-table th:nth-child(3) {
+    width: 80px;
+}
+
+.cart-table th:nth-child(4) {
+    width: 80px;
+}
+
+.cart-table th:nth-child(5) {
+    width: 100px;
+}
+
+.cart-table td.subtotal {
+    font-weight:bold;
+    font-size: large;
+}
 
 .item {
     width:250px;

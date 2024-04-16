@@ -115,7 +115,7 @@ export default {
 
       // Apply search filter if searchQuery is not empty
       if (this.searchQuery) {
-        queryRef = query(queryRef, where('orderId', '==', this.searchQuery));
+        queryRef = query(queryRef, where('orderId', '==', parseInt(this.searchQuery)));
       }
 
       // Filter based on status
@@ -208,7 +208,7 @@ export default {
         if (!confirmDelete) {
           return; // If user cancels, exit the function
         }
-        await deleteDoc(doc(db, 'order', id));
+        await deleteDoc(doc(db, 'order', id.toString()));
         this.display(); // Refresh table after deletion
         this.store.dispatch("addNotification", { // use store from instance
             type: "success",
@@ -256,7 +256,7 @@ export default {
         return; // If user cancels, exit the function
       }
       for (const orderId of this.entriesToComplete) {
-        const docRef = doc(db, 'order', orderId);
+        const docRef = doc(db, 'order', orderId.toString());
         const docSnapshot = await getDoc(docRef);
         const docData = docSnapshot.data();
         const sellerId = docData.sellerId;
@@ -293,7 +293,7 @@ export default {
       querySnapshot.forEach(async (documentData) => {
         const order = documentData.data();
         if (order.status === 'Ongoing' && order.expirationDate.toDate() < currentDate) {
-          const docRef = doc(db, 'order', order.orderId);
+          const docRef = doc(db, 'order', order.orderId.toString());
           await updateDoc(docRef, { status: 'Expired' });
         }
       });

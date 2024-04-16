@@ -491,6 +491,8 @@ export default {
       originalEmail.value = user.value.email;
       originalAbout.value = user.value.about;
       originalAddress.value = user.value.address;
+
+      store.dispatch('fetchWeight');
     });
 
     const onUploadButtonClick = () => {

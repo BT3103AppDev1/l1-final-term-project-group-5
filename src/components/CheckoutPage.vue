@@ -70,6 +70,7 @@ import { firebaseApp } from '@/firebase';
 import { getFirestore, collection, doc, getDoc, setDoc } from "firebase/firestore";
 
 export default {
+
     computed: {
     ...mapGetters(['cartItems', 'totalPrice','getUser',])
     },
@@ -125,6 +126,7 @@ export default {
             this.$router.push('/seeker/order-dashboard');
             this.$store.dispatch("addNotification", {type: "success", message: "Order placed succesfully!"});
         },
+
         incrementQuantity(item) {
             if (item.quantity < item.unitsRemaining) {
                 item.quantity++;

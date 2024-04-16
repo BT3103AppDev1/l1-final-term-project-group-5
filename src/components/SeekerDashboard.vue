@@ -119,102 +119,119 @@ const clearSearch = () => {
 </script>
 
 <template>
-  <div class="searchContainer">
-    <div class="inputWithClear">
-      <input
-        type="text"
-        v-model="searchTerm"
-        @keyup.enter="applySearch"
-        placeholder="Search orders..."
-      />
-      <button @click="clearSearch" :disabled="!searchTerm">✕</button>
+  <div class="orderDashboardContainer">
+    <div class="searchContainer">
+      <div class="inputWithClear">
+        <input
+          type="text"
+          v-model="searchTerm"
+          @keyup.enter="applySearch"
+          placeholder="Search orders..."
+        />
+        <button @click="clearSearch" :disabled="!searchTerm">✕</button>
+      </div>
+      <button @click="applySearch">Search</button>
     </div>
-    <button @click="applySearch">Search</button>
-  </div>
 
-  <div class="orderContainer">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Order</th>
-          <th>Company</th>
-          <th>Address</th>
-          <th>
-            Date
-            <button @click="toggleDateSortOrder">
-              {{ dateSortOrder === "desc" ? "🔽" : "🔼" }}
-            </button>
-          </th>
+    <div class="orderContainer">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Order</th>
+            <th>Company</th>
+            <th>Address</th>
+            <th>
+              Date
+              <button @click="toggleDateSortOrder">
+                {{ dateSortOrder === "desc" ? "🔽" : "🔼" }}
+              </button>
+            </th>
+            <th>Price</th>
+            <th>
+              Status <button @click="toggleFilterDropdown">⚙️</button>
+              <div v-if="showFilterDropdown" class="customDropdown">
+                <div @click="selectFilter('All')">All</div>
+                <div @click="selectFilter('Ongoing')">Ongoing</div>
+                <div @click="selectFilter('Completed')">Completed</div>
+                <div @click="selectFilter('Expired')">Expired</div>
+              </div>
+            </th>
+            <th>Mark as Completed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="order in filteredOrders" :key="order.id">
+            <td>{{ order.orderId }}</td>
+            <td>{{ order.order }}</td>
+            <td>{{ order.companyName }}</td>
+            <td>{{ order.companyAddress }}</td>
+            <td>{{ formatDate(order.datePurchased) }}</td>
+            <td>{{ order.totalPrice }}</td>
+            <td class="orderStatus">
+              <div :class="`orderStatus-${order.status.toLowerCase()}`">
+                {{ order.status }}
+              </div>
+            </td>
+            <td v-if="order.status === 'Ongoing'" style="text-align: center">
+              <button @click="updateOrderStatus(order.id)">✓</button>
+            </td>
+            <td
+              v-else-if="order.status === 'Completed'"
+              style="text-align: center"
+            >
+              <button disabled>✓</button>
+            </td>
+            <td
+              v-else-if="order.status === 'Expired'"
+              style="text-align: center"
+            >
+              <button @click="deleteOrder(order.id)">🗑</button>
+            </td>
+            <td v-else></td>
+          </tr>
+        </tbody>
+      </table>
 
-          <th>Price</th>
-          <th>
-            Status <button @click="toggleFilterDropdown">⚙️</button>
-            <div v-if="showFilterDropdown" class="customDropdown">
-              <div @click="selectFilter('All')">All</div>
-              <div @click="selectFilter('Ongoing')">Ongoing</div>
-              <div @click="selectFilter('Completed')">Completed</div>
-              <div @click="selectFilter('Expired')">Expired</div>
-            </div>
-          </th>
-          <th>Mark as Completed</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="order in filteredOrders" :key="order.id">
-          <td>{{ order.orderId }}</td>
-          <td>{{ order.order }}</td>
-          <td>{{ order.companyName }}</td>
-          <td>{{ order.companyAddress }}</td>
-          <td>{{ formatDate(order.datePurchased) }}</td>
-          <td>{{ order.totalPrice }}</td>
-          <td class="orderStatus">
-            <div :class="`orderStatus-${order.status.toLowerCase()}`">
-              {{ order.status }}
-            </div>
-          </td>
-          <td v-if="order.status === 'Ongoing'" style="text-align: center">
-            <button @click="updateOrderStatus(order.id)">✓</button>
-          </td>
-          <td
-            v-else-if="order.status === 'Completed'"
-            style="text-align: center"
-          >
-            <button disabled>✓</button>
-          </td>
-          <td v-else-if="order.status === 'Expired'" style="text-align: center">
-            <button @click="deleteOrder(order.id)">🗑</button>
-          </td>
-          <td v-else></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="pageNavigation">
-      <button @click="currentPage--" :disabled="currentPage <= 1">
-        Previous
-      </button>
-      <button
-        v-for="pageNum in totalPages"
-        :key="pageNum"
-        @click="navigateToPage(pageNum)"
-        :disabled="currentPage === pageNum"
-        :class="{ activePage: currentPage === pageNum }"
-      >
-        {{ pageNum }}
-      </button>
-      <button @click="currentPage++" :disabled="currentPage >= totalPages">
-        Next
-      </button>
+      <div class="pageNavigation">
+        <button @click="currentPage--" :disabled="currentPage <= 1">
+          Previous
+        </button>
+        <button
+          v-for="pageNum in totalPages"
+          :key="pageNum"
+          @click="navigateToPage(pageNum)"
+          :disabled="currentPage === pageNum"
+          :class="{ activePage: currentPage === pageNum }"
+        >
+          {{ pageNum }}
+        </button>
+        <button @click="currentPage++" :disabled="currentPage >= totalPages">
+          Next
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.orderDashboardContainer {
+  height: calc(100vh - 64px);
+  width: calc(100vw - 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: top;
+  margin: 0px 20px 0px 20px;
+}
 .orderContainer {
-  margin-top: 20px;
-  background-color: white;
-  color: black;
+  padding: 10px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
 }
 
 table {
@@ -326,12 +343,19 @@ tbody tr:nth-child(even) {
   color: #ccc;
 }
 .searchContainer {
+  height: 35px;
+  width: 100%;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
+  flex-direction: row;
+  justify-content: left;
+  align-items: left;
+  margin-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 .searchContainer input {
   width: 100%;
+  height: 35px;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -340,8 +364,11 @@ tbody tr:nth-child(even) {
 .searchContainer > button {
   padding: 8px 15px;
   border: 1px solid #ccc;
-  background-color: #f0f0f0;
   cursor: pointer;
   border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 </style>

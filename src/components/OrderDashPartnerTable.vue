@@ -37,7 +37,7 @@
 
 <script>
 import { firebaseApp } from '../firebase.js'
-import { getFirestore, query, where, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, query, where, collection, getDoc, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import trash from "@/assets/Trash.svg"
 import { getAuth } from "firebase/auth";
 
@@ -48,6 +48,7 @@ export default {
     return {
       statusField: 'All',
       entriesToComplete: [],
+      store: null // initialize store
     };
   },
   props: {
@@ -65,6 +66,8 @@ export default {
     },
   },
   async mounted() {
+    this.checkAndExpireOrders();
+    this.store = this.$store;
     const auth = getAuth()
     this.sellerId = auth.currentUser.uid
     this.display();
@@ -108,7 +111,6 @@ export default {
       // Apply filter for partnerUID
       if (currentUser) {
         queryRef = query(queryRef, where('sellerId', '==', currentUser));
-        console.log('currentUser: ' + currentUser);
       }
 
       // Apply search filter if searchQuery is not empty
@@ -147,8 +149,8 @@ export default {
         let cell7 = row.insertCell(6);
         let cell8 = row.insertCell(7);
 
-        cell1.innerHTML = documentData.orderId;
-        cell2.innerHTML = documentData.order;
+        cell1.innerHTML = documentData.orderId.toString().padStart(3, '00');
+        cell2.innerHTML = documentData.order.map(item => (item.name + " x" + item.quantity + '<br>')).join('');
         cell3.innerHTML = documentData.name;
         let date = new Date(documentData.datePurchased.seconds * 1000);
         let formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
@@ -208,8 +210,16 @@ export default {
         }
         await deleteDoc(doc(db, 'order', id));
         this.display(); // Refresh table after deletion
+        this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully deleted order!",
+          });
       } catch (error) {
         console.error('Error deleting document:', error);
+        this.store.dispatch("addNotification", { // use store from instance
+            type: "error",
+            message: err.message,
+          });
       }
     },
     filterByStatus(status) {
@@ -247,15 +257,51 @@ export default {
       }
       for (const orderId of this.entriesToComplete) {
         const docRef = doc(db, 'order', orderId);
+        const docSnapshot = await getDoc(docRef);
+        const docData = docSnapshot.data();
+        const sellerId = docData.sellerId;
+        const buyerId = docData.buyerId;
+        const foodWeight = docData.weight;
+
+        const sellerDocRef = doc(db, 'users', sellerId);
+        const sellerDocSnapshot = await getDoc(sellerDocRef);
+        const sellerDocData = sellerDocSnapshot.data();
+        const sellerWeight = sellerDocData.weight + foodWeight;
+
+        const buyerDocRef = doc(db, 'users', buyerId);
+        const buyerDocSnapshot = await getDoc(buyerDocRef);
+        const buyerDocData = buyerDocSnapshot.data();
+        const buyerWeight = buyerDocData.weight + foodWeight;
+
         await updateDoc(docRef, { status: 'Completed' });
+        await updateDoc(sellerDocRef, { weight: sellerWeight});
+        await updateDoc(buyerDocRef, { weight: buyerWeight});
       }
       this.display();
+      this.store.dispatch("addNotification", { // use store from instance
+          type: "success",
+          message: "Order(s) successfully completed!",
+      });
       // Clear the selected entries list after completion
       this.entriesToComplete = [];
+    },
+    async checkAndExpireOrders() {
+      console.log('checkAndExpireOrders() ran')
+      const currentDate = new Date();
+      const queryRef = collection(db, 'order');
+      const querySnapshot = await getDocs(queryRef);
+      querySnapshot.forEach(async (documentData) => {
+        const order = documentData.data();
+        if (order.status === 'Ongoing' && order.expirationDate.toDate() < currentDate) {
+          const docRef = doc(db, 'order', order.orderId);
+          await updateDoc(docRef, { status: 'Expired' });
+        }
+      });
     },
   }
 }
 </script>
+
 
 <style>
 /* Shared styles for both components */
@@ -269,6 +315,7 @@ export default {
 /* Table styles */
 table {
   font-family: 'Montserrat', sans-serif;
+  table-layout: fixed;
   border-collapse: collapse;
   width: 100%; /* Set table width to 100% of its container */
   border: none;
@@ -289,7 +336,7 @@ td {
   padding: 8px;
   text-align: center;
   font-size: 14px;
-  white-space: nowrap; /* Prevent text wrapping in cells */
+  white-space: normal;
 }
 
 /* Alternate row background color for better readability */

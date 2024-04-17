@@ -1,13 +1,13 @@
 <template>
   <v-app-bar fixed color="#7C8E76">
     <v-toolbar-items>
-      <v-btn to="/" :disabled="!user.detailsSubmitted">
+      <router-link to="/" tag="v-btn" :disabled="!user.detailsSubmitted">
         <img
           src="@/assets/GreenHarborLogo.png"
           alt="Green Harbor Logo"
           class="logo"
         />
-      </v-btn>
+      </router-link>
       <v-btn to="/" :disabled="!user.detailsSubmitted">Home</v-btn>
 
       <template v-if="user.type == 'ecoSeeker'">
@@ -147,6 +147,7 @@ export default {
 .logo {
   max-height: 60px;
   margin-bottom: -10px;
+  cursor: pointer;
 }
 .v-toolbar-items {
   float: right !important;

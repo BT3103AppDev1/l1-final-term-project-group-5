@@ -57,6 +57,7 @@ const store = createStore({
     cart: {
       items: [],
     },
+    profilePictures: [],
   },
   getters: {
     user(state) {
@@ -73,6 +74,9 @@ const store = createStore({
         return state.cart && state.cart.items 
         ? state.cart.items.reduce((total,item) => (total + item.price * item.quantity), 0).toFixed(2)
         : 0;
+    },
+    profilePictures(state) {
+      return state.profilePictures;
     },
   },
     mutations: {
@@ -202,6 +206,9 @@ const store = createStore({
       //console.log('Current Cart: ', state.cart.items);
     },
 
+    SET_PROFILE_PICTURES(state, profilePictures) {
+      state.profilePictures = profilePictures;
+    },
   },
 
   actions: {
@@ -936,6 +943,15 @@ const store = createStore({
 
     clearCart({ commit }) {
       commit("CLEAR_CART");
+    },
+
+    async fetchProfilePictures({ commit }) {
+      const queryDoc = query(collection(db, "users"), 
+        where("ecoRank", "==", 1),
+        where("userType", "==", "ecoPartner"));
+      const profilePicturesSnapshot = await getDocs(queryDoc);
+      const profilePictures = profilePicturesSnapshot.docs.map(doc => doc.data().photoURL);
+      commit("SET_PROFILE_PICTURES", profilePictures);
     },
   },
 });

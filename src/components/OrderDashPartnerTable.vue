@@ -37,10 +37,9 @@
 
 <script>
 import { firebaseApp } from '../firebase.js'
-import { getFirestore, query, where, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, query, where, collection, getDoc, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import trash from "@/assets/Trash.svg"
 import { getAuth } from "firebase/auth";
-import { useStore } from "vuex";
 
 const db = getFirestore(firebaseApp);
 
@@ -116,7 +115,7 @@ export default {
 
       // Apply search filter if searchQuery is not empty
       if (this.searchQuery) {
-        queryRef = query(queryRef, where('orderId', '==', this.searchQuery));
+        queryRef = query(queryRef, where('orderId', '==', parseInt(this.searchQuery)));
       }
 
       // Filter based on status
@@ -150,8 +149,8 @@ export default {
         let cell7 = row.insertCell(6);
         let cell8 = row.insertCell(7);
 
-        cell1.innerHTML = documentData.orderId;
-        cell2.innerHTML = documentData.order;
+        cell1.innerHTML = documentData.orderId.toString().padStart(3, '00');
+        cell2.innerHTML = documentData.order.map(item => (item.name + " x" + item.quantity + '<br>')).join('');
         cell3.innerHTML = documentData.name;
         let date = new Date(documentData.datePurchased.seconds * 1000);
         let formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
@@ -209,7 +208,7 @@ export default {
         if (!confirmDelete) {
           return; // If user cancels, exit the function
         }
-        await deleteDoc(doc(db, 'order', id));
+        await deleteDoc(doc(db, 'order', id.toString()));
         this.display(); // Refresh table after deletion
         this.store.dispatch("addNotification", { // use store from instance
             type: "success",
@@ -257,8 +256,26 @@ export default {
         return; // If user cancels, exit the function
       }
       for (const orderId of this.entriesToComplete) {
-        const docRef = doc(db, 'order', orderId);
+        const docRef = doc(db, 'order', orderId.toString());
+        const docSnapshot = await getDoc(docRef);
+        const docData = docSnapshot.data();
+        const sellerId = docData.sellerId;
+        const buyerId = docData.buyerId;
+        const foodWeight = docData.weight;
+
+        const sellerDocRef = doc(db, 'users', sellerId);
+        const sellerDocSnapshot = await getDoc(sellerDocRef);
+        const sellerDocData = sellerDocSnapshot.data();
+        const sellerWeight = sellerDocData.weight + foodWeight;
+
+        const buyerDocRef = doc(db, 'users', buyerId);
+        const buyerDocSnapshot = await getDoc(buyerDocRef);
+        const buyerDocData = buyerDocSnapshot.data();
+        const buyerWeight = buyerDocData.weight + foodWeight;
+
         await updateDoc(docRef, { status: 'Completed' });
+        await updateDoc(sellerDocRef, { weight: sellerWeight});
+        await updateDoc(buyerDocRef, { weight: buyerWeight});
       }
       this.display();
       this.store.dispatch("addNotification", { // use store from instance
@@ -276,7 +293,7 @@ export default {
       querySnapshot.forEach(async (documentData) => {
         const order = documentData.data();
         if (order.status === 'Ongoing' && order.expirationDate.toDate() < currentDate) {
-          const docRef = doc(db, 'order', order.orderId);
+          const docRef = doc(db, 'order', order.orderId.toString());
           await updateDoc(docRef, { status: 'Expired' });
         }
       });
@@ -298,6 +315,7 @@ export default {
 /* Table styles */
 table {
   font-family: 'Montserrat', sans-serif;
+  table-layout: fixed;
   border-collapse: collapse;
   width: 100%; /* Set table width to 100% of its container */
   border: none;
@@ -318,7 +336,7 @@ td {
   padding: 8px;
   text-align: center;
   font-size: 14px;
-  white-space: nowrap; /* Prevent text wrapping in cells */
+  white-space: normal;
 }
 
 /* Alternate row background color for better readability */

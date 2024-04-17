@@ -1,36 +1,63 @@
 <template>
-    <div class="product-grid">
-        <ProductCard v-for="listing in filteredActiveListings" :key="listing.listinId"
-            :listing="listing" @add-to-cart="addToCart" />
-        
-        <button v-if="!showCart" @click="showCart = !showCart" class="view-cart-btn">View Cart</button>
-        <div v-if="showCart" class="cart-overlay">
-            <button @click="showCart = false" class="close-btn">Close</button>
-            <div class="cart-items">
-                <div v-for="item in cartItems" :key="item.listingId" class="cart-item">
-                    <h3> {{ item.name }} - ${{ item.price.toFixed(2) }} x {{ item.quantity }}</h3>
-                    <p> Subtotal: $ {{ (item.price * item.quantity).toFixed(2) }}</p>
-                    <button @click="removeFromCart(item)">Remove From Cart</button>
-                </div>
+    <div class="parent-container">
+        <div class="product-grid">
+            <ProductCard v-for="listing in filteredActiveListings" :key="listing.listinId"
+                :listing="listing" @add-to-cart="addToCart" />
+        </div>
+            <div  class="view-cart-btn" @click="showCart = true">
+                <h3 class="view-cart-header">VIEW CART</h3>
             </div>
-            <div class="cart-contents">
-                <div v-for="item in cartItems" :key="item.listingId" class="item">
-                <img :src="item.imageUrl" alt="Product Image" class="item-img">
-                <h2 class="item-name"> {{ item.name }}</h2>
-                <p class="item-price">Price: ${{ parseFloat(item.price).toFixed(2) }}</p>
-                <p class="item-qty"> Qty: x{{ item.quantity }}</p>
-                <p class="item-subtotal"> Subtotal : $ {{ (parseFloat(item.price) * item.quantity).toFixed(2) }}</p>
+            <div v-if="showCart" class="cart-overlay" v-bind:class="{open: isCartOpen}">
+                <div class="cart-head">
+                    <button @click="showCart = false" class="close-btn">
+                        <img src="@/assets/close.png" alt="x" class="close-img">
+                    </button>
+                    <h2 class="cart-header">SHOPPING CART</h2>
+                    <button class="clear-cart"@click="clearCart">CLEAR CART</button>
+                </div>
+                <div class="cart-items">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in cartItems" :key="item.listingId" class="cart-item">
+                                <td>
+                                    <button class="remove-btn" @click="removeFromCart(item)">
+                                        <img src="@/assets/close.png" alt="x" class="remove-img">
+                                    </button>
+                                </td>
+                                <td class="item">
+                                    <img :src="item.imageUrl" alt="Product Image" class="item-img"> 
+                                    <h3 class="item-name">{{ item.name }}</h3>
+                                </td>
+                                <td class="item-price">${{ item.price.toFixed(2) }} </td>
+                                <td class="item-qty">
+                                    <div class="qty-container">
+                                    <button class="qty-edit"@click="decrementQuantity(item)">-</button>
+                                    <input type="text" v-model= "item.quantity" min="1" max="item.remainingUnits" class="qty-input" readonly>
+                                    <button class="qty-edit" @click="incrementQuantity(item)">+</button>
+                                </div>
+                            </td>
+                                <td class="subtotal"> ${{ (item.price * item.quantity).toFixed(2) }}</td>
+                                
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="cart-footer">
-                <button class="clear-cart">Clear Cart</button>
-                <button class="checkout" @click="checkout">Checkout</button>
+                    <div class="total-price">
+                        <h2>Total : ${{ totalPrice }}</h2>
+                    </div>
+                    <button class="checkout" @click="checkout">CHECKOUT USING PAYNOW</button>
+                </div>
             </div>
-            
-            </div>
-            <div class="total-price">
-                <h2> Total: $ {{ totalPrice }}</h2>
-            </div>
-        </div>
     </div>
 </template>
 
@@ -61,6 +88,7 @@ export default {
             //totalPrice:0,
             filteredActiveListings: [], // holds filtered listings
             showCart:false,
+            isCartOpen:false,
         };
     },
 
@@ -118,27 +146,11 @@ export default {
                     };
                 });
         },
-
-        /*totalPrice() {
-            return this.cart.reduce((total, item) => {
-                return total + parseFloat(item.price) * item.quantity;
-            }, 0).toFixed(2);
-        }*/
     },
 
     methods: {
 
         ...mapActions(['addToCart', 'clearCart', 'removeFromCart']),
-        
-        /*handleAddToCart(item) {
-            this.addToCart(item);
-        },*/
-
-        /*addToCart(listing) {
-            this.$store.dispatch('addToCart', listing);
-            console.log(this.$store.getters.cartItems);
-        },*/
-
 
         applyFilters() {
             // initialise with all active listings first
@@ -159,10 +171,6 @@ export default {
             this.filteredActiveListings = filtered;
         },
 
-        /*clearCart() {
-            this.cart = [];
-        },*/
-
         sortProducts() {
             if (this.sortOption === 'lowToHigh') {
                 this.filteredActiveListings = [...this.filteredActiveListings].sort((a, b) => {
@@ -179,19 +187,37 @@ export default {
 
         checkout() {
             this.$router.push('/seeker/checkout');
-            //this.$router.push({ name: 'CheckoutPage', params: { cart: this.cart, totalPrice: this.totalPrice } });
-            
-            //this.$router.push('/seeker/checkout');
         },
+        incrementQuantity(item) {
+            if (item.quantity < item.unitsRemaining) {
+                item.quantity++;
+            }
+        },
+        decrementQuantity(item) {
+            if (item.quantity > 1) {
+                item.quantity--;
+            }
+        }
     },
 };
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans&display=swap');
+
+h3 {
+    font-family: 'Public Sans', sans-serif;
+    color: #ccc;
+    font-weight:bold;
+    font-size:medium;
+}
+
 .product-grid {
     display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(4, 4fr);
+    gap: 30px;
+    margin: 0 50px 0 150px;
+    overflow:auto;
 }
 
 .view-cart-btn {
@@ -199,19 +225,70 @@ export default {
     bottom: 30px;
     right: 30px;
     height: 60px;
-    width: 100px;
-    background-color: darkslategray;
-    color: white;
-    border: 2px solid lightslategray;
-    border-radius: 20px;
+    width: 278px;
+    padding:10px;
+    background-color: #4B644C;
+    display:flex;
+    flex-direction:row;
+    border: 4px outset #4B644C;
+    border-radius: 4px;
+    justify-content:center;
+    cursor:pointer;
+    text-align:center;
+    transition: transform 0.1s ease;
+    overflow:hidden;
+}
+.view-cart-btn:active {
+    transform: scale(0.90);
+}
+.view-cart-btn:hover {
+    transition: all 0.3s ease;
+    background-color: #324432;
+}
+
+.view-cart-header {
+    color:white;
+    padding:6px;
+    letter-spacing:1px;
+}
+
+.cart-head {
+    display:flex;
+    align-items:center;
+    flex-direction: row;
+    justify-content:space-between;
+    flex-wrap:nowrap;
+    text-align:center;
+}
+
+.cart-header {
+    align-self:center;
+    font-family: 'Public Sans', sans-serif;
+    color: black;
+    font-weight:normal;
+    font-size: large;
+    position:relative;
+    letter-spacing:1px;
+    top:8px;
+    left:16px;
+
 }
 
 .close-btn {
-    padding-bottom: 16px;
-    border:2px solid darkslategray;
-    border-radius: 10px;
-    height:25px;
-    width: 60px;
+    position:relative;
+    top:15px;
+    left:10px;
+    padding-bottom: 8px;
+}
+
+.close-img {
+    height:35px;
+    width:35px;
+}
+
+.remove-img {
+    height:20px;
+    width:20px;
 }
 
 .item-img {
@@ -225,8 +302,6 @@ export default {
     align-items: center;
     gap: 16px;
     padding-bottom: 10px;
-    
-    border-bottom: 2px solid darkslategray;
 }
 
 .item-name {
@@ -242,24 +317,58 @@ export default {
     background-color: white;
     bottom: 0;
     right: 0;
-    width: 500px;
-    height: 500px;
-    padding: 20px;
+    width:40%;
+    height: 550px;
     overflow: auto;
-    border: 5px solid darkslategray;
-    border-radius: 20px;
+    border: 2px inset #324432;
+    border-radius: 4px;
     z-index:1000;
     display:flex;
     flex-direction: column;
+    transition: opacity 0.5s, visibility 0.5s;
+    opacity:1;
 }
 
-.cart-contents {
+.cart-items {
     overflow:auto;
     flex-grow:1;
     display:flex;
     flex-direction: column;
-    padding-bottom: 16px;
+    padding-top: 8px;
+    border-bottom: 1px solid black;
+    table-layout:fixed;
+    height:80px;
+}
 
+.cart-table {
+    width:100%;
+    border-collapse: collapse;
+}
+.cart-table th {
+    width:50px;
+}
+.cart-table thead th {
+    width:150px;
+    position:sticky;
+    top:0;
+}
+.cart-table tr {
+    padding-bottom:1px;
+    border-bottom: 1px solid #ccc;
+}
+
+.cart-table td {
+    height:80px;
+}
+
+.item {
+    width:250px;
+}
+
+.item-img {
+    height:80px;
+    width:80px;
+    object-fit:contain;
 }
 
 .cart-footer {
@@ -267,43 +376,78 @@ export default {
     justify-content: space-between;
     align-items:center;
     padding:20px;
-    padding-top: 16px;
+    margin-top: 10px;
 }
 
 .clear-cart {
-    padding-bottom: 16px;
-    border:2px solid darkslategray;
-    border-radius: 10px;
-    height:25px;
-    width: 100px;
-    position:absolute;
-    bottom:0px;
-    left: 16px;
-    margin-bottom: 8px;
+    position:relative;
+    right:12px;
+    top:6px;
+    padding-bottom: 8px;
+    background-color:#4B644C;
+    color:white;
+    font-family: 'Public Sans', sans-serif;
+    font-weight:medium;
+    font-size:small;
+    height:auto;
+    width: auto;
+    padding: 8px;
+    border: 4px outset #4B644C;
+    border-radius: 4px;
+}
+
+.clear-cart:hover {
+    transition: all 0.3s ease;
+    background-color: #324432;
 }
 
 .checkout {
-    padding-bottom: 16px;
-    border:2px solid darkslategray;
-    border-radius: 10px;
-    height:25px;
-    width: 100px;
-    position:absolute;
-    bottom:0px;
-    right: 16px;
-    margin-bottom: 8px;
-    z-index: 1000;
+    position:relative;
+    background-color: #4B644C;
+    color: white;
+    border-radius: 4px;
+    height:40px;
+    width: 250px;
+    align-self:center;
+    letter-spacing: 1px;
+    border: 4px outset #4B644C;
+}
+.checkout:hover {
+    transition: all 0.3s ease;
+    background-color: #324432;
+}
+
+.checkout:active {
+    transform: scale(0.90);
 }
 
 .total-price {
-    position:absolute;
-    overflow: auto;
-    top: 16px;
-    right: 24px;
+    white-space:nowrap;
+    text-align:left;
     color:black;
-    margin-top: auto;
     margin-bottom: 8px;
-    font-weight:bold;
+    font-weight:medium;
+    font-size: large;
+    letter-spacing: 1px;
 }
 
+.qty-container {
+    display:flex;
+    justify-content: space-evenly;
+    align-items: center;
+    text-align:center;
+    align-self:center;
+    border:1px inset #ccc;
+    
+}
+
+.qty-input {
+    font-size:large;
+    text-align:center;
+    width: 25px;
+}
+
+.qty-edit {
+    font-size:x-large;
+}
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar fixed color="#B0E487">
+  <v-app-bar fixed color="#7C8E76">
     <v-toolbar-items>
       <v-btn to="/" :disabled="!user.detailsSubmitted">
         <img

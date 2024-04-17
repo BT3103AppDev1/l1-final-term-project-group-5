@@ -45,7 +45,7 @@ export default {
   margin: 10px 20px; /* Adjust this to control the margin around the container */
   border-width: 7px 10px; /* Adjust this to change the border width */
   border-style: solid;
-  border-color: #B0E487; /* Adjust this to change the border color */
+  border-color: #7C8E76; /* Adjust this to change the border color */
 }
 .horizontal-scrolling-items {
   display: flex;

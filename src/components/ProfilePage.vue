@@ -136,7 +136,7 @@
 
                           <!-- ... -->
                           <v-btn
-                            color="#B0E487"
+                            color="#7C8E76"
                             @click="updateEmail"
                             style="margin-right: 16px"
                           >
@@ -235,7 +235,7 @@
               <v-btn
                 id="emailVerification"
                 label="EmailVerification"
-                color="#B0E487"
+                color="#7C8E76"
                 @click="sendEmailVerification"
                 >Send Email Verification</v-btn
               >
@@ -245,7 +245,7 @@
               <v-btn
                 id="resetPassword"
                 label="Password"
-                color="#B0E487"
+                color="#7C8E76"
                 @click="dialogPassword = true"
               >
                 Reset Password
@@ -306,7 +306,7 @@
 
                       <!-- ... -->
                       <v-btn
-                        color="#B0E487"
+                        color="#7C8E76"
                         style="margin-right: 16px"
                         @click="updatePassword"
                       >
@@ -329,7 +329,7 @@
               <v-btn
                 id="bankDetails"
                 label="BankDetails"
-                color="#B0E487"
+                color="#7C8E76"
                 @click="dialogBank = true"
               >
               {{ bankButtonText }}
@@ -752,7 +752,7 @@ export default {
   z-index: 999;
   top: 121px;
   color: cadetblue;
-  background: #b0e487;
+  background: #7C8E76;
 }
 
 .avatar-image {

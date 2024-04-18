@@ -35,6 +35,7 @@ export default {
         imageUrl: null,
         weight: '',
         sellerId: '',
+        store: null
       },
       categories: ['Baked Good', 'Dairy', 'Fruit', 'Vegetable'] // list of categories
     };
@@ -46,6 +47,7 @@ export default {
         this.product.sellerId = user.uid;
       }
     });
+    this.store = this.$store;
   },
   methods: {
     ...mapActions(['addProductToDB']),
@@ -59,6 +61,10 @@ export default {
       if (this.product.name && this.product.category && this.product.image) {
         await this.addProductToDB(this.product);
         this.$router.push('/partner/marketplace'); // redirect to marketplace after adding
+        this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully added product!",
+          });
       } else {
         alert('All fields are required');
       }

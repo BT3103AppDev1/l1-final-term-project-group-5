@@ -145,6 +145,7 @@ export default {
       dialog: false,
       valid: true,
       user: null,
+      store: null,
       selectedTab: 'products',
       products: [],
       editedProduct: {
@@ -180,6 +181,7 @@ export default {
       this.fetchActiveListingsWithProductDetails(this.user.uid);
       this.fetchInactiveListingsWithProductDetails(this.user.uid);
     });
+    this.store = this.$store;
   },
   computed: {
     ...mapState(['activeListings', 'inactiveListings']),
@@ -204,6 +206,7 @@ export default {
     openEditWindow(object, type) {
       if (type === 'listing') {
         this.editedListing = { ...object };
+        //console.log(this.editedListing);
       } else if  (type === 'product') {
         this.editedProduct = { ...object };
       }
@@ -233,13 +236,17 @@ export default {
       if (this.editedListing.unitsRemaining * 1 > this.editedListing.unitsToSell * 1 || this.editedListing.unitsRemaining <= 0) {
         this.editedListing.isActive = false;
       }
-      console.log('Listing details to save:', this.editedListing);
+      //console.log('Listing details to save:', this.editedListing.productName);
 
       await this.editListing(this.editedListing);
       this.fetchActiveListingsWithProductDetails(this.user.uid);
 
       this.dialog = false;
       console.log("Close popup window");
+      this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully edited listing!",
+          });
     },
 
     AddListing() {
@@ -251,6 +258,10 @@ export default {
         console.log('Deleting listing with ID:', listingId);
         this.deleteListing(listingId).then(() => {
           this.fetchActiveListingsWithProductDetails(this.user.uid);
+          this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully deleted listing!",
+          });
         });
       }
     }, 

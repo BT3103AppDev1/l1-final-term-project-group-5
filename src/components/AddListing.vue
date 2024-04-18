@@ -44,6 +44,7 @@ export default {
         unitsToSell: null,
         unitsRemaining: null,
         sellerId: '',
+        store: null
       }
     };
   },
@@ -55,6 +56,7 @@ export default {
       }
     });
     await this.fetchProducts();
+    this.store = this.$store;
   },
   computed: {
     today() {
@@ -75,6 +77,10 @@ export default {
       try {
         await this.addListing(this.newListing);
         this.$router.push('/partner/marketplace');
+        this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully added listing!",
+          });
         // Reset the form or give user feedback
       } catch (error) {
         console.error('Error adding listing:', error);

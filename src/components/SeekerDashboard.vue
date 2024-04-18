@@ -20,7 +20,7 @@ import {
   mdiAlphaX,
 } from "@mdi/js";
 
-// vuetify icons
+// Vuetify icons
 const trashCan = mdiTrashCanOutline;
 const checkCircle = mdiCheckCircle;
 const filterCog = mdiFilterCogOutline;
@@ -78,7 +78,7 @@ function formatDate(timestamp) {
 // Pagination
 const currentPage = ref(1);
 const ordersPerPage = 4;
-const totalOrders = computed(() => orders.value.length);
+const totalOrders = computed(() => searchedOrders.value.length);
 const totalPages = computed(() => Math.ceil(totalOrders.value / ordersPerPage));
 
 const navigateToPage = (pageNum) => {

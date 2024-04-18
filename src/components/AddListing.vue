@@ -4,14 +4,14 @@
       <h2>Add New Listing</h2>
       <v-form @submit.prevent="submitListing">
 
-        <label for="product">Product</label>
-        <v-select v-model="newListing.productId" :items="products" item-title="name" item-value="id"
+        <!--<label for="product">Product</label>-->
+        <v-select v-model="newListing.product" :items="products" item-title="name" :item-value="item => item" 
           label="Select Product"></v-select>
 
         <v-text-field v-model="newListing.expirationDate" id="expirationDate" label="Expiration Date" type="date"
           :min="today" required></v-text-field>
 
-        <label for="price">Price</label>
+        <!--<label for="price">Price</label>-->
         <v-text-field v-model.number="newListing.price" id="price" label="Price of product ($)" type="number" min="0"
           step="0.01" required></v-text-field>
 
@@ -38,14 +38,14 @@ export default {
       user: null,
       products: [], // This will hold the array of products from your database
       newListing: {
-        productId: '',
+        product: null,
         expirationDate: '',
         price: null,
         unitsToSell: null,
         unitsRemaining: null,
         sellerId: '',
-        store: null
-      }
+      },
+      store: null
     };
   },
   async mounted() {
@@ -57,6 +57,7 @@ export default {
     });
     await this.fetchProducts();
     this.store = this.$store;
+    console.log(this.products[0]);
   },
   computed: {
     today() {
@@ -69,7 +70,7 @@ export default {
       const sellerQuery = query(collection(db, 'products'), where('sellerId', '==', this.user.uid))
       const querySnapshot = await getDocs(sellerQuery);
       this.products = querySnapshot.docs.map(doc => ({
-        id: doc.id,
+        //id: doc.id,
         ...doc.data()
       }));
     },

@@ -752,20 +752,20 @@ const store = createStore({
       const listings = await Promise.all(
         querySnapshot.docs.map(async (listingDoc) => {
           const listing = listingDoc.data();
-          const productRef = doc(db, "products", String(listing.productId));
-          const productSnap = await getDoc(productRef);
+          //const productRef = doc(db, "products", String(listing.productId));
+          //const productSnap = await getDoc(productRef);
 
           // Assuming the product exists and adding a check for the same
-          if (productSnap.exists()) {
-            const product = productSnap.data();
+          //if (productSnap.exists()) {
+            //const product = productSnap.data();
             // Return the listing with additional product details
-            return {
-              ...listing,
-              productName: product.name,
-              productImage: product.imageUrl,
-              productCategory: product.category,
-            };
-          }
+          //   return {
+          //     ...listing,
+          //     productName: product.name,
+          //     productImage: product.imageUrl,
+          //     productCategory: product.category,
+          //   };
+          // }
 
           // If the product does not exist, return the listing without product details
           return listing;
@@ -786,20 +786,20 @@ const store = createStore({
       const listings = await Promise.all(
         querySnapshot.docs.map(async (listingDoc) => {
           const listing = listingDoc.data();
-          const productRef = doc(db, "products", listing.productId);
-          const productSnap = await getDoc(productRef);
+          // const productRef = doc(db, "products", listing.productId);
+          // const productSnap = await getDoc(productRef);
 
-          // Assuming the product exists and adding a check for the same
-          if (productSnap.exists()) {
-            const product = productSnap.data();
-            // Return the listing with additional product details
-            return {
-              ...listing,
-              productName: product.name,
-              productImage: product.imageUrl,
-              productCategory: product.category,
-            };
-          }
+          // // Assuming the product exists and adding a check for the same
+          // if (productSnap.exists()) {
+          //   const product = productSnap.data();
+          //   // Return the listing with additional product details
+          //   return {
+          //     ...listing,
+          //     productName: product.name,
+          //     productImage: product.imageUrl,
+          //     productCategory: product.category,
+          //   };
+          // }
 
           // If the product does not exist, return the listing without product details
           return listing;

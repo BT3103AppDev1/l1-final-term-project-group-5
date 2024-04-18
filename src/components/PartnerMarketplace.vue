@@ -69,8 +69,6 @@
             <template v-slot:default="{ isActive }">
               <v-card title="Edit Product Details">
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-select v-model="editedListing.productId" :items="products" item-title="name" item-value="id"
-                    label="Select Product"></v-select>
 
                   <v-text-field v-model="editedListing.expirationDate" id="expirationDate" label="Expiration Date"
                     type="date" :min="today" required></v-text-field>
@@ -95,10 +93,10 @@
             </template>
           </v-dialog>
 
-          <img :src="listing.productImage" :alt="listing.productName" class="listing-image">
+          <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image">
           <div class="listing-details">
-            <h3>{{ listing.productName }}</h3>
-            <p>{{ listing.productCategory }}</p>
+            <h3>{{ listing.product.name }}</h3>
+            <p>{{ listing.product.category }}</p>
             <p>Remaining: {{ listing.unitsRemaining }} / {{ listing.unitsToSell }}</p>
             <p>Price: ${{ listing.price }}</p>
             <v-btn text="Delete" @click="confirmDelete(listing.listingId)"></v-btn>
@@ -118,11 +116,11 @@
       <div class="listings-container" name="expired-listings">
 
         <div class="expired-listing-card" v-for="listing in inactiveListings" :key="listing.id">
-          <img :src="listing.productImage" :alt="listing.productName" class="listing-image">
+          <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image">
           <div class="listing-details">
-            <h3>{{ listing.productName }}</h3>
-            <p>{{ listing.productCategory }}</p>
-            <p>Remaining: {{ listing.unitsRsemaining }} / {{ listing.unitsToSell }}</p>
+            <h3>{{ listing.product.name }}</h3>
+            <p>{{ listing.product.category }}</p>
+            <p>Remaining: {{ listing.unitsRemaining }} / {{ listing.unitsToSell }}</p>
             <p>Price: ${{ listing.price }}</p>
           </div>
         </div>

@@ -9,7 +9,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { auth, db } from "../firebase.js";
+import { db } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
 import {
   mdiTrashCanOutline,
@@ -41,10 +41,26 @@ async function fetchDocuments() {
     queryRef = query(ordersCollectionRef, orderBy("datePurchased", "asc"));
   }
   const querySnapshot = await getDocs(queryRef);
-  orders.value = querySnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+
+  orders.value = querySnapshot.docs.map((doc) => {
+    const orderData = doc.data();
+    const transformedOrder = {
+      id: doc.id,
+      ...orderData,
+    };
+
+    // Check if orderData.order exists and is an array before mapping
+    if (Array.isArray(orderData.order)) {
+      transformedOrder.order = orderData.order
+        .map((item) => `${item.name} x${item.quantity}`)
+        .join(", ");
+    } else {
+      // Handle the case where orderData.order is not an array
+      transformedOrder.order = "Invalid order data";
+    }
+
+    return transformedOrder;
+  });
 }
 
 // Fetch documents once the component is mounted
@@ -70,11 +86,11 @@ const navigateToPage = (pageNum) => {
 };
 
 // Update order status
-const updateOrderStatus = async (orderId) => {
-  const orderDocRef = doc(db, "order", orderId);
-  await updateDoc(orderDocRef, { status: "Completed" });
-  fetchDocuments(); // Refresh the list after update
-};
+// const updateOrderStatus = async (orderId) => {
+//   const orderDocRef = doc(db, "order", orderId);
+//   await updateDoc(orderDocRef, { status: "Completed" });
+//   fetchDocuments(); // Refresh the list after update
+// };
 
 // Delete order
 const deleteOrder = async (orderId) => {
@@ -195,7 +211,7 @@ const clearSearch = () => {
                 </div>
               </div>
             </th>
-            <th>Mark as Completed</th>
+            <th>Comments</th>
           </tr>
         </thead>
         <tbody v-if="filteredOrders.length > 0">
@@ -212,13 +228,7 @@ const clearSearch = () => {
               </div>
             </td>
             <td v-if="order.status === 'Ongoing'" style="text-align: center">
-              <button @click="updateOrderStatus(order.id)">
-                <svg-icon
-                  type="mdi"
-                  :path="checkCircle"
-                  style="color: green"
-                ></svg-icon>
-              </button>
+              To be collected
             </td>
             <td
               v-else-if="order.status === 'Completed'"
@@ -385,7 +395,6 @@ td:nth-child(8) {
   padding: 2px 8px 2px 8px;
   background-color: #f8d7da;
   color: #721c24;
-  width: fit-content;
 }
 .orderStatus-ongoing {
   text-align: center;

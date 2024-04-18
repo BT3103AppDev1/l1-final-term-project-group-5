@@ -3,7 +3,6 @@ import { ref, onMounted, computed } from "vue";
 import {
   collection,
   doc,
-  updateDoc,
   deleteDoc,
   getDocs,
   query,
@@ -31,6 +30,9 @@ const alphaX = mdiAlphaX;
 // Reactive reference to store the documents
 const orders = ref([]);
 
+// Fetch documents once the component is mounted
+onMounted(fetchDocuments);
+
 // Function to fetch documents from a specified collection
 async function fetchDocuments() {
   const ordersCollectionRef = collection(db, "order");
@@ -41,120 +43,95 @@ async function fetchDocuments() {
     queryRef = query(ordersCollectionRef, orderBy("datePurchased", "asc"));
   }
   const querySnapshot = await getDocs(queryRef);
-
-  orders.value = querySnapshot.docs.map((doc) => {
-    const orderData = doc.data();
-    const transformedOrder = {
-      id: doc.id,
-      ...orderData,
-    };
-
-    // Check if orderData.order exists and is an array before mapping
-    if (Array.isArray(orderData.order)) {
-      transformedOrder.order = orderData.order
-        .map((item) => `${item.name} x${item.quantity}`)
-        .join(", ");
-    } else {
-      // Handle the case where orderData.order is not an array
-      transformedOrder.order = "Invalid order data";
-    }
-
-    return transformedOrder;
-  });
+  orders.value = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+    order: Array.isArray(doc.data().order)
+      ? doc
+          .data()
+          .order.map((item) => `${item.name} x${item.quantity}`)
+          .join(", ")
+      : "Invalid order data",
+  }));
 }
 
-// Fetch documents once the component is mounted
-onMounted(fetchDocuments);
+// Reactive states for filtering and searching
+const searchTerm = ref("");
+const appliedSearchTerm = ref("");
+const currentFilter = ref("All");
+const dateSortOrder = ref("desc");
 
-// Date formatting function
-function formatDate(timestamp) {
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear().toString().substr(-2);
-  return `${day}/${month}/${year}`;
-}
-
-// Pagination
+// Reactive state for pagination
 const currentPage = ref(1);
-const ordersPerPage = 4;
-const totalOrders = computed(() => searchedOrders.value.length);
+const ordersPerPage = 10;
+
+// Computed properties
+const searchedOrders = computed(() => {
+  if (!appliedSearchTerm.value) {
+    return orders.value;
+  }
+  return orders.value.filter((order) =>
+    order.order.toLowerCase().includes(appliedSearchTerm.value)
+  );
+});
+
+const filteredOrders = computed(() => {
+  return searchedOrders.value.filter(
+    (order) =>
+      currentFilter.value === "All" || order.status === currentFilter.value
+  );
+});
+
+const totalOrders = computed(() => filteredOrders.value.length);
 const totalPages = computed(() => Math.ceil(totalOrders.value / ordersPerPage));
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * ordersPerPage;
+  return filteredOrders.value.slice(start, start + ordersPerPage);
+});
+
+// Handlers for search and pagination
+const applySearch = () => {
+  appliedSearchTerm.value = searchTerm.value.trim().toLowerCase();
+};
+
+const clearSearch = () => {
+  searchTerm.value = "";
+  appliedSearchTerm.value = "";
+};
 
 const navigateToPage = (pageNum) => {
   currentPage.value = pageNum;
 };
 
-// Update order status
-// const updateOrderStatus = async (orderId) => {
-//   const orderDocRef = doc(db, "order", orderId);
-//   await updateDoc(orderDocRef, { status: "Completed" });
-//   fetchDocuments(); // Refresh the list after update
-// };
+const toggleDateSortOrder = () => {
+  dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
+  fetchDocuments();
+};
 
-// Delete order
 const deleteOrder = async (orderId) => {
   const orderDocRef = doc(db, "order", orderId);
   await deleteDoc(orderDocRef);
-  fetchDocuments(); // Refresh the list after deletion
+  fetchDocuments();
 };
 
-// Filtering by order status
-const currentFilter = ref("All");
-const filteredOrders = computed(() => {
-  // Apply the filter first on searched orders.
-  let filtered = searchedOrders.value.filter(
-    (order) =>
-      currentFilter.value === "All" || order.status === currentFilter.value
-    // order.buyerId === auth.currentUser.uid
-  );
-
-  // Then, apply pagination to the filtered list.
-  const start = (currentPage.value - 1) * ordersPerPage;
-  return filtered.slice(start, start + ordersPerPage);
-});
-
+// Additional handlers for dropdown and formatting
 const showFilterDropdown = ref(false);
 const toggleFilterDropdown = () => {
   showFilterDropdown.value = !showFilterDropdown.value;
 };
+
 const selectFilter = (filterValue) => {
   currentFilter.value = filterValue;
-  showFilterDropdown.value = false; // Hide dropdown after selection
+  showFilterDropdown.value = false;
 };
 
-// Filtering by date purchased
-const dateSortOrder = ref("desc");
-const toggleDateSortOrder = () => {
-  dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
-  fetchDocuments(); // Re-fetch documents with the new sort order
-};
-
-// Search based on order name
-const searchTerm = ref("");
-const appliedSearchTerm = ref("");
-const applySearch = () => {
-  appliedSearchTerm.value = searchTerm.value;
-};
-const searchedOrders = computed(() => {
-  if (appliedSearchTerm.value.trim() === "") {
-    return orders.value;
-  }
-  return orders.value.filter((order) => {
-    // Check if order.order is a string before calling toLowerCase()
-    if (typeof order.order === "string") {
-      return order.order
-        .toLowerCase()
-        .includes(appliedSearchTerm.value.toLowerCase());
-    } else {
-      return false; // Return false if order.order is not a string
-    }
-  });
-});
-const clearSearch = () => {
-  searchTerm.value = "";
-  appliedSearchTerm.value = "";
-};
+function formatDate(timestamp) {
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}/${date.getFullYear().toString().substr(-2)}`;
+}
 </script>
 
 <template>
@@ -214,8 +191,8 @@ const clearSearch = () => {
             <th>Comments</th>
           </tr>
         </thead>
-        <tbody v-if="filteredOrders.length > 0">
-          <tr v-for="order in filteredOrders" :key="order.id">
+        <tbody v-if="paginatedOrders.length > 0">
+          <tr v-for="order in paginatedOrders" :key="order.id">
             <td>{{ order.orderId }}</td>
             <td>{{ order.order }}</td>
             <td>{{ order.companyName }}</td>
@@ -238,7 +215,7 @@ const clearSearch = () => {
                 <svg-icon
                   type="mdi"
                   :path="checkCircle"
-                  style="color: rgba(0, 128, 0, 0.317)"
+                  style="color: rgba(0, 128, 0, 0.77)"
                 ></svg-icon>
               </button>
             </td>
@@ -358,12 +335,10 @@ td:nth-child(1) {
 }
 th:nth-child(2),
 td:nth-child(2) {
-  width: 30%;
+  width: 25%;
 }
 th:nth-child(3),
 td:nth-child(3),
-th:nth-child(4),
-td:nth-child(4),
 th:nth-child(5),
 td:nth-child(5),
 th:nth-child(6),
@@ -371,6 +346,10 @@ td:nth-child(6),
 th:nth-child(7),
 td:nth-child(7) {
   width: 10%;
+}
+th:nth-child(4),
+td:nth-child(4) {
+  width: 15%;
 }
 th:nth-child(8),
 td:nth-child(8) {

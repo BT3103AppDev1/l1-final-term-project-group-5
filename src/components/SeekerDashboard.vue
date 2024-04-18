@@ -93,11 +93,13 @@ const paginatedOrders = computed(() => {
 // Handlers for search and pagination
 const applySearch = () => {
   appliedSearchTerm.value = searchTerm.value.trim().toLowerCase();
+  currentPage.value = 1;
 };
 
 const clearSearch = () => {
   searchTerm.value = "";
   appliedSearchTerm.value = "";
+  currentPage.value = 1;
 };
 
 const navigateToPage = (pageNum) => {
@@ -142,9 +144,13 @@ function formatDate(timestamp) {
           type="text"
           v-model="searchTerm"
           @keyup.enter="applySearch"
-          placeholder="Search orders..."
+          :placeholder="
+            appliedSearchTerm !== ''
+              ? `Current search: ${appliedSearchTerm}`
+              : 'Search orders...'
+          "
         />
-        <button @click="clearSearch" :disabled="!searchTerm">
+        <button @click="clearSearch" :disabled="!appliedSearchTerm">
           <div class="removeSearch">
             <svg-icon type="mdi" :path="alphaX"></svg-icon>
           </div>
@@ -241,7 +247,7 @@ function formatDate(timestamp) {
         </tbody>
       </table>
 
-      <div class="pageNavigation" v-if="totalPages > 1">
+      <div v-if="totalPages > 1" class="pageNavigation">
         <button @click="currentPage--" :disabled="currentPage <= 1">
           Previous
         </button>
@@ -258,10 +264,7 @@ function formatDate(timestamp) {
           Next
         </button>
       </div>
-      <div
-        class="pageNavigation"
-        v-else-if="totalPages === 1 && filteredOrders.length > 0"
-      >
+      <div v-else-if="filteredOrders.length > 0" class="pageNavigation">
         <button
           @click="navigateToPage(1)"
           :class="{ activePage: currentPage === 1 }"

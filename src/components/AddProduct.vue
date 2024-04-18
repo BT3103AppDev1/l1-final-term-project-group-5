@@ -8,7 +8,7 @@
 
         <v-select v-model="product.category" :items="categories" label="Select Product Category" required></v-select>
 
-        <v-text-field v-model.number="product.weight" label="Enter Product Weight" type="number" required></v-text-field>
+        <v-text-field v-model.number="product.weight" label="Enter Product Weight (grams)" type="number" required></v-text-field>
 
         <v-file-input label="Upload Product Image" prepend-icon="mdi-paperclip" @change="onFileChange" chips required>
         </v-file-input>

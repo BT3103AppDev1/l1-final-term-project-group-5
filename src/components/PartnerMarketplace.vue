@@ -12,20 +12,20 @@
 
         <div class="product-card" v-for="product in products" :key="product.id">
 
-          <v-dialog v-model="dialog" max-width="500">
+          <v-dialog v-model="productDialog" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
               <v-btn v-bind="activatorProps" color="surface-variant" text="Edit" variant="flat"
                 @click="openEditWindow(product, 'product')"></v-btn>
             </template>
 
-            <template v-slot:default="{ dialog }">
+            <template v-slot:default="{ productDialog }">
               <v-card title="Edit Product Details">
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field label="Product Name" v-model="editedProduct.name" required></v-text-field>
                   <v-select v-model="editedProduct.category" :items="categories" label="Select Product Category"
                     required></v-select>
 
-                  <v-text-field v-model.number="editedProduct.weight" label="Enter Product Weight" type="number"
+                  <v-text-field v-model.number="editedProduct.weight" label="Enter Product Weight (grams)" type="number"
                     required></v-text-field>
 
                   <v-file-input label="Upload Product Image" prepend-icon="mdi-paperclip" @change="onFileChange" chips>
@@ -36,7 +36,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn text="Save Changes" @click="saveProductDetails()"></v-btn>
-                  <v-btn text="Close Dialog" @click="this.dialog = false"></v-btn>
+                  <v-btn text="Close Dialog" @click="this.productDialog = false"></v-btn>
                 </v-card-actions>
               </v-card>
             </template>
@@ -47,7 +47,7 @@
             <h3>{{ product.name }}</h3>
             <p>{{ product.category }}</p>
             <p>{{ product.weight }} grams</p>
-            <!-- Include other details as per your product data structure -->
+            <v-btn text="Delete" @click="confirmDeleteProduct(product.productId)"></v-btn>
           </div>
 
         </div>
@@ -60,14 +60,14 @@
       <div class="listings-container" name="active-listings">
         <div class="listing-card" v-for="listing in activeListings" :key="listing.id">
 
-          <v-dialog v-model="dialog" max-width="500">
+          <v-dialog v-model="listingDialog" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
               <v-btn v-bind="activatorProps" color="surface-variant" text="Edit" variant="flat"
                 @click="openEditWindow(listing, 'listing')"></v-btn>
             </template>
 
             <template v-slot:default="{ isActive }">
-              <v-card title="Edit Product Details">
+              <v-card title="Edit Listing Details">
                 <v-form ref="form" v-model="valid" lazy-validation>
 
                   <v-text-field v-model="editedListing.expirationDate" id="expirationDate" label="Expiration Date"
@@ -140,7 +140,8 @@ import { onAuthStateChanged } from "firebase/auth";
 export default {
   data() {
     return {
-      dialog: false,
+      productDialog: false,
+      listingDialog: false,
       valid: true,
       user: null,
       store: null,
@@ -194,7 +195,8 @@ export default {
       'fetchInactiveListingsWithProductDetails', 
       'checkAndUpdateListingStatus',
       'deleteListing',
-      'editListing'
+      'editListing',
+      'deleteProduct'
     ]),
 
     AddProduct() {
@@ -204,11 +206,12 @@ export default {
     openEditWindow(object, type) {
       if (type === 'listing') {
         this.editedListing = { ...object };
+        this.listingDialog = true;
         //console.log(this.editedListing);
       } else if  (type === 'product') {
         this.editedProduct = { ...object };
+        this.productDialog = true;
       }
-      this.dialog = true;
     },
 
     onFileChange(e) {
@@ -223,12 +226,25 @@ export default {
         console.log('Product details to save:', this.editedProduct.name);
 
         // Close the dialog
-        this.dialog = false;
-        console.log(this.dialog);
+        this.productDialog = false;
+        console.log(this.productDialog);
         // Reset the form or keep the changes depending on your flow
         // this.resetForm();
       //}
     },
+
+    confirmDeleteProduct(productId) {
+      if (confirm('Are you sure you want to delete this listing?')) {
+        console.log('Deleting product with ID:', productId);
+        this.deleteProduct(productId).then(() => {
+          this.fetchProducts();
+          this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully deleted product!",
+          });
+        });
+      }
+    }, 
 
     async saveListingDetails() {
       if (this.editedListing.unitsRemaining * 1 > this.editedListing.unitsToSell * 1 || this.editedListing.unitsRemaining <= 0) {
@@ -239,7 +255,7 @@ export default {
       await this.editListing(this.editedListing);
       this.fetchActiveListingsWithProductDetails(this.user.uid);
 
-      this.dialog = false;
+      this.listingDialog = false;
       console.log("Close popup window");
       this.store.dispatch("addNotification", { // use store from instance
             type: "success",

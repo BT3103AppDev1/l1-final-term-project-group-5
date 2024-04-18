@@ -1,5 +1,4 @@
 <template>
-    <div class="parent-container">
         <div class="product-grid">
             <ProductCard v-for="listing in filteredActiveListings" :key="listing.listinId"
                 :listing="listing" @add-to-cart="addToCart" />
@@ -58,7 +57,6 @@
                     <button class="checkout" @click="checkout">CHECKOUT USING PAYNOW</button>
                 </div>
             </div>
-    </div>
 </template>
 
 <script>

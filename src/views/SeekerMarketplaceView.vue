@@ -110,7 +110,7 @@ export default {
 .sidebar {
     display:flex;
     flex-direction: column;
-    width:200px;
+    width:280px;
     padding:20px;
 }
 

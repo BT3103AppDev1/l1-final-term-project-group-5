@@ -37,12 +37,12 @@
   justify-content: center;
   margin-bottom: 1rem;
   padding:3px;
-  border: 2px ridge #ccc;
+  border: 2px outset #ccc;
   border-radius:8px;
 }
 
 .inputContainer:focus-within {
-  box-shadow: 0 0 8px darkgreen;
+  box-shadow: 0 0 3px gray;
 }
 
 .input {
@@ -70,6 +70,7 @@ input:focus {
 
 .clear-img:hover {
   box-shadow: 0 0 3px gray;
+  transform: scale(0.90);
 }
 
 </style>

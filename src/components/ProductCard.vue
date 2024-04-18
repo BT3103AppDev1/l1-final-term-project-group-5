@@ -142,7 +142,6 @@ export default {
 </script>
 
 <style scoped>
-
 .product-card {
     display: flex;
     flex-direction: column;
@@ -155,6 +154,10 @@ export default {
     height:400px;
     background-color:#4B644C;
     box-shadow: 0 0 3px #4B644C;
+    transition: transform 0.2s ease-in-out;
+}
+.product-card:hover{
+    transform: scale(1.05);
 }
 
 .img-container {
@@ -188,11 +191,9 @@ export default {
     opacity:50;
     transition:opacity 0.5s ease;
 }
-
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.2s ease;
 }
-
 .fade-enter, .fade-leave-to {
     transition: opacity 0.2s ease;
     opacity: 0;
@@ -206,26 +207,21 @@ export default {
     margin-bottom: 3px;
     object-fit: cover; /* Ensures the image fills the container without distortion */
 }
-
 .product-details {
     color:#ccc;
 }
-
 .name {
     color:white;
     text-align: left;
     border-top: 2px white;
     border-bottom: 2px white;
 }
-
 .price {
     color:white;
 }
 .category {
     text-align:left;
-
 }
-
 .expiry {
     text-align:left;
     padding-bottom: 5px;
@@ -233,29 +229,26 @@ export default {
 
 .qty-selector {
     align-self:flex-start;
+    
 }
-
 .qty-btn-container {
     color:white;
     display:flex;
     justify-content: space-between;
     width: 100%;
 }
-
 .add-btn {
     align-self: flex-end;
     cursor: pointer;
     display: inline-block;
-    padding: 0;
+    padding: 0;  
 }
-
 .add-btn img {
     width: 35px;
     height: 35px;
     display:inline-block;
     padding:0;
 }
-
 .input-qty {
     width: 50px;
     color:white;
@@ -263,19 +256,16 @@ export default {
     padding: 3px;
     font-size: larger;
 }
-
 .qty-edit {
     font-weight:bold;
     width: 16px;
     height:16px;
     font-size:x-large;
 }
-
 .pressed {
     transform: scale(0.8);
     transition: transform 0.1s ease;
 }
-
 .company {
     width: 40px;
     height: 40px;

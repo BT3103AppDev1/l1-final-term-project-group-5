@@ -58,7 +58,9 @@
             <img src="@/assets/Go Back.png" class="back-img">
             Continue Shopping
         </button>
-        <button class="order"@click="placeOrders()">Place Order</button>
+        <button class="order"@click="placeOrders()">
+            Place Order
+        </button>
     </div>
     
 </template>
@@ -85,6 +87,10 @@ export default {
             return uniqueSellers; // if more than 1 seller, return array of unique sellers
         },
         async placeOrders() {
+            if (!this.cartItems.length) {
+                this.$store.dispatch("addNotification", {type: "warning", message: "Cart is empty! Cannot place order."});
+                return;
+            }
             //let counter = 0; // track how many orders made
             const datePurchased = new Date();
             const sellers = await this.fetchSellers(this.cartItems); //returns either a single seller or array of sellers

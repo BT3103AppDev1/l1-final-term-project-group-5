@@ -54,7 +54,9 @@
                     <div class="total-price">
                         <h2>Total : ${{ totalPrice }}</h2>
                     </div>
-                    <button class="checkout" @click="checkout">CHECKOUT USING PAYNOW</button>
+                    <button class="checkout" :class="{ 'disabled': !cartItems.length, 'shake': shake}"@click="checkout">
+                        CHECKOUT USING PAYNOW
+                    </button>
                 </div>
             </div>
 </template>
@@ -87,6 +89,7 @@ export default {
             filteredActiveListings: [], // holds filtered listings
             showCart:false,
             isCartOpen:false,
+            shake:false,
         };
     },
 
@@ -184,7 +187,13 @@ export default {
         },
 
         checkout() {
-            this.$router.push('/seeker/checkout');
+            if (!this.cartItems.length) {
+                this.$store.dispatch("addNotification", {type: "warning", message: "Cart is empty!"})
+                this.shake = true;
+                setTimeout(() => this.shake = false, 1000); 
+            } else {
+                this.$router.push('/seeker/checkout');
+            }
         },
         incrementQuantity(item) {
             if (item.quantity < item.unitsRemaining) {
@@ -441,6 +450,24 @@ h3 {
 
 .checkout:active {
     transform: scale(0.90);
+}
+
+.checkout.disabled {
+    cursor:not-allowed;
+}
+
+.checkout.shake {
+    animation: shake 0.5s;
+    animation-iteration-count:1;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+    100% { transform: translateX(0); }
 }
 
 .total-price {

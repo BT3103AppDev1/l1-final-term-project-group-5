@@ -22,7 +22,7 @@
               </div>
             </div>
           </th>
-          <th>Select</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -102,9 +102,6 @@ export default {
       const startIndex = (this.currentPage - 1) * this.entriesPerPage;
       const endIndex = this.currentPage * this.entriesPerPage;
 
-      // Get the logged-in user's partnerUID 
-      const currentUser = this.sellerId;
-
       // Create a Firestore query
       let queryRef = collection(db, 'order');
       
@@ -112,9 +109,7 @@ export default {
       queryRef = query(queryRef, where('companyDeleted', '==', false))
 
       // Apply filter for partnerUID
-      if (currentUser) {
-        queryRef = query(queryRef, where('sellerId', '==', currentUser));
-      }
+      queryRef = query(queryRef, where('sellerId', '==', this.sellerId));
 
       // Apply search filter if searchQuery is not empty
       if (this.searchQuery) {
@@ -211,8 +206,9 @@ export default {
         if (!confirmDelete) {
           return; // If user cancels, exit the function
         }
-        currDoc = doc(db, 'order', id.toString());
-        currDocData = currDoc.data();
+        const currDoc = doc(db, 'order', id.toString());
+        const currDocSnapshot = await getDoc(currDoc)
+        const currDocData = currDocSnapshot.data();
         if (currDocData.customerDeleted) {
           await deleteDoc(currDoc);
         }

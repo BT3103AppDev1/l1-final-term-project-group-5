@@ -13,7 +13,6 @@ import { db, auth } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
 import {
   mdiTrashCanOutline,
-  mdiCheckCircle,
   mdiFilterCogOutline,
   mdiChevronUpBox,
   mdiChevronDownBox,
@@ -22,7 +21,6 @@ import {
 
 // Vuetify icons
 const trashCan = mdiTrashCanOutline;
-const checkCircle = mdiCheckCircle;
 const filterCog = mdiFilterCogOutline;
 const chevronUp = mdiChevronUpBox;
 const chevronDown = mdiChevronDownBox;
@@ -68,6 +66,10 @@ const ordersPerPage = 10;
 const userOrders = computed(() =>
   orders.value.filter((order) => order.buyerId === auth.currentUser.uid)
 );
+
+// const nonDeletedOrders = computed(() =>
+//   userOrders.value.filter((order) => !order.customerDeleted)
+// );
 
 const searchedOrders = computed(() => {
   if (!appliedSearchTerm.value) {
@@ -119,6 +121,35 @@ const deleteOrder = async (orderId) => {
   await deleteDoc(orderDocRef);
   fetchDocuments();
 };
+
+// async deleteInstrument(id) {
+//       try {
+//         const confirmDelete = confirm("Are you sure you want to delete order " + id + "?");
+//         if (!confirmDelete) {
+//           return; // If user cancels, exit the function
+//         }
+//         const currDoc = doc(db, 'order', id.toString());
+//         const currDocSnapshot = await getDoc(currDoc)
+//         const currDocData = currDocSnapshot.data();
+//         if (currDocData.customerDeleted) {
+//           await deleteDoc(currDoc);
+//         }
+//         else {
+//           await updateDoc(currDoc, { companyDeleted: true });
+//         }
+//         this.display(); // Refresh table after deletion
+//         this.store.dispatch("addNotification", { // use store from instance
+//             type: "success",
+//             message: "Successfully deleted order!",
+//           });
+//       } catch (error) {
+//         console.error('Error deleting document:', error);
+//         this.store.dispatch("addNotification", { // use store from instance
+//             type: "error",
+//             message: err.message,
+//           });
+//       }
+//     }
 
 // Additional handlers for dropdown and formatting
 const showFilterDropdown = ref(false);
@@ -220,11 +251,11 @@ function formatDate(timestamp) {
               v-else-if="order.status === 'Completed'"
               style="text-align: center"
             >
-              <button disabled>
+              <button @click="deleteOrder(order.id)">
                 <svg-icon
                   type="mdi"
-                  :path="checkCircle"
-                  style="color: rgba(0, 128, 0, 0.77)"
+                  :path="trashCan"
+                  style="color: darkred"
                 ></svg-icon>
               </button>
             </td>

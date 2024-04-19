@@ -379,7 +379,7 @@
             <v-col cols="12" md="12">
               <p style="font-size: 20px">
                 You have saved:
-                <span style="color: green">{{ user.weight }} kg</span>!
+                <span style="color: green">{{ user.weight / 1000}} kg</span>!
               </p>
             </v-col>
           </v-form>

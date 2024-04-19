@@ -33,8 +33,8 @@
                                     </button>
                                 </td>
                                 <td class="item">
-                                    <img :src="item.imageUrl" alt="Product Image" class="item-img"> 
-                                    <h3 class="item-name">{{ item.name }}</h3>
+                                    <img :src="item.product.imageUrl" alt="Product Image" class="item-img"> 
+                                    <h3 class="item-name">{{ item.product.name }}</h3>
                                 </td>
                                 <td class="item-price">${{ item.price.toFixed(2) }} </td>
                                 <td class="item-qty">
@@ -54,7 +54,9 @@
                     <div class="total-price">
                         <h2>Total : ${{ totalPrice }}</h2>
                     </div>
-                    <button class="checkout" @click="checkout">CHECKOUT USING PAYNOW</button>
+                    <button class="checkout" :class="{ 'disabled': !cartItems.length, 'shake': shake}"@click="checkout">
+                        CHECKOUT USING PAYNOW
+                    </button>
                 </div>
             </div>
 </template>
@@ -87,6 +89,7 @@ export default {
             filteredActiveListings: [], // holds filtered listings
             showCart:false,
             isCartOpen:false,
+            shake:false,
         };
     },
 
@@ -99,7 +102,7 @@ export default {
         this.listings = listingSnapshot.docs.map(doc => doc.data());
 
         this.filteredActiveListings = this.activeListings;
-        //console.log(this.filteredActiveListings)
+        console.log(this.filteredActiveListings)
 
         //sort listings by expiry-date
         this.filteredActiveListings.sort((a,b) => {
@@ -184,7 +187,13 @@ export default {
         },
 
         checkout() {
-            this.$router.push('/seeker/checkout');
+            if (!this.cartItems.length) {
+                this.$store.dispatch("addNotification", {type: "warning", message: "Cart is empty!"})
+                this.shake = true;
+                setTimeout(() => this.shake = false, 1000); 
+            } else {
+                this.$router.push('/seeker/checkout');
+            }
         },
         incrementQuantity(item) {
             if (item.quantity < item.unitsRemaining) {
@@ -212,10 +221,11 @@ h3 {
 
 .product-grid {
     display:grid;
-    grid-template-columns: repeat(4, 4fr);
+    width:75vw;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 30px;
     margin: 0 50px 0 150px;
-    overflow:auto;
+    overflow:hidden;
 }
 
 .view-cart-btn {
@@ -256,7 +266,8 @@ h3 {
     flex-direction: row;
     justify-content:space-between;
     flex-wrap:nowrap;
-    text-align:center;
+    border-bottom: 1px solid #ccc;
+    padding:4px;
 }
 
 .cart-header {
@@ -267,17 +278,11 @@ h3 {
     font-size: large;
     position:relative;
     letter-spacing:1px;
-    top:8px;
+    top:0px;
     left:16px;
 
 }
 
-.close-btn {
-    position:relative;
-    top:15px;
-    left:10px;
-    padding-bottom: 8px;
-}
 
 .close-img {
     height:35px;
@@ -315,10 +320,12 @@ h3 {
     background-color: white;
     bottom: 0;
     right: 0;
-    width:40%;
-    height: 550px;
-    overflow: auto;
-    border: 2px inset #324432;
+    width:40vw;
+    min-width: 300px;
+    max-width: 600px;
+    height: 50vh;
+    overflow: hidden;
+    border: 2px outset #324432;
     border-radius: 4px;
     z-index:1000;
     display:flex;
@@ -329,13 +336,11 @@ h3 {
 
 .cart-items {
     overflow:auto;
-    flex-grow:1;
     display:flex;
     flex-direction: column;
-    padding-top: 8px;
+    
     border-bottom: 1px solid black;
     table-layout:fixed;
-    height:80px;
 }
 
 .cart-table {
@@ -347,8 +352,7 @@ h3 {
 }
 .cart-table thead th {
     width:150px;
-    position:sticky;
-    top:0;
+    z-index:1;
 }
 .cart-table tr {
     padding-bottom:1px;
@@ -404,8 +408,7 @@ h3 {
 .clear-cart {
     position:relative;
     right:12px;
-    top:6px;
-    padding-bottom: 8px;
+    top:0px;
     background-color:#4B644C;
     color:white;
     font-family: 'Public Sans', sans-serif;
@@ -413,7 +416,7 @@ h3 {
     font-size:small;
     height:auto;
     width: auto;
-    padding: 8px;
+    padding:2px;
     border: 4px outset #4B644C;
     border-radius: 4px;
 }
@@ -441,6 +444,24 @@ h3 {
 
 .checkout:active {
     transform: scale(0.90);
+}
+
+.checkout.disabled {
+    cursor:not-allowed;
+}
+
+.checkout.shake {
+    animation: shake 0.5s;
+    animation-iteration-count:1;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+    100% { transform: translateX(0); }
 }
 
 .total-price {

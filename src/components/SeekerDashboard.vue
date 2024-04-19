@@ -278,13 +278,14 @@ function formatDate(timestamp) {
 
 <style scoped>
 .orderDashboardContainer {
-  height: calc(100vh - 64px);
-  width: calc(100vw - 40px);
+  width: 95vw;
+  max-width: 100%;
+  padding: 20px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: top;
-  margin: 0px 20px 0px 20px;
 }
 .orderContainer {
   padding: 10px;
@@ -456,9 +457,10 @@ td:nth-child(8) {
   flex-direction: row;
   justify-content: left;
   align-items: left;
-  margin-top: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
+  margin-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 15px;
 }
 .searchContainer input {
   width: 100%;

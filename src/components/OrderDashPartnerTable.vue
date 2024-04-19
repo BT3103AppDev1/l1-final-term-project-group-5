@@ -450,7 +450,6 @@ tbody tr:nth-child(odd) {
   border: 1px solid #ccc;
   border-radius: 20px; /* Half of the height to create an oval shape */
   padding: 4px 8px;
-  margin-right: 4px;
   font-size: 12px;
   background-color: lightcyan;
 }

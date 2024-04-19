@@ -382,31 +382,41 @@ td:nth-child(8) {
   width: 15%;
 }
 
-.orderStatus {
+.orderStatus- {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
 }
 .orderStatus-completed {
+  display: inline-block;
   text-align: center;
-  border-radius: 8px;
-  padding: 2px 5px 2px 5px;
-  background-color: #d4edda;
+  border: 1px solid green;
+  border-radius: 20px;
+  padding: 4px 8px;
+  background-color: lightcyan;
   color: #155724;
+  font-size: 12px;
 }
 .orderStatus-expired {
+  display: inline-block;
   text-align: center;
-  border-radius: 8px;
+  border: 1px solid red;
+  border-radius: 20px;
   padding: 2px 8px 2px 8px;
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: lightcyan;
+  color: red;
+  font-size: 12px;
 }
 .orderStatus-ongoing {
+  display: inline-block;
   text-align: center;
-  border-radius: 8px;
+  border: 1px solid #ffbf00;
+  border-radius: 20px;
   padding: 2px 8px 2px 8px;
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: lightcyan;
+  color: #ffbf00;
+  font-size: 12px;
 }
 
 .pageNavigation {

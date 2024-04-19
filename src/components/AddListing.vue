@@ -1,5 +1,10 @@
 <template>
-  <div class="d-flex justify-center align-center" style="height: 100vh;">
+  <div class="d-flex flex-column align-center" style="height: 80vh;">
+    <div class="self-start">
+      <v-btn icon @click="goBackToMarketplace">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
+    </div>
     <v-sheet class="mx-auto" width="300">
       <h2>Add New Listing</h2>
       <v-form @submit.prevent="submitListing">
@@ -86,7 +91,10 @@ export default {
       } catch (error) {
         console.error('Error adding listing:', error);
       }
-    }
+    },
+    goBackToMarketplace() {
+      this.$router.go(-1); // This line will take you back to the previous page
+    },
   }
 };
 </script>
@@ -113,6 +121,10 @@ select {
   background-color: #4CAF50;
   /* Green */
   color: white
+}
+
+.self-start {
+  align-self: flex-start;
 }
 
 /* Add responsiveness or other styles as needed */

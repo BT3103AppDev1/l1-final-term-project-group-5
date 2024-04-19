@@ -36,7 +36,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn text="Save Changes" @click="saveProductDetails()"></v-btn>
-                  <v-btn text="Close Dialog" @click="this.productDialog = false"></v-btn>
+                  <v-btn text="Close" @click="this.productDialog = false"></v-btn>
                 </v-card-actions>
               </v-card>
             </template>
@@ -87,7 +87,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn text="Save Changes" @click="saveListingDetails()"></v-btn>
-                  <v-btn text="Close Dialog" @click="isActive.value = false"></v-btn>
+                  <v-btn text="Close" @click="isActive.value = false"></v-btn>
                 </v-card-actions>
               </v-card>
             </template>

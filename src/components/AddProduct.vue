@@ -1,5 +1,10 @@
 <template>
-  <div class="d-flex justify-center align-center" style="height: 100vh;">
+  <div class="d-flex flex-column align-center" style="height: 80vh;">
+    <div class="self-start">
+      <v-btn icon @click="goBackToMarketplace">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
+    </div>
     <v-sheet class="mx-auto" width="300">
       <h1>Add New Product</h1>
       <v-form @submit.prevent="addProduct">
@@ -62,13 +67,17 @@ export default {
         await this.addProductToDB(this.product);
         this.$router.push('/partner/marketplace'); // redirect to marketplace after adding
         this.store.dispatch("addNotification", { // use store from instance
-            type: "success",
-            message: "Successfully added product!",
-          });
+          type: "success",
+          message: "Successfully added product!",
+        });
       } else {
         alert('All fields are required');
       }
-    }
+    },
+
+    goBackToMarketplace() {
+      this.$router.go(-1); // This line will take you back to the previous page
+    },
   }
 }
 </script>
@@ -78,5 +87,9 @@ export default {
   background-color: #4CAF50;
   /* Green */
   color: white
+}
+
+.self-start {
+  align-self: flex-start;
 }
 </style>

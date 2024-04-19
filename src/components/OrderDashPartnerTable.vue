@@ -261,7 +261,7 @@ export default {
         const docData = docSnapshot.data();
         const sellerId = docData.sellerId;
         const buyerId = docData.buyerId;
-        const foodWeight = docData.weight;
+        const foodWeight = docData.totalWeight
 
         const sellerDocRef = doc(db, 'users', sellerId);
         const sellerDocSnapshot = await getDoc(sellerDocRef);
@@ -274,8 +274,8 @@ export default {
         const buyerWeight = buyerDocData.weight + foodWeight;
 
         await updateDoc(docRef, { status: 'Completed' });
-        await updateDoc(sellerDocRef, { weight: sellerWeight});
-        await updateDoc(buyerDocRef, { weight: buyerWeight});
+        await updateDoc(sellerDocRef, { weight: (sellerWeight)});
+        await updateDoc(buyerDocRef, { weight: (buyerWeight)});
       }
       this.display();
       this.store.dispatch("addNotification", { // use store from instance

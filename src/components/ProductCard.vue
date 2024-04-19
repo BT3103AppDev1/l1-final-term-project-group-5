@@ -1,7 +1,7 @@
 <template>
     <div class="product-card">
         <div class="img-container" @mouseleave="showOverlay = false">
-            <img :src="listing.imageUrl" alt="Product Image" class="img">
+            <img :src="listing.product.imageUrl" alt="Product Image" class="img">
             <div class="company-picture">
                 <img :src="seller?.photoURL" alt="logo" class="company" @click="showOverlay =! showOverlay">
             </div>
@@ -14,16 +14,16 @@
             </transition>
         </div>
         <div class="product-details">
-            <h2 class="name">{{ listing.name }}</h2>
+            <h2 class="name">{{ listing.product.name }}</h2>
             <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
-            <h3 class="category">{{ listing.category }} </h3>
-            <h3 class="expiry">Expires: {{ listing.expirationDate }} </h3>
+            <h3 class="category">{{ listing.product.category }} </h3>
+            <h3 class="expiry">Expires: {{ formattedDate }}</h3>
         </div>
         <div class="qty-btn-container">
             <div class="qty-selector">
                 <label for="quantity">Quantity </label>
                 <button class="qty-edit" @mousedown="startDecrement" @mouseup="stopDecrement" @mouseleave="stopDecrement" :class="{pressed : isDecrementPressed}">-</button>
-                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" readonly>
+                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" readonly >
                 <button class="qty-edit"@mousedown="startIncrement" @mouseup="stopIncrement" @mouseleave="stopIncrement":class="{pressed : isIncrementPressed}">+</button>
             </div>
             <div class="add-btn" 
@@ -51,11 +51,14 @@ export default {
             isPressed: false,
             isIncrementPressed: false,
             isDecrementPressed: false,
+            maxQuantity:null,
         };
     },
 
     async created() {
         this.listing.quantity = 1;
+        this.maxQuantity = this.listing.unitsRemaining;
+
 
         const sellerRef = doc(db, 'users', this.listing.sellerId);
         const sellerDoc = await getDoc(sellerRef);
@@ -72,12 +75,21 @@ export default {
         formattedQuantity() {
             return this.listing.quantity.toString().padStart(2, '0');
         },
+
+        formattedDate() {
+            const date = new Date(this.listing.expirationDate.seconds * 1000);
+            const day = ("0" + date.getDate()).slice(-2);
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        },
     },
 
     methods : {
         handleAddToCart() {
             //console.log(this.listing);
             //console.log(this.listing.quantity);
+            console.log('weight: ', this.listing.product.weight);
             this.$emit('add-to-cart', {... this.listing, quantity:this.listing.quantity});
             this.$store.dispatch("addNotification", {type: "success", message: "Added to cart succesfully!"})
         },
@@ -97,8 +109,15 @@ export default {
         },
 
         handleQtyInput(event) {
-            const qty = parseInt(event.target.value, 10);
-            if (!isNaN(qty) && qty >= 1 && qty <= this.listing.unitsRemaining) {
+            const qty = parseInt(event.target.value);
+            /*if (!isNaN(qty) && qty >= 1 && qty <= this.listing.unitsRemaining) {
+                this.listing.quantity = qty;
+            }*/
+            if (qty > this.maxQuantity) {
+                this.listing.quantity = this.maxQuantity;
+            } else if (qty < 1) {
+                this.listing.quantity = 1;
+            } else {
                 this.listing.quantity = qty;
             }
         },

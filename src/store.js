@@ -109,6 +109,13 @@ const store = createStore({
       state.products = products;
     },
 
+    UPDATE_PRODUCT(state, { id, updates }) {
+      const index = state.products.findIndex((product) => product.id === id);
+      if (index !== -1) {
+        state.products[index] = updates;
+      }
+    },
+
     REMOVE_PRODUCT(state, productId) {
       state.products = state.products.filter(
         (product) => product.id !== productId
@@ -734,6 +741,17 @@ const store = createStore({
         ...doc.data(),
       }));
       commit("SET_PRODUCTS", products);
+    },
+
+    async editProduct({ commit }, editedProduct) {
+      try {
+        const id = editedProduct.productId;
+        const listingRef = doc(db, "products", id);
+        await updateDoc(listingRef, editedProduct);
+        commit("UPDATE_PRODUCT", { id, editedProduct });
+      } catch (error) {
+        console.error("Error updating listing:", error);
+      }
     },
 
     async deleteProduct({ commit }, productId) {

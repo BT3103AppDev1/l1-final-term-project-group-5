@@ -132,9 +132,9 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import { onMounted, ref } from 'vue';
-import { auth, db } from '@/firebase';
+import { auth, db, storage } from '@/firebase';
 import { query, collection, getDocs, where } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 
 export default {
@@ -196,7 +196,8 @@ export default {
       'checkAndUpdateListingStatus',
       'deleteListing',
       'editListing',
-      'deleteProduct'
+      'deleteProduct',
+      'editProduct'
     ]),
 
     AddProduct() {
@@ -208,7 +209,7 @@ export default {
         this.editedListing = { ...object };
         this.listingDialog = true;
         //console.log(this.editedListing);
-      } else if  (type === 'product') {
+      } else if (type === 'product') {
         this.editedProduct = { ...object };
         this.productDialog = true;
       }
@@ -219,18 +220,48 @@ export default {
       this.editedProduct.image = file;
     },
 
-    saveProductDetails() {
-      //if (this.$refs.form.validate()) {
-        // Save the edited product details
-        // You would typically dispatch a Vuex action or call an API method here
-        console.log('Product details to save:', this.editedProduct.name);
+    async uploadImage(file) {
+      try {
+        const storageRef = ref(storage, `products/${file.name}`); // Create a reference to the storage location
+        const snapshot = await uploadBytes(storageRef, file); // Upload the file
+        const imageUrl = await getDownloadURL(snapshot.ref); // Get the URL of the uploaded file
+        return imageUrl;
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+      }
+    },
 
-        // Close the dialog
+    async saveProductDetails() {
+      try {
+        if (this.editedProduct.image) {
+          const imageUrl = await this.uploadImage(this.editedProduct.image);
+          // Prepare the product object with the image URL
+          const productToEdit = {
+            productId: this.editedProduct.productId,
+            name: this.editedProduct.name,
+            category: this.editedProduct.category,
+            weight: this.editedProduct.weight,
+            sellerId: this.editedProduct.sellerId,
+            imageUrl,
+          };
+
+          this.editProduct(productToEdit).then(() => {
+            this.fetchProducts();
+          });
+        } else {
+          this.editProduct(this.editedProduct).then(() => {
+            this.fetchProducts();
+          });
+        }
         this.productDialog = false;
-        console.log(this.productDialog);
-        // Reset the form or keep the changes depending on your flow
-        // this.resetForm();
-      //}
+        console.log("Close popup window");
+        this.store.dispatch("addNotification", { // use store from instance
+          type: "success",
+          message: "Successfully edited product!",
+        });
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
     },
 
     confirmDeleteProduct(productId) {
@@ -252,8 +283,10 @@ export default {
       }
       //console.log('Listing details to save:', this.editedListing.productName);
 
-      await this.editListing(this.editedListing);
-      this.fetchActiveListingsWithProductDetails(this.user.uid);
+      await this.editListing(this.editedListing).then(() => {
+        this.fetchActiveListingsWithProductDetails(this.user.uid);
+        this.fetchInactiveListingsWithProductDetails(this.user.uid);
+      });
 
       this.listingDialog = false;
       console.log("Close popup window");

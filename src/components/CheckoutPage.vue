@@ -75,7 +75,6 @@ export default {
     ...mapGetters(['cartItems', 'totalPrice','getUser',])
     },
     methods: {
-
         ...mapActions(['removeFromCart']),
 
         continueShopping() {
@@ -83,23 +82,24 @@ export default {
         },
         async fetchSellers(cartItems) {
             const uniqueSellers = Array.from(new Set(cartItems.map(item => item.sellerId)));
-            if (uniqueSellers.length === 1) {
-                return uniqueSellers[0]; //if only 1 unique seller
-            } else {
-                return uniqueSellers; // if more than 1 seller, return array of unique sellers
-            }
+            return uniqueSellers; // if more than 1 seller, return array of unique sellers
         },
         async placeOrders() {
-            let counter = 0; // track how many orders made
+            //let counter = 0; // track how many orders made
             const datePurchased = new Date();
             const sellers = await this.fetchSellers(this.cartItems); //returns either a single seller or array of sellers
+            console.log(sellers);
             try {
                 for (const sellerId of sellers) {
                     let orderId = Math.floor(Math.random() * 900) + 100; // generate random orderID
                     const sellerRef = doc(db, 'users', sellerId);
+                    console.log('SellerRef: ', sellerRef);
                     const sellerSnap = await getDoc(sellerRef);
                     const sellerData = sellerSnap.data();
+                    console.log(sellerData.displayName);
                     const sellerItems = this.cartItems.filter(item => item.sellerId === sellerId);
+                    const totalWeight = sellerItems.reduce((acc, item) => acc + item.weight * item.quantity, 0);
+                    console.log("Total weight: " + totalWeight);
                     //console.log(sellerData.displayName + ":" + sellerItems);
 
                     await setDoc(doc(db, 'order', orderId.toString()), {
@@ -114,6 +114,7 @@ export default {
                         sellerId: sellerId,
                         status: 'Ongoing',
                         totalPrice: sellerItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2),
+                        totalWeight: sellerItems.reduce((acc, item) => acc + item.weight * item.quantity, 0),
                     });
                     console.log('Order placed successfully with orderID: ' + orderId);
                     
@@ -181,8 +182,7 @@ export default {
 }
 
 .summary {
-    text-align:left;
-    padding-left: 16px;
+    text-align: center;
 }
 
 .cart-table {
@@ -192,6 +192,8 @@ export default {
     border-bottom: 1px solid #ccc;
 }
 
+
+
 .cart-table thead th {
     width:150px;
     position:sticky;
@@ -200,6 +202,13 @@ export default {
 
 .cart-table td {
     height:80px;
+}
+
+.cart-table td.item {
+    display:flex;
+    justify-content:left;
+    gap: 8px;
+    align-items:center;
 }
 
 .subtotal {
@@ -255,6 +264,14 @@ export default {
     border-radius: 4px;
     border: none;
     cursor: pointer;
+    border:4px outset #4B644C;
+}
+.order:hover {
+    background-color: #3B523C;
+}
+
+.order:active {
+    transform: scale(0.90);
 }
 .back-img {
     height: 30px;
@@ -282,6 +299,32 @@ export default {
 .qty-edit {
     font-size:x-large;
 }
+
+.cart-table th:first-child {
+    width:50px;
+}
+
+.cart-table th:nth-child(2) {
+    width: 200px;
+}
+
+.cart-table th:nth-child(3) {
+    width: 80px;
+}
+
+.cart-table th:nth-child(4) {
+    width: 80px;
+}
+
+.cart-table th:nth-child(5) {
+    width: 100px;
+}
+
+.cart-table td.subtotal {
+    font-weight:bold;
+    font-size: large;
+}
+
 
 
 

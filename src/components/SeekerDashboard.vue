@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useStore } from "vuex";
 import {
   collection,
   doc,
@@ -7,7 +8,6 @@ import {
   getDocs,
   query,
   orderBy,
-  where,
 } from "firebase/firestore";
 import { db, auth } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
@@ -18,6 +18,8 @@ import {
   mdiChevronDownBox,
   mdiAlphaX,
 } from "@mdi/js";
+
+const store = useStore();
 
 // Vuetify icons
 const trashCan = mdiTrashCanOutline;
@@ -64,7 +66,7 @@ const ordersPerPage = 10;
 
 // Computed properties
 const userOrders = computed(() =>
-  orders.value.filter((order) => order.buyerId === auth.currentUser.uid)
+  orders.value.filter((order) => order.buyerId !== auth.currentUser.uid)
 );
 
 // const nonDeletedOrders = computed(() =>
@@ -117,39 +119,24 @@ const toggleDateSortOrder = () => {
 };
 
 const deleteOrder = async (orderId) => {
-  const orderDocRef = doc(db, "order", orderId);
-  await deleteDoc(orderDocRef);
-  fetchDocuments();
+  if (confirm("Are you sure you want to delete this order?")) {
+    try {
+      const orderDocRef = doc(db, "order", orderId);
+      await deleteDoc(orderDocRef);
+      fetchDocuments();
+      store.dispatch("addNotification", {
+        type: "success",
+        message: "Successfully deleted order!",
+      });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      store.dispatch("addNotification", {
+        type: "error",
+        message: error.message,
+      });
+    }
+  }
 };
-
-// async deleteInstrument(id) {
-//       try {
-//         const confirmDelete = confirm("Are you sure you want to delete order " + id + "?");
-//         if (!confirmDelete) {
-//           return; // If user cancels, exit the function
-//         }
-//         const currDoc = doc(db, 'order', id.toString());
-//         const currDocSnapshot = await getDoc(currDoc)
-//         const currDocData = currDocSnapshot.data();
-//         if (currDocData.customerDeleted) {
-//           await deleteDoc(currDoc);
-//         }
-//         else {
-//           await updateDoc(currDoc, { companyDeleted: true });
-//         }
-//         this.display(); // Refresh table after deletion
-//         this.store.dispatch("addNotification", { // use store from instance
-//             type: "success",
-//             message: "Successfully deleted order!",
-//           });
-//       } catch (error) {
-//         console.error('Error deleting document:', error);
-//         this.store.dispatch("addNotification", { // use store from instance
-//             type: "error",
-//             message: err.message,
-//           });
-//       }
-//     }
 
 // Additional handlers for dropdown and formatting
 const showFilterDropdown = ref(false);
@@ -168,6 +155,13 @@ function formatDate(timestamp) {
     .toString()
     .padStart(2, "0")}/${date.getFullYear().toString().substr(-2)}`;
 }
+
+// function addNotification(message, type) {
+//   notifications.value.push({ message, type });
+//   setTimeout(() => {
+//     notifications.value.shift();
+//   }, 3000);
+// }
 </script>
 
 <template>

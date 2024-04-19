@@ -66,10 +66,10 @@ export default {
     },
   },
   async mounted() {
-    this.checkAndExpireOrders();
     this.store = this.$store;
     const auth = getAuth()
     this.sellerId = auth.currentUser.uid
+    this.checkAndExpireOrders();
     this.display();
   },
   watch: {
@@ -107,6 +107,9 @@ export default {
 
       // Create a Firestore query
       let queryRef = collection(db, 'order');
+      
+      // Apply filter for orders that have not been deleted
+      queryRef = query(queryRef, where('companyDeleted', '==', false))
 
       // Apply filter for partnerUID
       if (currentUser) {
@@ -208,7 +211,14 @@ export default {
         if (!confirmDelete) {
           return; // If user cancels, exit the function
         }
-        await deleteDoc(doc(db, 'order', id.toString()));
+        currDoc = doc(db, 'order', id.toString());
+        currDocData = currDoc.data();
+        if (currDocData.customerDeleted) {
+          await deleteDoc(currDoc);
+        }
+        else {
+          await updateDoc(currDoc, { companyDeleted: true });
+        }
         this.display(); // Refresh table after deletion
         this.store.dispatch("addNotification", { // use store from instance
             type: "success",
@@ -288,11 +298,12 @@ export default {
     async checkAndExpireOrders() {
       console.log('checkAndExpireOrders() ran')
       const currentDate = new Date();
-      const queryRef = collection(db, 'order');
+      let queryRef = collection(db, 'order');
+      queryRef = query(queryRef, where('sellerId', '==', this.sellerId));
       const querySnapshot = await getDocs(queryRef);
       querySnapshot.forEach(async (documentData) => {
         const order = documentData.data();
-        if (order.status === 'Ongoing' && order.expirationDate.toDate() < currentDate) {
+        if (order.status === 'Ongoing' && order.expirationDate.toMillis() < currentDate.getTime()) {
           const docRef = doc(db, 'order', order.orderId.toString());
           await updateDoc(docRef, { status: 'Expired' });
         }

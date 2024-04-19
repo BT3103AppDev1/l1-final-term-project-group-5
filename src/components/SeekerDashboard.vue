@@ -169,11 +169,7 @@ function formatDate(timestamp) {
           type="text"
           v-model="searchTerm"
           @keyup.enter="applySearch"
-          :placeholder="
-            appliedSearchTerm !== ''
-              ? `Current search: ${appliedSearchTerm}`
-              : 'Search orders...'
-          "
+          placeholder="Search orders..."
         />
       </div>
       <button @click="applySearch" class="searchButton">Search</button>
@@ -184,6 +180,9 @@ function formatDate(timestamp) {
       >
         Clear
       </button>
+      <span v-if="appliedSearchTerm" class="currentSearch">
+        Current search: {{ appliedSearchTerm }}
+      </span>
     </div>
 
     <div class="orderContainer">
@@ -508,5 +507,14 @@ td:nth-child(8) {
 .searchButton:hover,
 .clearButton:hover {
   background-color: #f0f0f0;
+}
+
+.currentSearch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 20px;
+  font-size: 0.85rem;
+  color: #333333ce;
 }
 </style>

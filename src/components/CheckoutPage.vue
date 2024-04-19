@@ -99,13 +99,14 @@ export default {
                 for (const sellerId of sellers) {
                     let orderId = Math.floor(Math.random() * 900) + 100; // generate random orderID
                     const sellerRef = doc(db, 'users', sellerId);
-                    console.log('SellerRef: ', sellerRef);
+                    //console.log('SellerRef: ', sellerRef);
                     const sellerSnap = await getDoc(sellerRef);
                     const sellerData = sellerSnap.data();
                     console.log(sellerData.displayName);
                     const sellerItems = this.cartItems.filter(item => item.sellerId === sellerId);
-                    const totalWeight = sellerItems.reduce((acc, item) => acc + item.weight * item.quantity, 0);
-                    console.log("Total weight: " + totalWeight);
+                    const totalWeight = sellerItems.reduce((acc, item) => acc + Number(item.product.weight) * Number(item.quantity), 0);
+                    
+                    //console.log("Total weight: " + totalWeight);
                     //console.log(sellerData.displayName + ":" + sellerItems);
 
                     await setDoc(doc(db, 'order', orderId.toString()), {
@@ -115,13 +116,14 @@ export default {
                         datePurchased: datePurchased,
                         expirationDate: sellerItems[0].expirationDate,
                         name: this.getUser.displayName,
-                        order: sellerItems.map(item => ({ name: item.name, quantity: item.quantity })),
+                        order: sellerItems.map(item => ({ name: item.product.name, quantity: item.quantity })),
                         orderId: orderId,
                         sellerId: sellerId,
                         status: 'Ongoing',
                         totalPrice: sellerItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2),
-                        totalWeight: sellerItems.reduce((acc, item) => acc + item.weight * item.quantity, 0),
+                        totalWeight: totalWeight,
                     });
+                    
                     console.log('Order placed successfully with orderID: ' + orderId);
                     
                 }

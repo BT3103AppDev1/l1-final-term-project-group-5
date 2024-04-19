@@ -1,27 +1,30 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useStore } from "vuex";
 import {
   collection,
   doc,
+  updateDoc,
   deleteDoc,
+  getDoc,
   getDocs,
   query,
   orderBy,
 } from "firebase/firestore";
-import { db } from "../firebase.js";
+import { db, auth } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
 import {
   mdiTrashCanOutline,
-  mdiCheckCircle,
   mdiFilterCogOutline,
   mdiChevronUpBox,
   mdiChevronDownBox,
   mdiAlphaX,
 } from "@mdi/js";
 
+const store = useStore();
+
 // Vuetify icons
 const trashCan = mdiTrashCanOutline;
-const checkCircle = mdiCheckCircle;
 const filterCog = mdiFilterCogOutline;
 const chevronUp = mdiChevronUpBox;
 const chevronDown = mdiChevronDownBox;
@@ -36,12 +39,10 @@ onMounted(fetchDocuments);
 // Function to fetch documents from a specified collection
 async function fetchDocuments() {
   const ordersCollectionRef = collection(db, "order");
-  let queryRef;
-  if (dateSortOrder.value === "desc") {
-    queryRef = query(ordersCollectionRef, orderBy("datePurchased", "desc"));
-  } else {
-    queryRef = query(ordersCollectionRef, orderBy("datePurchased", "asc"));
-  }
+  let queryRef = query(
+    ordersCollectionRef,
+    orderBy("datePurchased", dateSortOrder.value)
+  );
   const querySnapshot = await getDocs(queryRef);
   orders.value = querySnapshot.docs.map((doc) => ({
     id: doc.id,
@@ -66,11 +67,19 @@ const currentPage = ref(1);
 const ordersPerPage = 10;
 
 // Computed properties
+const userOrders = computed(() =>
+  orders.value.filter((order) => order.buyerId !== auth.currentUser.uid)
+);
+
+const nonDeletedOrders = computed(() =>
+  userOrders.value.filter((order) => !order.customerDeleted)
+);
+
 const searchedOrders = computed(() => {
   if (!appliedSearchTerm.value) {
-    return orders.value;
+    return nonDeletedOrders.value;
   }
-  return orders.value.filter((order) =>
+  return nonDeletedOrders.value.filter((order) =>
     order.order.toLowerCase().includes(appliedSearchTerm.value)
   );
 });
@@ -112,9 +121,25 @@ const toggleDateSortOrder = () => {
 };
 
 const deleteOrder = async (orderId) => {
-  const orderDocRef = doc(db, "order", orderId);
-  await deleteDoc(orderDocRef);
-  fetchDocuments();
+  if (confirm("Are you sure you want to delete this order?")) {
+    const orderDocRef = doc(db, "order", orderId);
+    const orderSnapshot = await getDoc(orderDocRef);
+    if (!orderSnapshot.exists()) {
+      console.error("Document does not exist!");
+      return;
+    }
+    const orderData = orderSnapshot.data();
+    if (orderData.companyDeleted) {
+      await deleteDoc(orderDocRef);
+    } else {
+      await updateDoc(orderDocRef, { customerDeleted: true });
+    }
+    store.dispatch("addNotification", {
+      type: "success",
+      message: "Successfully deleted order!",
+    });
+    fetchDocuments();
+  }
 };
 
 // Additional handlers for dropdown and formatting
@@ -217,11 +242,11 @@ function formatDate(timestamp) {
               v-else-if="order.status === 'Completed'"
               style="text-align: center"
             >
-              <button disabled>
+              <button @click="deleteOrder(order.id)">
                 <svg-icon
                   type="mdi"
-                  :path="checkCircle"
-                  style="color: rgba(0, 128, 0, 0.77)"
+                  :path="trashCan"
+                  style="color: darkred"
                 ></svg-icon>
               </button>
             </td>

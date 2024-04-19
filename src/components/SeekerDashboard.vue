@@ -18,7 +18,6 @@ import {
   mdiFilterCogOutline,
   mdiChevronUpBox,
   mdiChevronDownBox,
-  mdiAlphaX,
 } from "@mdi/js";
 
 const store = useStore();
@@ -28,7 +27,6 @@ const trashCan = mdiTrashCanOutline;
 const filterCog = mdiFilterCogOutline;
 const chevronUp = mdiChevronUpBox;
 const chevronDown = mdiChevronDownBox;
-const alphaX = mdiAlphaX;
 
 // Reactive reference to store the documents
 const orders = ref([]);
@@ -304,7 +302,7 @@ function formatDate(timestamp) {
 
 <style scoped>
 .orderDashboardContainer {
-  width: 95vw;
+  width: 100vw;
   max-width: 100%;
   padding: 20px;
   margin: 0 auto;
@@ -317,23 +315,25 @@ function formatDate(timestamp) {
   padding: 20px;
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: top;
-  align-items: center;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
 }
-th,
+th {
+  background-color: #4e644b;
+  color: white;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+  white-space: nowrap;
+}
 td {
   padding: 8px;
-}
-th {
-  background-color: #00350a;
-  color: white;
+  text-align: center;
+  font-size: 14px;
+  white-space: normal;
 }
 .headerContent {
   display: flex;
@@ -347,17 +347,13 @@ th {
   padding-left: 4px;
 }
 tbody tr:nth-child(even) {
-  background-color: #b3d2b3;
+  background-color: #c3d2c3;
 }
 tbody tr:nth-child(odd) {
   background-color: #e6e6e6;
 }
 tbody.emptyTable {
   text-align: center;
-}
-th,
-td {
-  white-space: normal;
 }
 th:nth-child(1),
 td:nth-child(1) {

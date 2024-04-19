@@ -352,7 +352,6 @@ export default {
 <style>
 /* Shared styles for both components */
 .container {
-  width: 95vw; /* Ensure the container takes the full width */
   max-width: 100%; /* Limit the container's width to the viewport width */
   margin: 0 auto; /* Center align the container */
   padding: 20px; /* Add padding to the container */
@@ -360,11 +359,9 @@ export default {
 
 /* Table styles */
 table {
-  font-family: "Montserrat", sans-serif;
   table-layout: fixed;
   border-collapse: collapse;
   width: 100%; /* Set table width to 100% of its container */
-  border: none;
 }
 
 /* Table header styles */
@@ -387,11 +384,11 @@ td {
 
 /* Alternate row background color for better readability */
 tbody tr:nth-child(even) {
-  background-color: #f0f4f0;
+  background-color: #c3d2c3;
 }
 
 tbody tr:nth-child(odd) {
-  background-color: #fff;
+  background-color: #e6e6e6;
 }
 
 /* Button style for delete button */

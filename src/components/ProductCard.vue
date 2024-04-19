@@ -23,7 +23,7 @@
             <div class="qty-selector">
                 <label for="quantity">Quantity </label>
                 <button class="qty-edit" @mousedown="startDecrement" @mouseup="stopDecrement" @mouseleave="stopDecrement" :class="{pressed : isDecrementPressed}">-</button>
-                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" readonly >
+                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" >
                 <button class="qty-edit"@mousedown="startIncrement" @mouseup="stopIncrement" @mouseleave="stopIncrement":class="{pressed : isIncrementPressed}">+</button>
             </div>
             <div class="add-btn" 
@@ -51,7 +51,6 @@ export default {
             isPressed: false,
             isIncrementPressed: false,
             isDecrementPressed: false,
-            maxQuantity:null,
         };
     },
 
@@ -71,6 +70,15 @@ export default {
         }
     },
 
+    watch: {
+        quantity(newVal) {
+            if (newVal > this.listing.unitsRemaining) {
+                this.listing.quantity = this.listing.unitsRemaining;
+            } else if (newVal < 1) {
+                this.listing.quantity = 1;
+            }
+        },
+    },
     computed : {
         formattedQuantity() {
             return this.listing.quantity.toString().padStart(2, '0');
@@ -110,16 +118,16 @@ export default {
 
         handleQtyInput(event) {
             const qty = parseInt(event.target.value);
-            /*if (!isNaN(qty) && qty >= 1 && qty <= this.listing.unitsRemaining) {
-                this.listing.quantity = qty;
-            }*/
-            if (qty > this.maxQuantity) {
-                this.listing.quantity = this.maxQuantity;
-            } else if (qty < 1) {
-                this.listing.quantity = 1;
-            } else {
-                this.listing.quantity = qty;
+            if (!isNaN(qty)) {
+                if (qty > this.listing.unitsRemaining) {
+                    this.listing.quantity = this.listing.unitsRemaining; // if input is more than max
+                } else if (qty < 1) {
+                    this.listing.quantity = 1; // if input is less than 1
+                } else {
+                    this.listing.quantity = qty;
+                }
             }
+            
         },
 
         onlyNumber($event) {

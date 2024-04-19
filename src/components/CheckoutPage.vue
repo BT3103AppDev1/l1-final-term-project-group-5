@@ -34,8 +34,8 @@
                                 </button>
                             </td>
                             <td class="item">
-                                <img :src="item.imageUrl" alt="Product Image" class="item-img"> 
-                                <h3 class="item-name">{{ item.name }}</h3>
+                                <img :src="item.product.imageUrl" alt="Product Image" class="item-img"> 
+                                <h3 class="item-name">{{ item.product.name }}</h3>
                             </td>
                             <td class="item-price">${{ item.price.toFixed(2) }} </td>
                             <td class="item-qty">

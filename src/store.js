@@ -29,7 +29,7 @@ import {
   where,
   onSnapshot,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, list, ref, uploadBytes } from "firebase/storage";
 import CryptoJS from "crypto-js";
 
 const store = createStore({
@@ -769,12 +769,14 @@ const store = createStore({
       now.setHours(0, 0, 0, 0); // Set now to beginning of the day
       newListing.unitsRemaining = Number(newListing.unitsToSell);
       newListing.createdDate = now;
+      const expirationTimestamp = new Date(newListing.expirationDate);
+      expirationTimestamp.setHours(23, 59, 59); 
       newListing.isActive =
-        newListing.unitsRemaining > 0 &&
-        new Date(newListing.expirationDate) >= now;
+        newListing.unitsRemaining > 0 && new Date(newListing.expirationDate) >= now;
       const docRef = await addDoc(collection(db, "listings"), newListing);
       await updateDoc(doc(db, "listings", docRef.id), {
         listingId: docRef.id,
+        expirationDate: expirationTimestamp,
       });
       newListing.listingId = docRef.id;
       commit("ADD_LISTING", { id: docRef.id, ...newListing });
@@ -783,8 +785,11 @@ const store = createStore({
     async editListing({ commit }, editedListing) {
       try {
         const id = editedListing.listingId;
+        const expirationTimestamp = new Date(editedListing.expirationDate);
+        expirationTimestamp.setHours(23, 59, 59); // Set the time to end of the day
         const listingRef = doc(db, "listings", id);
         await updateDoc(listingRef, editedListing);
+        await updateDoc(listingRef, { expirationDate: expirationTimestamp })
         commit("updateListing", { id, editedListing });
       } catch (error) {
         console.error("Error updating listing:", error);

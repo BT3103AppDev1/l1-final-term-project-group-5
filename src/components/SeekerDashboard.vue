@@ -230,7 +230,7 @@ function formatDate(timestamp) {
             <td>{{ order.companyName }}</td>
             <td>{{ order.companyAddress }}</td>
             <td>{{ formatDate(order.datePurchased) }}</td>
-            <td>{{ order.totalPrice }}</td>
+            <td>${{ order.totalPrice }}</td>
             <td>
               <div :class="`orderStatus-${order.status.toLowerCase()}`">
                 {{ order.status }}

@@ -13,12 +13,15 @@
             <div class="status-container">
               <span>Status</span>
               <div class="status-option">
-              <select @change="filterByStatus(statusField)" v-model="statusField" >
-                <option value="All">All</option>
-                <option value="Completed">Completed</option>
-                <option value="Ongoing">Ongoing</option>
-                <option value="Expired">Expired</option>
-              </select>
+                <select
+                  @change="filterByStatus(statusField)"
+                  v-model="statusField"
+                >
+                  <option value="All">All</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Ongoing">Ongoing</option>
+                  <option value="Expired">Expired</option>
+                </select>
               </div>
             </div>
           </th>
@@ -27,18 +30,34 @@
       </thead>
       <tbody></tbody>
     </table>
-    <br>
+    <br />
     <div id="completeButtonContainer">
-      <button id="completeButton" @click="completeSelectedEntries" :disabled="entriesToComplete.length === 0">Mark as Completed</button>
+      <button
+        id="completeButton"
+        @click="completeSelectedEntries"
+        :disabled="entriesToComplete.length === 0"
+      >
+        Mark as Completed
+      </button>
     </div>
-    <br><br>
+    <br /><br />
   </div>
 </template>
 
 <script>
-import { firebaseApp } from '../firebase.js'
-import { getFirestore, query, where, collection, getDoc, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
-import trash from "@/assets/Trash.svg"
+import { firebaseApp } from "../firebase.js";
+import {
+  getFirestore,
+  query,
+  where,
+  collection,
+  getDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc,
+} from "firebase/firestore";
+import trash from "@/assets/Trash.svg";
 import { getAuth } from "firebase/auth";
 
 const db = getFirestore(firebaseApp);
@@ -46,48 +65,48 @@ const db = getFirestore(firebaseApp);
 export default {
   data() {
     return {
-      statusField: 'All',
+      statusField: "All",
       entriesToComplete: [],
-      store: null // initialize store
+      store: null, // initialize store
     };
   },
   props: {
     currentPage: {
       type: Number,
-      required: true
+      required: true,
     },
     entriesPerPage: {
       type: Number,
-      required: true
+      required: true,
     },
     searchQuery: {
       type: String,
-      default: ''
+      default: "",
     },
   },
   async mounted() {
     this.store = this.$store;
-    const auth = getAuth()
-    this.sellerId = auth.currentUser.uid
+    const auth = getAuth();
+    this.sellerId = auth.currentUser.uid;
     this.checkAndExpireOrders();
     this.display();
   },
   watch: {
-    currentPage: 'pageChange',
-    searchQuery: 'queryChange',
+    currentPage: "pageChange",
+    searchQuery: "queryChange",
   },
 
   methods: {
     async pageChange() {
       // To ensure display() is not ran twice when query changes
-      console.log('ran pageChange()')
-      if (this.searchQuery === '') {
+      console.log("ran pageChange()");
+      if (this.searchQuery === "") {
         await this.display();
       }
     },
 
     async queryChange() {
-      console.log('ran queryChange()');
+      console.log("ran queryChange()");
       await this.display();
     },
 
@@ -95,48 +114,53 @@ export default {
       console.log("display() ran");
 
       // Clear existing table content
-      const tableBody = document.getElementById("table").getElementsByTagName('tbody')[0];
-      tableBody.innerHTML = '';
+      const tableBody = document
+        .getElementById("table")
+        .getElementsByTagName("tbody")[0];
+      tableBody.innerHTML = "";
 
       // Calculate start and end index based on current page
       const startIndex = (this.currentPage - 1) * this.entriesPerPage;
       const endIndex = this.currentPage * this.entriesPerPage;
 
       // Create a Firestore query
-      let queryRef = collection(db, 'order');
-      
+      let queryRef = collection(db, "order");
+
       // Apply filter for orders that have not been deleted
-      queryRef = query(queryRef, where('companyDeleted', '==', false))
+      queryRef = query(queryRef, where("companyDeleted", "==", false));
 
       // Apply filter for partnerUID
-      queryRef = query(queryRef, where('sellerId', '==', this.sellerId));
+      queryRef = query(queryRef, where("sellerId", "==", this.sellerId));
 
       // Apply search filter if searchQuery is not empty
       if (this.searchQuery) {
-        queryRef = query(queryRef, where('orderId', '==', parseInt(this.searchQuery)));
+        queryRef = query(
+          queryRef,
+          where("orderId", "==", parseInt(this.searchQuery))
+        );
       }
 
       // Filter based on status
-      if (this.statusField != 'All') {
-        queryRef = query(queryRef, where('status', '==', this.statusField));
+      if (this.statusField != "All") {
+        queryRef = query(queryRef, where("status", "==", this.statusField));
       }
 
       const querySnapshot = await getDocs(queryRef);
-      const filteredDocuments = querySnapshot.docs.map(doc => doc.data());
+      const filteredDocuments = querySnapshot.docs.map((doc) => doc.data());
 
       // Update number of pages
-      this.$emit('total-page', filteredDocuments.length);
+      this.$emit("total-page", filteredDocuments.length);
 
       // Sort documents by date ordered
       filteredDocuments.sort((a, b) => {
-          return b.datePurchased.seconds - a.datePurchased.seconds;
+        return b.datePurchased.seconds - a.datePurchased.seconds;
       });
 
       // Filter documents based on pagination
       const paginatedDocuments = filteredDocuments.slice(startIndex, endIndex);
 
       // Populate table with paginated documents
-      paginatedDocuments.forEach(documentData => {
+      paginatedDocuments.forEach((documentData) => {
         let row = tableBody.insertRow();
         let cell1 = row.insertCell(0);
         let cell2 = row.insertCell(1);
@@ -147,85 +171,97 @@ export default {
         let cell7 = row.insertCell(6);
         let cell8 = row.insertCell(7);
 
-        cell1.innerHTML = documentData.orderId.toString().padStart(3, '00');
-        cell2.innerHTML = documentData.order.map(item => (item.name + " x" + item.quantity + '<br>')).join('');
+        cell1.innerHTML = documentData.orderId.toString().padStart(3, "00");
+        cell2.innerHTML = documentData.order
+          .map((item) => item.name + " x" + item.quantity + "<br>")
+          .join("");
         cell3.innerHTML = documentData.name;
         let date = new Date(documentData.datePurchased.seconds * 1000);
-        let formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        let formattedDate = `${date.getDate()}/${
+          date.getMonth() + 1
+        }/${date.getFullYear()}`;
         cell4.innerHTML = formattedDate;
         date = new Date(documentData.expirationDate.seconds * 1000);
-        formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        formattedDate = `${date.getDate()}/${
+          date.getMonth() + 1
+        }/${date.getFullYear()}`;
         cell5.innerHTML = formattedDate;
-        cell6.innerHTML = documentData.totalPrice;
+        cell6.innerHTML = "$" + documentData.totalPrice;
 
         // Apply oval border and color based on status
-        const statusCellContent = document.createElement('div');
-        statusCellContent.classList.add('status-cell-content');
-        const statusWords = documentData.status.split(' ');
-        statusWords.forEach(word => {
-          const oval = document.createElement('div');
-          oval.classList.add('status-oval');
+        const statusCellContent = document.createElement("div");
+        statusCellContent.classList.add("status-cell-content");
+        const statusWords = documentData.status.split(" ");
+        statusWords.forEach((word) => {
+          const oval = document.createElement("div");
+          oval.classList.add("status-oval");
           oval.textContent = word;
-          if (word === 'Completed') {
-            oval.classList.add('green');
-          } else if (word === 'Expired') {
-            oval.classList.add('red');
-          } else if (word === 'Ongoing') {
-            oval.classList.add('yellow');
+          if (word === "Completed") {
+            oval.classList.add("green");
+          } else if (word === "Expired") {
+            oval.classList.add("red");
+          } else if (word === "Ongoing") {
+            oval.classList.add("yellow");
           }
           statusCellContent.appendChild(oval);
         });
         cell7.appendChild(statusCellContent);
 
-        if (documentData.status === 'Ongoing') {
+        if (documentData.status === "Ongoing") {
           // Render a checkbox
-          let checkbox = document.createElement('input')
-          checkbox.type = 'checkbox'
-          checkbox.name = 'completed'
-          checkbox.addEventListener('change', (event) => {
+          let checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.name = "completed";
+          checkbox.addEventListener("change", (event) => {
             this.handleCheckboxChange(event, documentData.orderId);
           });
-          cell8.appendChild(checkbox)
-        } else if (documentData.status === 'Expired' || documentData.status === 'Completed') {
+          cell8.appendChild(checkbox);
+        } else if (
+          documentData.status === "Expired" ||
+          documentData.status === "Completed"
+        ) {
           // Render a delete button
-          let deleteButton = document.createElement('img');
+          let deleteButton = document.createElement("img");
           deleteButton.src = trash;
-          deleteButton.className = "trash-bwt"
-          deleteButton.innerHTML = "Delete"
-          deleteButton.addEventListener('click', () => {
-            this.deleteInstrument(documentData.orderId)
-          })
-          cell8.appendChild(deleteButton)
+          deleteButton.className = "trash-bwt";
+          deleteButton.innerHTML = "Delete";
+          deleteButton.addEventListener("click", () => {
+            this.deleteInstrument(documentData.orderId);
+          });
+          cell8.appendChild(deleteButton);
         }
-      })
+      });
       this.entriesToComplete = []; // Ensure previously checked boxes are unchecked
     },
     async deleteInstrument(id) {
       try {
-        const confirmDelete = confirm("Are you sure you want to delete order " + id + "?");
+        const confirmDelete = confirm(
+          "Are you sure you want to delete order " + id + "?"
+        );
         if (!confirmDelete) {
           return; // If user cancels, exit the function
         }
-        const currDoc = doc(db, 'order', id.toString());
-        const currDocSnapshot = await getDoc(currDoc)
+        const currDoc = doc(db, "order", id.toString());
+        const currDocSnapshot = await getDoc(currDoc);
         const currDocData = currDocSnapshot.data();
         if (currDocData.customerDeleted) {
           await deleteDoc(currDoc);
-        }
-        else {
+        } else {
           await updateDoc(currDoc, { companyDeleted: true });
         }
         this.display(); // Refresh table after deletion
-        this.store.dispatch("addNotification", { // use store from instance
-            type: "success",
-            message: "Successfully deleted order!",
-          });
+        this.store.dispatch("addNotification", {
+          // use store from instance
+          type: "success",
+          message: "Successfully deleted order!",
+        });
       } catch (error) {
-        console.error('Error deleting document:', error);
-        this.store.dispatch("addNotification", { // use store from instance
-            type: "error",
-            message: err.message,
-          });
+        console.error("Error deleting document:", error);
+        this.store.dispatch("addNotification", {
+          // use store from instance
+          type: "error",
+          message: err.message,
+        });
       }
     },
     filterByStatus(status) {
@@ -233,25 +269,25 @@ export default {
       if (this.currentPage === 1) {
         this.display(); // changePage wouldn't occur so need to manually call display()
       } else {
-      this.$emit('handleStatus');
+        this.$emit("handleStatus");
       }
     },
     // Method to handle checkbox change
     handleCheckboxChange(event, orderId) {
       if (event.target.checked) {
-        console.log('handleCheckboxChange ran, checked')
-        console.log('Before: ' , this.entriesToComplete)
+        console.log("handleCheckboxChange ran, checked");
+        console.log("Before: ", this.entriesToComplete);
         this.entriesToComplete.push(orderId); // Add entry to selected list
-        console.log('After: ', this.entriesToComplete)
+        console.log("After: ", this.entriesToComplete);
       } else {
         const index = this.entriesToComplete.indexOf(orderId);
-        console.log('Index to remove: ', index)
-        console.log('Before: ' , this.entriesToComplete)
+        console.log("Index to remove: ", index);
+        console.log("Before: ", this.entriesToComplete);
         if (index !== -1) {
           this.entriesToComplete.splice(index, 1); // Remove entry from selected list
         }
-        console.log('handleCheckboxChange ran, unchecked')
-        console.log('After:' ,this.entriesToComplete)
+        console.log("handleCheckboxChange ran, unchecked");
+        console.log("After:", this.entriesToComplete);
       }
     },
     // Method to complete selected entries
@@ -262,53 +298,56 @@ export default {
         return; // If user cancels, exit the function
       }
       for (const orderId of this.entriesToComplete) {
-        const docRef = doc(db, 'order', orderId.toString());
+        const docRef = doc(db, "order", orderId.toString());
         const docSnapshot = await getDoc(docRef);
         const docData = docSnapshot.data();
         const sellerId = docData.sellerId;
         const buyerId = docData.buyerId;
-        const foodWeight = docData.totalWeight
+        const foodWeight = docData.totalWeight;
 
-        const sellerDocRef = doc(db, 'users', sellerId);
+        const sellerDocRef = doc(db, "users", sellerId);
         const sellerDocSnapshot = await getDoc(sellerDocRef);
         const sellerDocData = sellerDocSnapshot.data();
         const sellerWeight = sellerDocData.weight + foodWeight;
 
-        const buyerDocRef = doc(db, 'users', buyerId);
+        const buyerDocRef = doc(db, "users", buyerId);
         const buyerDocSnapshot = await getDoc(buyerDocRef);
         const buyerDocData = buyerDocSnapshot.data();
         const buyerWeight = buyerDocData.weight + foodWeight;
 
-        await updateDoc(docRef, { status: 'Completed' });
-        await updateDoc(sellerDocRef, { weight: (sellerWeight)});
-        await updateDoc(buyerDocRef, { weight: (buyerWeight)});
+        await updateDoc(docRef, { status: "Completed" });
+        await updateDoc(sellerDocRef, { weight: sellerWeight });
+        await updateDoc(buyerDocRef, { weight: buyerWeight });
       }
       this.display();
-      this.store.dispatch("addNotification", { // use store from instance
-          type: "success",
-          message: "Order(s) successfully completed!",
+      this.store.dispatch("addNotification", {
+        // use store from instance
+        type: "success",
+        message: "Order(s) successfully completed!",
       });
       // Clear the selected entries list after completion
       this.entriesToComplete = [];
     },
     async checkAndExpireOrders() {
-      console.log('checkAndExpireOrders() ran')
+      console.log("checkAndExpireOrders() ran");
       const currentDate = new Date();
-      let queryRef = collection(db, 'order');
-      queryRef = query(queryRef, where('sellerId', '==', this.sellerId));
+      let queryRef = collection(db, "order");
+      queryRef = query(queryRef, where("sellerId", "==", this.sellerId));
       const querySnapshot = await getDocs(queryRef);
       querySnapshot.forEach(async (documentData) => {
         const order = documentData.data();
-        if (order.status === 'Ongoing' && order.expirationDate.toMillis() < currentDate.getTime()) {
-          const docRef = doc(db, 'order', order.orderId.toString());
-          await updateDoc(docRef, { status: 'Expired' });
+        if (
+          order.status === "Ongoing" &&
+          order.expirationDate.toMillis() < currentDate.getTime()
+        ) {
+          const docRef = doc(db, "order", order.orderId.toString());
+          await updateDoc(docRef, { status: "Expired" });
         }
       });
     },
-  }
-}
+  },
+};
 </script>
-
 
 <style>
 /* Shared styles for both components */
@@ -321,7 +360,7 @@ export default {
 
 /* Table styles */
 table {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   table-layout: fixed;
   border-collapse: collapse;
   width: 100%; /* Set table width to 100% of its container */
@@ -330,7 +369,7 @@ table {
 
 /* Table header styles */
 th {
-  background-color: #4E644B;
+  background-color: #4e644b;
   color: #fff;
   padding: 12px;
   text-align: center;
@@ -348,7 +387,7 @@ td {
 
 /* Alternate row background color for better readability */
 tbody tr:nth-child(even) {
-  background-color: #F0F4F0;
+  background-color: #f0f4f0;
 }
 
 tbody tr:nth-child(odd) {
@@ -431,13 +470,13 @@ tbody tr:nth-child(odd) {
 }
 
 .yellow {
-  border-color: #FFBF00;
-  color: #FFBF00;
+  border-color: #ffbf00;
+  color: #ffbf00;
 }
 
 /* Button styles */
 #completeButton {
-  background-color: #4CAF50; /* Green background color */
+  background-color: #4caf50; /* Green background color */
   border: none; /* Remove border */
   color: white; /* White text color */
   padding: 10px 30px; /* Padding */
@@ -464,5 +503,4 @@ tbody tr:nth-child(odd) {
   opacity: 0.5;
   cursor: not-allowed; /* Change cursor to 'not-allowed' */
 }
-
 </style>

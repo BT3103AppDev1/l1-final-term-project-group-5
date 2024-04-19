@@ -4,7 +4,9 @@ import { useStore } from "vuex";
 import {
   collection,
   doc,
+  updateDoc,
   deleteDoc,
+  getDoc,
   getDocs,
   query,
   orderBy,
@@ -69,15 +71,15 @@ const userOrders = computed(() =>
   orders.value.filter((order) => order.buyerId !== auth.currentUser.uid)
 );
 
-// const nonDeletedOrders = computed(() =>
-//   userOrders.value.filter((order) => !order.customerDeleted)
-// );
+const nonDeletedOrders = computed(() =>
+  userOrders.value.filter((order) => !order.customerDeleted)
+);
 
 const searchedOrders = computed(() => {
   if (!appliedSearchTerm.value) {
-    return userOrders.value;
+    return nonDeletedOrders.value;
   }
-  return userOrders.value.filter((order) =>
+  return nonDeletedOrders.value.filter((order) =>
     order.order.toLowerCase().includes(appliedSearchTerm.value)
   );
 });
@@ -120,21 +122,23 @@ const toggleDateSortOrder = () => {
 
 const deleteOrder = async (orderId) => {
   if (confirm("Are you sure you want to delete this order?")) {
-    try {
-      const orderDocRef = doc(db, "order", orderId);
-      await deleteDoc(orderDocRef);
-      fetchDocuments();
-      store.dispatch("addNotification", {
-        type: "success",
-        message: "Successfully deleted order!",
-      });
-    } catch (error) {
-      console.error("Error deleting document:", error);
-      store.dispatch("addNotification", {
-        type: "error",
-        message: error.message,
-      });
+    const orderDocRef = doc(db, "order", orderId);
+    const orderSnapshot = await getDoc(orderDocRef);
+    if (!orderSnapshot.exists()) {
+      console.error("Document does not exist!");
+      return;
     }
+    const orderData = orderSnapshot.data();
+    if (orderData.companyDeleted) {
+      await deleteDoc(orderDocRef);
+    } else {
+      await updateDoc(orderDocRef, { customerDeleted: true });
+    }
+    store.dispatch("addNotification", {
+      type: "success",
+      message: "Successfully deleted order!",
+    });
+    fetchDocuments();
   }
 };
 
@@ -155,13 +159,6 @@ function formatDate(timestamp) {
     .toString()
     .padStart(2, "0")}/${date.getFullYear().toString().substr(-2)}`;
 }
-
-// function addNotification(message, type) {
-//   notifications.value.push({ message, type });
-//   setTimeout(() => {
-//     notifications.value.shift();
-//   }, 3000);
-// }
 </script>
 
 <template>

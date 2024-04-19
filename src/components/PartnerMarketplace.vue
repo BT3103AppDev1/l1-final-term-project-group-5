@@ -208,7 +208,7 @@ export default {
       if (type === 'listing') {
         this.editedListing = { ...object };
         this.listingDialog = true;
-        //console.log(this.editedListing);
+        this.editedListing.expirationDate =(this.editedListing.expirationDate.toDate().toISOString().split('T')[0]);
       } else if (type === 'product') {
         this.editedProduct = { ...object };
         this.productDialog = true;

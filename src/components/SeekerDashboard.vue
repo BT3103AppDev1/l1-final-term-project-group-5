@@ -175,13 +175,15 @@ function formatDate(timestamp) {
               : 'Search orders...'
           "
         />
-        <button @click="clearSearch" :disabled="!appliedSearchTerm">
-          <div class="removeSearch">
-            <svg-icon type="mdi" :path="alphaX"></svg-icon>
-          </div>
-        </button>
       </div>
-      <button @click="applySearch">Search</button>
+      <button @click="applySearch" class="searchButton">Search</button>
+      <button
+        @click="clearSearch"
+        :disabled="!appliedSearchTerm"
+        class="clearButton"
+      >
+        Clear
+      </button>
     </div>
 
     <div class="orderContainer">
@@ -490,19 +492,21 @@ td:nth-child(8) {
   border-radius: 4px;
   margin-right: 8px;
 }
-.searchContainer > button {
-  padding: 8px 15px;
-  border: 1px solid #ccc;
-  cursor: pointer;
+
+.searchButton,
+.clearButton {
+  background-color: #f5f5f5;
+  color: #222;
+  border: none;
   border-radius: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  cursor: pointer;
+  padding: 8px 12px;
+  margin-right: 4px;
+  transition: background-color 0.2s;
 }
-.removeSearch {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+.searchButton:hover,
+.clearButton:hover {
+  background-color: #f0f0f0;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useStore } from "vuex";
 import {
   collection,
@@ -15,18 +15,18 @@ import { db, auth } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
 import {
   mdiTrashCanOutline,
-  mdiFilterCogOutline,
   mdiChevronUpBox,
   mdiChevronDownBox,
+  mdiFilterVariant,
 } from "@mdi/js";
 
 const store = useStore();
 
 // Vuetify icons
 const trashCan = mdiTrashCanOutline;
-const filterCog = mdiFilterCogOutline;
 const chevronUp = mdiChevronUpBox;
 const chevronDown = mdiChevronDownBox;
+const filterVariant = mdiFilterVariant;
 
 // Reactive reference to store the documents
 const orders = ref([]);
@@ -145,11 +145,21 @@ const showFilterDropdown = ref(false);
 const toggleFilterDropdown = () => {
   showFilterDropdown.value = !showFilterDropdown.value;
 };
-
 const selectFilter = (filterValue) => {
   currentFilter.value = filterValue;
   showFilterDropdown.value = false;
 };
+const closeDropdown = (event) => {
+  if (!event.target.closest(".headerContent")) {
+    showFilterDropdown.value = false;
+  }
+};
+onMounted(() => {
+  window.addEventListener("click", closeDropdown);
+});
+onUnmounted(() => {
+  window.removeEventListener("click", closeDropdown);
+});
 
 function formatDate(timestamp) {
   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -208,7 +218,7 @@ function formatDate(timestamp) {
               <div class="headerContent">
                 Status
                 <button @click="toggleFilterDropdown" class="headerIcons">
-                  <svg-icon type="mdi" :path="filterCog"></svg-icon>
+                  <svg-icon type="mdi" :path="filterVariant"></svg-icon>
                 </button>
                 <div v-if="showFilterDropdown" class="customDropdown">
                   <div @click="selectFilter('All')">All</div>
@@ -336,6 +346,7 @@ td {
   white-space: normal;
 }
 .headerContent {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -382,12 +393,6 @@ td:nth-child(8) {
   width: 15%;
 }
 
-.orderStatus- {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
 .orderStatus-completed {
   display: inline-block;
   text-align: center;
@@ -443,6 +448,8 @@ td:nth-child(8) {
 
 .customDropdown {
   position: absolute;
+  top: 110%;
+  left: 0;
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 5px;

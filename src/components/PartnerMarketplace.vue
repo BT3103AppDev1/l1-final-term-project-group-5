@@ -12,20 +12,20 @@
 
         <div class="product-card" v-for="product in products" :key="product.id">
 
-          <v-dialog v-model="dialog" max-width="500">
+          <v-dialog v-model="productDialog" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
               <v-btn v-bind="activatorProps" color="surface-variant" text="Edit" variant="flat"
                 @click="openEditWindow(product, 'product')"></v-btn>
             </template>
 
-            <template v-slot:default="{ dialog }">
+            <template v-slot:default="{ productDialog }">
               <v-card title="Edit Product Details">
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field label="Product Name" v-model="editedProduct.name" required></v-text-field>
                   <v-select v-model="editedProduct.category" :items="categories" label="Select Product Category"
                     required></v-select>
 
-                  <v-text-field v-model.number="editedProduct.weight" label="Enter Product Weight" type="number"
+                  <v-text-field v-model.number="editedProduct.weight" label="Enter Product Weight (grams)" type="number"
                     required></v-text-field>
 
                   <v-file-input label="Upload Product Image" prepend-icon="mdi-paperclip" @change="onFileChange" chips>
@@ -36,7 +36,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn text="Save Changes" @click="saveProductDetails()"></v-btn>
-                  <v-btn text="Close Dialog" @click="this.dialog = false"></v-btn>
+                  <v-btn text="Close" @click="this.productDialog = false"></v-btn>
                 </v-card-actions>
               </v-card>
             </template>
@@ -47,7 +47,7 @@
             <h3>{{ product.name }}</h3>
             <p>{{ product.category }}</p>
             <p>{{ product.weight }} grams</p>
-            <!-- Include other details as per your product data structure -->
+            <v-btn text="Delete" @click="confirmDeleteProduct(product.productId)"></v-btn>
           </div>
 
         </div>
@@ -60,17 +60,15 @@
       <div class="listings-container" name="active-listings">
         <div class="listing-card" v-for="listing in activeListings" :key="listing.id">
 
-          <v-dialog v-model="dialog" max-width="500">
+          <v-dialog v-model="listingDialog" max-width="500">
             <template v-slot:activator="{ props: activatorProps }">
               <v-btn v-bind="activatorProps" color="surface-variant" text="Edit" variant="flat"
                 @click="openEditWindow(listing, 'listing')"></v-btn>
             </template>
 
             <template v-slot:default="{ isActive }">
-              <v-card title="Edit Product Details">
+              <v-card title="Edit Listing Details">
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-select v-model="editedListing.productId" :items="products" item-title="name" item-value="id"
-                    label="Select Product"></v-select>
 
                   <v-text-field v-model="editedListing.expirationDate" id="expirationDate" label="Expiration Date"
                     type="date" :min="today" required></v-text-field>
@@ -89,16 +87,16 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn text="Save Changes" @click="saveListingDetails()"></v-btn>
-                  <v-btn text="Close Dialog" @click="isActive.value = false"></v-btn>
+                  <v-btn text="Close" @click="isActive.value = false"></v-btn>
                 </v-card-actions>
               </v-card>
             </template>
           </v-dialog>
 
-          <img :src="listing.productImage" :alt="listing.productName" class="listing-image">
+          <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image">
           <div class="listing-details">
-            <h3>{{ listing.productName }}</h3>
-            <p>{{ listing.productCategory }}</p>
+            <h3>{{ listing.product.name }}</h3>
+            <p>{{ listing.product.category }}</p>
             <p>Remaining: {{ listing.unitsRemaining }} / {{ listing.unitsToSell }}</p>
             <p>Price: ${{ listing.price }}</p>
             <v-btn text="Delete" @click="confirmDelete(listing.listingId)"></v-btn>
@@ -118,11 +116,11 @@
       <div class="listings-container" name="expired-listings">
 
         <div class="expired-listing-card" v-for="listing in inactiveListings" :key="listing.id">
-          <img :src="listing.productImage" :alt="listing.productName" class="listing-image">
+          <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image">
           <div class="listing-details">
-            <h3>{{ listing.productName }}</h3>
-            <p>{{ listing.productCategory }}</p>
-            <p>Remaining: {{ listing.unitsRsemaining }} / {{ listing.unitsToSell }}</p>
+            <h3>{{ listing.product.name }}</h3>
+            <p>{{ listing.product.category }}</p>
+            <p>Remaining: {{ listing.unitsRemaining }} / {{ listing.unitsToSell }}</p>
             <p>Price: ${{ listing.price }}</p>
           </div>
         </div>
@@ -134,17 +132,19 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import { onMounted, ref } from 'vue';
-import { auth, db } from '@/firebase';
+import { auth, db, storage } from '@/firebase';
 import { query, collection, getDocs, where } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 
 export default {
   data() {
     return {
-      dialog: false,
+      productDialog: false,
+      listingDialog: false,
       valid: true,
       user: null,
+      store: null,
       selectedTab: 'products',
       products: [],
       editedProduct: {
@@ -180,6 +180,7 @@ export default {
       this.fetchActiveListingsWithProductDetails(this.user.uid);
       this.fetchInactiveListingsWithProductDetails(this.user.uid);
     });
+    this.store = this.$store;
   },
   computed: {
     ...mapState(['activeListings', 'inactiveListings']),
@@ -194,7 +195,9 @@ export default {
       'fetchInactiveListingsWithProductDetails', 
       'checkAndUpdateListingStatus',
       'deleteListing',
-      'editListing'
+      'editListing',
+      'deleteProduct',
+      'editProduct'
     ]),
 
     AddProduct() {
@@ -204,10 +207,12 @@ export default {
     openEditWindow(object, type) {
       if (type === 'listing') {
         this.editedListing = { ...object };
-      } else if  (type === 'product') {
+        this.listingDialog = true;
+        //console.log(this.editedListing);
+      } else if (type === 'product') {
         this.editedProduct = { ...object };
+        this.productDialog = true;
       }
-      this.dialog = true;
     },
 
     onFileChange(e) {
@@ -215,31 +220,80 @@ export default {
       this.editedProduct.image = file;
     },
 
-    saveProductDetails() {
-      //if (this.$refs.form.validate()) {
-        // Save the edited product details
-        // You would typically dispatch a Vuex action or call an API method here
-        console.log('Product details to save:', this.editedProduct.name);
-
-        // Close the dialog
-        this.dialog = false;
-        console.log(this.dialog);
-        // Reset the form or keep the changes depending on your flow
-        // this.resetForm();
-      //}
+    async uploadImage(file) {
+      try {
+        const storageRef = ref(storage, `products/${file.name}`); // Create a reference to the storage location
+        const snapshot = await uploadBytes(storageRef, file); // Upload the file
+        const imageUrl = await getDownloadURL(snapshot.ref); // Get the URL of the uploaded file
+        return imageUrl;
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+      }
     },
+
+    async saveProductDetails() {
+      try {
+        if (this.editedProduct.image) {
+          const imageUrl = await this.uploadImage(this.editedProduct.image);
+          // Prepare the product object with the image URL
+          const productToEdit = {
+            productId: this.editedProduct.productId,
+            name: this.editedProduct.name,
+            category: this.editedProduct.category,
+            weight: this.editedProduct.weight,
+            sellerId: this.editedProduct.sellerId,
+            imageUrl,
+          };
+
+          this.editProduct(productToEdit).then(() => {
+            this.fetchProducts();
+          });
+        } else {
+          this.editProduct(this.editedProduct).then(() => {
+            this.fetchProducts();
+          });
+        }
+        this.productDialog = false;
+        console.log("Close popup window");
+        this.store.dispatch("addNotification", { // use store from instance
+          type: "success",
+          message: "Successfully edited product!",
+        });
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    },
+
+    confirmDeleteProduct(productId) {
+      if (confirm('Are you sure you want to delete this listing?')) {
+        console.log('Deleting product with ID:', productId);
+        this.deleteProduct(productId).then(() => {
+          this.fetchProducts();
+          this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully deleted product!",
+          });
+        });
+      }
+    }, 
 
     async saveListingDetails() {
       if (this.editedListing.unitsRemaining * 1 > this.editedListing.unitsToSell * 1 || this.editedListing.unitsRemaining <= 0) {
         this.editedListing.isActive = false;
       }
-      console.log('Listing details to save:', this.editedListing);
+      //console.log('Listing details to save:', this.editedListing.productName);
 
-      await this.editListing(this.editedListing);
-      this.fetchActiveListingsWithProductDetails(this.user.uid);
+      await this.editListing(this.editedListing).then(() => {
+        this.fetchActiveListingsWithProductDetails(this.user.uid);
+        this.fetchInactiveListingsWithProductDetails(this.user.uid);
+      });
 
-      this.dialog = false;
+      this.listingDialog = false;
       console.log("Close popup window");
+      this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully edited listing!",
+          });
     },
 
     AddListing() {
@@ -251,6 +305,10 @@ export default {
         console.log('Deleting listing with ID:', listingId);
         this.deleteListing(listingId).then(() => {
           this.fetchActiveListingsWithProductDetails(this.user.uid);
+          this.store.dispatch("addNotification", { // use store from instance
+            type: "success",
+            message: "Successfully deleted listing!",
+          });
         });
       }
     }, 

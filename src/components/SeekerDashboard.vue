@@ -7,8 +7,9 @@ import {
   getDocs,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
-import { db } from "../firebase.js";
+import { db, auth } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
 import {
   mdiTrashCanOutline,
@@ -36,12 +37,10 @@ onMounted(fetchDocuments);
 // Function to fetch documents from a specified collection
 async function fetchDocuments() {
   const ordersCollectionRef = collection(db, "order");
-  let queryRef;
-  if (dateSortOrder.value === "desc") {
-    queryRef = query(ordersCollectionRef, orderBy("datePurchased", "desc"));
-  } else {
-    queryRef = query(ordersCollectionRef, orderBy("datePurchased", "asc"));
-  }
+  let queryRef = query(
+    ordersCollectionRef,
+    orderBy("datePurchased", dateSortOrder.value)
+  );
   const querySnapshot = await getDocs(queryRef);
   orders.value = querySnapshot.docs.map((doc) => ({
     id: doc.id,
@@ -66,11 +65,15 @@ const currentPage = ref(1);
 const ordersPerPage = 10;
 
 // Computed properties
+const userOrders = computed(() =>
+  orders.value.filter((order) => order.buyerId === auth.currentUser.uid)
+);
+
 const searchedOrders = computed(() => {
   if (!appliedSearchTerm.value) {
-    return orders.value;
+    return userOrders.value;
   }
-  return orders.value.filter((order) =>
+  return userOrders.value.filter((order) =>
     order.order.toLowerCase().includes(appliedSearchTerm.value)
   );
 });

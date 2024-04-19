@@ -313,7 +313,7 @@ function formatDate(timestamp) {
   justify-content: top;
 }
 .orderContainer {
-  padding: 10px;
+  padding: 20px;
   height: 100%;
   width: 100%;
   display: flex;
@@ -476,24 +476,19 @@ td:nth-child(8) {
   color: #ccc;
 }
 .searchContainer {
-  height: 35px;
   width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: left;
   align-items: left;
   margin-top: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
-  margin-bottom: 15px;
+  padding: 10px 10px 10px 20px;
 }
 .searchContainer input {
-  width: 100%;
-  height: 35px;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-right: 10px;
+  margin-right: 8px;
 }
 .searchContainer > button {
   padding: 8px 15px;

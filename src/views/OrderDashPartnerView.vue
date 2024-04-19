@@ -100,8 +100,4 @@ export default {
   background-size: cover; /* Cover the entire container with the background image */
   background-position: center; /* Center the background image */
 }
-
-.search-bar-container {
-  margin-left: 10px;
-}
 </style>

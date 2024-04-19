@@ -1,7 +1,7 @@
 <template>
     <div class="product-card">
         <div class="img-container" @mouseleave="showOverlay = false">
-            <img :src="listing.imageUrl" alt="Product Image" class="img">
+            <img :src="listing.product.imageUrl" alt="Product Image" class="img">
             <div class="company-picture">
                 <img :src="seller?.photoURL" alt="logo" class="company" @click="showOverlay =! showOverlay">
             </div>
@@ -14,10 +14,10 @@
             </transition>
         </div>
         <div class="product-details">
-            <h2 class="name">{{ listing.name }}</h2>
+            <h2 class="name">{{ listing.product.name }}</h2>
             <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
-            <h3 class="category">{{ listing.category }} </h3>
-            <h3 class="expiry">Expires: {{ listing.expirationDate }} </h3>
+            <h3 class="category">{{ listing.product.category }} </h3>
+            <h3 class="expiry">Expires: {{ formattedDate }}</h3>
         </div>
         <div class="qty-btn-container">
             <div class="qty-selector">
@@ -71,6 +71,14 @@ export default {
     computed : {
         formattedQuantity() {
             return this.listing.quantity.toString().padStart(2, '0');
+        },
+
+        formattedDate() {
+            const date = new Date(this.listing.expirationDate.seconds * 1000);
+            const day = ("0" + date.getDate()).slice(-2);
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
         },
     },
 

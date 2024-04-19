@@ -119,6 +119,8 @@ export default {
                         status: 'Ongoing',
                         totalPrice: sellerItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2),
                         totalWeight: totalWeight,
+                        companyDeleted: false,
+                        customerDeleted: false,
                     });
 
                     for (const item of sellerItems) {

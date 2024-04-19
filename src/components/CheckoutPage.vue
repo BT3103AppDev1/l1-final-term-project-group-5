@@ -105,9 +105,6 @@ export default {
                     console.log(sellerData.displayName);
                     const sellerItems = this.cartItems.filter(item => item.sellerId === sellerId);
                     const totalWeight = sellerItems.reduce((acc, item) => acc + Number(item.product.weight) * Number(item.quantity), 0);
-                    
-                    //console.log("Total weight: " + totalWeight);
-                    //console.log(sellerData.displayName + ":" + sellerItems);
 
                     await setDoc(doc(db, 'order', orderId.toString()), {
                         buyerId: this.getUser.uid,
@@ -123,6 +120,20 @@ export default {
                         totalPrice: sellerItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2),
                         totalWeight: totalWeight,
                     });
+
+                    for (const item of sellerItems) {
+                        const listingRef = doc(db, 'listings', item.listingId);
+                        const listingSnap = await getDoc(listingRef);
+
+                        if (listingSnap.exists()) {
+                            const listingData = listingSnap.data();
+
+                            const newUnitsRemaining = listingData.unitsRemaining - item.quantity;
+
+                            await setDoc(listingRef, { unitsRemaining: newUnitsRemaining}, { merge: true});
+                            console.log('Updated units remaining for listing: ' + item.listingId);
+                        }
+                    }
                     
                     console.log('Order placed successfully with orderID: ' + orderId);
                     

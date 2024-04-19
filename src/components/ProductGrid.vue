@@ -238,7 +238,7 @@ h3 {
     background-color: #4B644C;
     display:flex;
     flex-direction:row;
-    border: 4px outset #4B644C;
+    border: 4px outset #324432;
     border-radius: 4px;
     justify-content:center;
     cursor:pointer;
@@ -282,7 +282,6 @@ h3 {
     left:16px;
 
 }
-
 
 .close-img {
     height:35px;
@@ -375,7 +374,7 @@ h3 {
 }
 
 .cart-table th:nth-child(4) {
-    width: 80px;
+    width: 100px;
 }
 
 .cart-table th:nth-child(5) {
@@ -487,7 +486,7 @@ h3 {
 .qty-input {
     font-size:large;
     text-align:center;
-    width: 25px;
+    width: 30px;
 }
 
 .qty-edit {

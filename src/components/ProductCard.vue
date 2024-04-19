@@ -18,16 +18,21 @@
             <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
             <h3 class="category">{{ listing.product.category }} </h3>
             <h3 class="expiry">Expires: {{ formattedDate }}</h3>
+            <h5 class="rem"> {{ listing.unitsRemaining }} available </h5>
         </div>
         <div class="qty-btn-container">
             <div class="qty-selector">
-                <label for="quantity">Quantity </label>
+                <label for="quantity">Quantity:  </label>
                 <button class="qty-edit" @mousedown="startDecrement" @mouseup="stopDecrement" @mouseleave="stopDecrement" :class="{pressed : isDecrementPressed}">-</button>
                 <input type="number" class="input-qty"v-model.lazy="listing.quantity" @input="handleQtyInputs" :max="listing.unitsRemaining" ref="qtyInput">
                 <button class="qty-edit"@mousedown="startIncrement" @mouseup="stopIncrement" @mouseleave="stopIncrement":class="{pressed : isIncrementPressed}">+</button>
             </div>
             <div class="add-btn" 
-                @click="handleAddToCart" @mousedown="isPressed=true" @mouseup="isPressed=false" @mouseleave="isPressed=false">
+                @click="handleAddToCart" 
+                @mousedown="isPressed=true" 
+                @mouseup="isPressed=false" 
+                @mouseleave="isPressed=false"
+                :class="{ pressed:isPressed, disabled:isAddToCartDisabled}">
                 <img src="@/assets/cart.png" alt="Add to Cart" :class="{ pressed: isPressed }">
             </div>
         </div>
@@ -39,6 +44,7 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from '@/firebase';
 import { useStore } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from "vuex";
 
 export default {
     props: ['listing'],
@@ -80,6 +86,12 @@ export default {
         },
     },
     computed : {
+        ...mapGetters(["cartItems"]),
+
+        cartItems() {
+            return this.$store.getters.cartItems;
+        },
+
         formattedQuantity() {
             return this.listing.quantity.toString().padStart(2, '0');
         },
@@ -91,6 +103,15 @@ export default {
             const year = date.getFullYear();
             return `${day}/${month}/${year}`;
         },
+
+        cartQty() {
+            const cartItem = this.cartItems.find(item => item.id === this.listing.id);
+            return cartItem ? cartItem.quantity : 0;
+        },
+        
+        isAddToCartDisabled() {
+            return this.listing.quantity + this.cartQty > this.listing.unitsRemaining;
+        }
     },
 
     methods : {
@@ -202,7 +223,7 @@ export default {
     padding: 16px;
     margin: 8px;
     width: 250px;
-    height:400px;
+    height:420px;
     background-color:#4B644C;
     box-shadow: 0 0 3px #4B644C;
     transition: transform 0.2s ease-in-out;
@@ -299,6 +320,11 @@ export default {
     height: 35px;
     display:inline-block;
     padding:0;
+}
+.add-btn.disabled {
+    cursor:not-allowed;
+    opacity:0.5;
+    pointer-events:none;
 }
 .input-qty {
     width: 50px;

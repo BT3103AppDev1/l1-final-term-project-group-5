@@ -186,6 +186,11 @@ const store = createStore({
         (product) => product.listingId === item.listingId
       );
       if (found) {
+        if(found.quantity + item.quantity > found.unitsRemaining) {
+          console.log('Not enough units remaining');
+          alert("Failed to add to cart: Not enough units remaining");
+          return;
+        }
         found.quantity += item.quantity;
         //console.log('Added existing ' + item.name +  ' to cart x ', item.quantity);
       } else {

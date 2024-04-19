@@ -23,7 +23,7 @@
             <div class="qty-selector">
                 <label for="quantity">Quantity </label>
                 <button class="qty-edit" @mousedown="startDecrement" @mouseup="stopDecrement" @mouseleave="stopDecrement" :class="{pressed : isDecrementPressed}">-</button>
-                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" >
+                <input type="number" class="input-qty"v-model.lazy="listing.quantity" @input="handleQtyInputs" :max="listing.unitsRemaining" ref="qtyInput">
                 <button class="qty-edit"@mousedown="startIncrement" @mouseup="stopIncrement" @mouseleave="stopIncrement":class="{pressed : isIncrementPressed}">+</button>
             </div>
             <div class="add-btn" 
@@ -71,11 +71,11 @@ export default {
     },
 
     watch: {
-        quantity(newVal) {
-            if (newVal > this.listing.unitsRemaining) {
-                this.listing.quantity = this.listing.unitsRemaining;
-            } else if (newVal < 1) {
-                this.listing.quantity = 1;
+    'listing.quantity': function(newVal, oldVal) {
+        if (newVal > this.listing.unitsRemaining) {
+            this.listing.quantity = this.listing.unitsRemaining;
+        } else if (newVal < 1) {
+            this.listing.quantity = 1;
             }
         },
     },
@@ -117,6 +117,11 @@ export default {
         },
 
         handleQtyInput(event) {
+            if (this.listing.quantity === this.listing.unitsRemaining) {
+                this.listing.quantity = this.listing.unitsRemaining;
+                console.log("stopped?: ");
+                return;
+            }
             const qty = parseInt(event.target.value);
             if (!isNaN(qty)) {
                 if (qty > this.listing.unitsRemaining) {
@@ -125,17 +130,36 @@ export default {
                     this.listing.quantity = 1; // if input is less than 1
                 } else {
                     this.listing.quantity = qty;
+                } 
+            }
+        },
+        handleQtyInputs(event) {
+        const qty = parseInt(event.target.value);
+        if (!isNaN(qty)) {
+            if (qty > this.listing.unitsRemaining) {
+                this.listing.quantity = this.listing.unitsRemaining;
+                this.$nextTick(() => {
+                    this.$refs.qtyInput.value = this.listing.quantity;
+                });
+            } else if (qty < 1) {
+                this.listing.quantity = 1;
+                this.$nextTick(() => {
+                    this.$refs.qtyInput.value = this.listing.quantity;
+                });
+            } else {
+                this.listing.quantity = qty;
                 }
             }
-            
         },
 
-        onlyNumber($event) {
+
+
+        /*onlyNumber($event) {
             let keyCode = ($event.keyCode ? $event.keyCode : $event.which);
             if ((keyCode < 48 || keyCode > 57) && keyCode !== 8) { // 8 is backspace
                 $event.preventDefault();
             }
-        },
+        },*/
 
         startIncrement() {
             this.increment();
@@ -283,6 +307,10 @@ export default {
     padding: 3px;
     font-size: larger;
 }
+.input-qty:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px white;
+}
 .qty-edit {
     font-weight:bold;
     width: 16px;
@@ -303,6 +331,12 @@ export default {
     top: 10px;
     right: 10px;
     cursor: pointer;
+}
+
+.input-qty::-webkit-outer-spin-button,
+.input-qty::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 </style>
 

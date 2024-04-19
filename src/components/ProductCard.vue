@@ -23,7 +23,7 @@
             <div class="qty-selector">
                 <label for="quantity">Quantity </label>
                 <button class="qty-edit" @mousedown="startDecrement" @mouseup="stopDecrement" @mouseleave="stopDecrement" :class="{pressed : isDecrementPressed}">-</button>
-                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" readonly>
+                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" readonly >
                 <button class="qty-edit"@mousedown="startIncrement" @mouseup="stopIncrement" @mouseleave="stopIncrement":class="{pressed : isIncrementPressed}">+</button>
             </div>
             <div class="add-btn" 
@@ -51,11 +51,14 @@ export default {
             isPressed: false,
             isIncrementPressed: false,
             isDecrementPressed: false,
+            maxQuantity:null,
         };
     },
 
     async created() {
         this.listing.quantity = 1;
+        this.maxQuantity = this.listing.unitsRemaining;
+
 
         const sellerRef = doc(db, 'users', this.listing.sellerId);
         const sellerDoc = await getDoc(sellerRef);
@@ -86,6 +89,7 @@ export default {
         handleAddToCart() {
             //console.log(this.listing);
             //console.log(this.listing.quantity);
+            console.log('weight: ', this.listing.product.weight);
             this.$emit('add-to-cart', {... this.listing, quantity:this.listing.quantity});
             this.$store.dispatch("addNotification", {type: "success", message: "Added to cart succesfully!"})
         },
@@ -105,8 +109,15 @@ export default {
         },
 
         handleQtyInput(event) {
-            const qty = parseInt(event.target.value, 10);
-            if (!isNaN(qty) && qty >= 1 && qty <= this.listing.unitsRemaining) {
+            const qty = parseInt(event.target.value);
+            /*if (!isNaN(qty) && qty >= 1 && qty <= this.listing.unitsRemaining) {
+                this.listing.quantity = qty;
+            }*/
+            if (qty > this.maxQuantity) {
+                this.listing.quantity = this.maxQuantity;
+            } else if (qty < 1) {
+                this.listing.quantity = 1;
+            } else {
                 this.listing.quantity = qty;
             }
         },

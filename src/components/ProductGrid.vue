@@ -221,10 +221,11 @@ h3 {
 
 .product-grid {
     display:grid;
-    grid-template-columns: repeat(4, 4fr);
+    width:75vw;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 30px;
     margin: 0 50px 0 150px;
-    overflow:auto;
+    overflow:hidden;
 }
 
 .view-cart-btn {
@@ -265,7 +266,8 @@ h3 {
     flex-direction: row;
     justify-content:space-between;
     flex-wrap:nowrap;
-    text-align:center;
+    border-bottom: 1px solid #ccc;
+    padding:4px;
 }
 
 .cart-header {
@@ -276,17 +278,11 @@ h3 {
     font-size: large;
     position:relative;
     letter-spacing:1px;
-    top:8px;
+    top:0px;
     left:16px;
 
 }
 
-.close-btn {
-    position:relative;
-    top:15px;
-    left:10px;
-    padding-bottom: 8px;
-}
 
 .close-img {
     height:35px;
@@ -324,10 +320,12 @@ h3 {
     background-color: white;
     bottom: 0;
     right: 0;
-    width:40%;
-    height: 550px;
-    overflow: auto;
-    border: 2px inset #324432;
+    width:40vw;
+    min-width: 300px;
+    max-width: 600px;
+    height: 50vh;
+    overflow: hidden;
+    border: 2px outset #324432;
     border-radius: 4px;
     z-index:1000;
     display:flex;
@@ -338,13 +336,11 @@ h3 {
 
 .cart-items {
     overflow:auto;
-    flex-grow:1;
     display:flex;
     flex-direction: column;
-    padding-top: 8px;
+    
     border-bottom: 1px solid black;
     table-layout:fixed;
-    height:80px;
 }
 
 .cart-table {
@@ -356,8 +352,7 @@ h3 {
 }
 .cart-table thead th {
     width:150px;
-    position:sticky;
-    top:0;
+    z-index:1;
 }
 .cart-table tr {
     padding-bottom:1px;
@@ -413,8 +408,7 @@ h3 {
 .clear-cart {
     position:relative;
     right:12px;
-    top:6px;
-    padding-bottom: 8px;
+    top:0px;
     background-color:#4B644C;
     color:white;
     font-family: 'Public Sans', sans-serif;
@@ -422,7 +416,7 @@ h3 {
     font-size:small;
     height:auto;
     width: auto;
-    padding: 8px;
+    padding:2px;
     border: 4px outset #4B644C;
     border-radius: 4px;
 }

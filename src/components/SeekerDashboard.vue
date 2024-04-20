@@ -312,6 +312,7 @@ function formatDate(timestamp) {
       <div v-else-if="filteredOrders.length > 0" class="pageNavigation">
         <button
           @click="navigateToPage(1)"
+          class="paginationButton"
           :class="{ activePage: currentPage === 1 }"
         >
           1

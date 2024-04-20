@@ -15,8 +15,8 @@ import { db, auth } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
 import {
   mdiTrashCanOutline,
-  mdiChevronUpBox,
-  mdiChevronDownBox,
+  mdiSortCalendarDescending,
+  mdiSortCalendarAscending,
   mdiFilterVariant,
 } from "@mdi/js";
 
@@ -24,8 +24,8 @@ const store = useStore();
 
 // Vuetify icons
 const trashCan = mdiTrashCanOutline;
-const chevronUp = mdiChevronUpBox;
-const chevronDown = mdiChevronDownBox;
+const sortCalDesc = mdiSortCalendarDescending;
+const sortCalAsc = mdiSortCalendarAscending;
 const filterVariant = mdiFilterVariant;
 
 // Reactive reference to store the documents
@@ -49,7 +49,7 @@ async function fetchDocuments() {
       ? doc
           .data()
           .order.map((item) => `${item.name} x${item.quantity}`)
-          .join(", ")
+          .join("<br>")
       : "Invalid order data",
   }));
 }
@@ -207,8 +207,8 @@ function formatDate(timestamp) {
                 <button @click="toggleDateSortOrder" class="headerIcons">
                   <svg-icon
                     :type="'mdi'"
-                    :path="dateSortOrder === 'desc' ? chevronUp : chevronDown"
-                    style="color: white"
+                    :path="dateSortOrder === 'desc' ? sortCalAsc : sortCalDesc"
+                    style="color: rgba(255, 255, 255, 0.844)"
                   ></svg-icon>
                 </button>
               </div>
@@ -234,7 +234,7 @@ function formatDate(timestamp) {
         <tbody v-if="paginatedOrders.length > 0">
           <tr v-for="order in paginatedOrders" :key="order.id">
             <td>{{ order.orderId }}</td>
-            <td>{{ order.order }}</td>
+            <td v-html="order.order"></td>
             <td>{{ order.companyName }}</td>
             <td>{{ order.companyAddress }}</td>
             <td>{{ formatDate(order.datePurchased) }}</td>
@@ -312,6 +312,7 @@ function formatDate(timestamp) {
       <div v-else-if="filteredOrders.length > 0" class="pageNavigation">
         <button
           @click="navigateToPage(1)"
+          class="paginationButton"
           :class="{ activePage: currentPage === 1 }"
         >
           1
@@ -543,7 +544,7 @@ td:nth-child(8) {
 .clearButton {
   background-color: #f5f5f5;
   color: #222;
-  border: none;
+  border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
   padding: 8px 12px;

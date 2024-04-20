@@ -3,7 +3,7 @@
     <v-toolbar-items>
       <router-link to="/" tag="v-btn" :disabled="!user.detailsSubmitted">
         <img
-          src="../../GreenHarborLogo.png"
+          src="../assets/GreenHarborLogo.png"
           alt="Green Harbor Logo"
           class="logo"
         />

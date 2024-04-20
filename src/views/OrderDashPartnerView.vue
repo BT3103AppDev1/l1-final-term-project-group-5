@@ -96,7 +96,7 @@ export default {
 
 <style scoped>
 .container {
-  background: url("..\\..\\bg2.png") no-repeat center center fixed; /* Set background image */
+  background: url("..\\assets\\bg2.png") no-repeat center center fixed; /* Set background image */
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -104,7 +104,7 @@ export default {
   background-position: center;
 }
 .background {
-  background: url("..\\..\\bg2.png") no-repeat center center fixed;
+  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;

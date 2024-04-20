@@ -12,16 +12,16 @@
           <th>
             <div class="status-container">
               <span>Status</span>
-              <div class="status-option">
-                <select
-                  @change="filterByStatus(statusField)"
-                  v-model="statusField"
-                >
-                  <option value="All">All</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Ongoing">Ongoing</option>
-                  <option value="Expired">Expired</option>
-                </select>
+              <div class="custom-dropdown">
+                <button class="headerIcons" @click="toggleDropdown">
+                  <svg-icon type="mdi" :path="filterIcon"></svg-icon>
+                </button>
+                <div class="customDropdown" v-show="isDropdownOpen">
+                  <div @click="selectStatus('All')">All</div>
+                  <div @click="selectStatus('Ongoing')">Ongoing</div>
+                  <div @click="selectStatus('Completed')">Completed</div>
+                  <div @click="selectStatus('Expired')">Expired</div>
+                </div>
               </div>
             </div>
           </th>
@@ -57,13 +57,17 @@ import {
   deleteDoc,
   updateDoc,
 } from "firebase/firestore";
-import trash from "@/assets/Trash.svg";
 import { getAuth } from "firebase/auth";
+import SvgIcon from "@jamescoyle/vue-icon";
 import { mdiTrashCanOutline, mdiFilterVariant } from "@mdi/js";
 
 const db = getFirestore(firebaseApp);
 
 export default {
+  components: {
+    SvgIcon
+  },
+
   data() {
     return {
       trashIcon: mdiTrashCanOutline,
@@ -71,6 +75,7 @@ export default {
       statusField: "All",
       entriesToComplete: [],
       store: null, // initialize store
+      isDropdownOpen: false,
     };
   },
   props: {
@@ -351,6 +356,14 @@ export default {
         }
       });
     },
+    toggleDropdown() {
+      this.isDropdownOpen = !this.isDropdownOpen;
+    },
+    selectStatus(status) {
+      this.statusField = status;
+      this.isDropdownOpen = false;
+      this.filterByStatus(status);
+    },
   },
 };
 </script>
@@ -504,5 +517,31 @@ tbody tr:nth-child(odd) {
 #completeButton:disabled {
   opacity: 0.5;
   cursor: not-allowed; /* Change cursor to 'not-allowed' */
+}
+
+.headerIcons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 4px;
+}
+
+.customDropdown {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  z-index: 100;
+}
+
+.customDropdown div {
+  padding: 5px;
+  cursor: pointer;
+  color: black;
+}
+.customDropdown div:hover {
+  background-color: #f0f0f0;
 }
 </style>

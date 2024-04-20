@@ -15,8 +15,8 @@ import { db, auth } from "../firebase.js";
 import SvgIcon from "@jamescoyle/vue-icon";
 import {
   mdiTrashCanOutline,
-  mdiChevronUpBox,
-  mdiChevronDownBox,
+  mdiSortCalendarDescending,
+  mdiSortCalendarAscending,
   mdiFilterVariant,
 } from "@mdi/js";
 
@@ -24,8 +24,8 @@ const store = useStore();
 
 // Vuetify icons
 const trashCan = mdiTrashCanOutline;
-const chevronUp = mdiChevronUpBox;
-const chevronDown = mdiChevronDownBox;
+const sortCalDesc = mdiSortCalendarDescending;
+const sortCalAsc = mdiSortCalendarAscending;
 const filterVariant = mdiFilterVariant;
 
 // Reactive reference to store the documents
@@ -207,8 +207,8 @@ function formatDate(timestamp) {
                 <button @click="toggleDateSortOrder" class="headerIcons">
                   <svg-icon
                     :type="'mdi'"
-                    :path="dateSortOrder === 'desc' ? chevronUp : chevronDown"
-                    style="color: white"
+                    :path="dateSortOrder === 'desc' ? sortCalAsc : sortCalDesc"
+                    style="color: rgba(255, 255, 255, 0.844)"
                   ></svg-icon>
                 </button>
               </div>

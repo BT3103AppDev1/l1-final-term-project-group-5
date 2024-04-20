@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import Login from '../components/Login.vue';
-import Register from '../components/Register.vue';
-import NotFound from '../components/NotFound.vue';
+import LoginView from '../views/LoginView.vue';
+import RegisterView from '../views/RegisterView.vue';
+import NotFoundView from '../views/NotFoundView.vue';
 
-import ForgetPassword from '../components/ForgetPassword.vue';
-import ProfilePage from '../components/ProfilePage.vue';
+import ForgetPasswordView from '../views/ForgetPasswordView.vue';
+import ProfilePageView from '../views/ProfilePageView.vue';
 import RegisterDetails from '@/components/RegisterDetails.vue';
 import { auth } from '../firebase';
 import AddProduct from '../components/AddProduct.vue';
@@ -28,20 +28,21 @@ const router = createRouter({
     {
       path: "/register",
       name: "register",
-      component: Register,
+      component: RegisterView,
     },
     
     {
       path: '/login',
       name: 'login',
-      component: Login
+      component: LoginView
     },
     {
       path: '/forgetPassword',
       name: 'forgetPassword',
-      component: ForgetPassword,
+      component: ForgetPasswordView,
       beforeEnter(to, from, next) {
         const authUser = auth.currentUser;
+        console.log(authUser)
         // console.log(user)
         if (!authUser) {
           next();
@@ -69,7 +70,7 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      component: ProfilePage,
+      component: ProfilePageView,
       beforeEnter(to, from, next) {
         const store = useStore();
         const user = store.state.user;
@@ -190,7 +191,7 @@ const router = createRouter({
     {
       path: "/:pathMatch(.*)*",
       name: "notFound",
-      component: NotFound,
+      component: NotFoundView,
     },
   ]
 })

@@ -1,4 +1,5 @@
 <template>
+  <div class="background">
   <v-container>
     <v-row justify="center">
       <v-col cols="12" md="8">
@@ -17,7 +18,7 @@
                   autocomplete="email"
                 ></v-text-field>
                 <v-btn
-                  color="primary"
+                  color="#4B644C"
                   @click="submitForm"
                   >Confirm</v-btn
                 >
@@ -28,6 +29,7 @@
       </v-col>
     </v-row>
   </v-container>
+</div>
 </template>
 
 <script>
@@ -36,7 +38,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 export default {
-  name: "ForgetPassword",
+  name: "ForgetPasswordComponent",
   setup() {
     const store = useStore();
     const email = ref("");
@@ -48,3 +50,18 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.background {
+  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

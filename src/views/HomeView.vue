@@ -20,7 +20,7 @@ import HomePageInfo from "@/components/HomePageInfo.vue";
 .home-partner-display {
   position: absolute;
   top: 320px;
-  left: 0;
+  left: 0px;
   z-index: 2;
 }
 </style>

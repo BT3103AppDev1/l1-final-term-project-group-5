@@ -1,4 +1,5 @@
 <template>
+  <div class="background">
   <v-container>
     <v-row justify="center">
       <v-col cols="12" md="8">
@@ -35,7 +36,7 @@
                   <v-btn
                     append-icon="mdi-email-outline"
                     type="submit"
-                    color="primary"
+                    color="#4B644C"
                     @click="LoginWithEmail"
                   >
                     Login
@@ -47,7 +48,7 @@
                 <v-col cols="12" md="3">
                   <v-btn
                     append-icon="mdi-google"
-                    color="primary"
+                    color="#4B644C"
                     @click="LoginWithGoogle"
                   >
                     Login with Google
@@ -79,6 +80,7 @@
       </v-col>
     </v-row>
   </v-container>
+</div>
 </template>
 
 <script>
@@ -134,3 +136,18 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.background {
+  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

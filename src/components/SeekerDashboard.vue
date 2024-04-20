@@ -543,7 +543,7 @@ td:nth-child(8) {
 .clearButton {
   background-color: #f5f5f5;
   color: #222;
-  border: none;
+  border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
   padding: 8px 12px;

@@ -353,7 +353,7 @@
 
                         <v-text-field
                           label="Confirm with Password"
-                          v-model="password"
+                          v-model="passwordBank"
                           type="password"
                           required
                         ></v-text-field>
@@ -445,6 +445,7 @@ export default {
     const bankForm = ref(null);
     const dialogBank = ref(false);
     const bankNumber = ref("");
+    const passwordBank = ref("");
 
     const dialogPassword = ref(false);
     const oldPassword = ref("");
@@ -489,7 +490,6 @@ export default {
     });
 
     onMounted(() => {
-      console.log("mounted");
       displayName.value = user.value.displayName;
       email.value = user.value.email;
       about.value = user.value.about;
@@ -541,8 +541,6 @@ export default {
     const cancelNameChange = () => {
       // Cancel the name change here
       editingName.value = false;
-      console.log(originalName.value);
-      console.log(user.value);
       displayName.value = originalName.value;
       return store.dispatch("updateDisplayName", originalName.value);
     };
@@ -550,9 +548,8 @@ export default {
     const startEditingEmail = async () => {
       originalEmail.value = user.value.email;
       const result = await store.dispatch("checkEmailVerified");
-      console.log(result);
       if (result) {
-        dialogEmail = true;
+        dialogEmail.value = true;
       }
     };
 
@@ -606,7 +603,10 @@ export default {
 
     const saveBankDetails = () => {
       if (bankForm.value.validate()) {
-        store.dispatch("updateBankDetails", bankNumber.value);
+        store.dispatch("updateBankDetails", {
+          bankDetails: bankNumber.value,
+          password: passwordBank.value,
+        });
         dialogBank.value = false;
       }
       // store.dispatch("saveBankDetails", bankNumber.value);
@@ -634,7 +634,7 @@ export default {
         try {
           await store.dispatch("updateNewPassword", {
             email: email.value,
-            password: oldPassword.value,
+            oldPassword: oldPassword.value,
             newPassword: newPassword.value,
           });
           router.push("/profile");
@@ -666,7 +666,8 @@ export default {
           newEmail: newEmail.value,
           password: emailPassword.value,
         });
-        router.push("/profile");
+        email.value = newEmail.value;
+        dialogEmail.value = false;
       } catch (error) {
         store.dispatch("addNotification", {
           type: "error",
@@ -716,6 +717,7 @@ export default {
       bankForm,
       dialogBank,
       bankNumber,
+      passwordBank,
       saveBankDetails,
 
       dialogPassword,
@@ -748,7 +750,7 @@ export default {
 
 <style scoped>
 .background {
-  background: url("..\\..\\public\\bg2.png") no-repeat center center fixed;
+  background: url("..\\..\\bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;

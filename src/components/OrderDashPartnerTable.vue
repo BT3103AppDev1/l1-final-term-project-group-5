@@ -59,12 +59,15 @@ import {
 } from "firebase/firestore";
 import trash from "@/assets/Trash.svg";
 import { getAuth } from "firebase/auth";
+import { mdiTrashCanOutline, mdiFilterVariant } from "@mdi/js";
 
 const db = getFirestore(firebaseApp);
 
 export default {
   data() {
     return {
+      trashIcon: mdiTrashCanOutline,
+      filterIcon: mdiFilterVariant,
       statusField: "All",
       entriesToComplete: [],
       store: null, // initialize store
@@ -186,7 +189,7 @@ export default {
           date.getMonth() + 1
         }/${date.getFullYear()}`;
         cell5.innerHTML = formattedDate;
-        cell6.innerHTML = documentData.totalPrice;
+        cell6.innerHTML = "$" + documentData.totalPrice;
 
         // Apply oval border and color based on status
         const statusCellContent = document.createElement("div");
@@ -221,10 +224,13 @@ export default {
           documentData.status === "Completed"
         ) {
           // Render a delete button
-          let deleteButton = document.createElement("img");
-          deleteButton.src = trash;
+          let deleteButton = document.createElement("button");
           deleteButton.className = "trash-bwt";
-          deleteButton.innerHTML = "Delete";
+          deleteButton.innerHTML = `
+            <svg style="width:24px; height:24px" viewBox="0 0 24 24">
+              <path fill="darkred" d="${this.trashIcon}"></path>
+            </svg>
+          `;
           deleteButton.addEventListener("click", () => {
             this.deleteInstrument(documentData.orderId);
           });
@@ -352,7 +358,6 @@ export default {
 <style>
 /* Shared styles for both components */
 .container {
-  width: 95vw; /* Ensure the container takes the full width */
   max-width: 100%; /* Limit the container's width to the viewport width */
   margin: 0 auto; /* Center align the container */
   padding: 20px; /* Add padding to the container */
@@ -360,11 +365,9 @@ export default {
 
 /* Table styles */
 table {
-  font-family: "Montserrat", sans-serif;
   table-layout: fixed;
   border-collapse: collapse;
   width: 100%; /* Set table width to 100% of its container */
-  border: none;
 }
 
 /* Table header styles */
@@ -387,11 +390,11 @@ td {
 
 /* Alternate row background color for better readability */
 tbody tr:nth-child(even) {
-  background-color: #f0f4f0;
+  background-color: #c3d2c3;
 }
 
 tbody tr:nth-child(odd) {
-  background-color: #fff;
+  background-color: #e6e6e6;
 }
 
 /* Button style for delete button */
@@ -453,7 +456,6 @@ tbody tr:nth-child(odd) {
   border: 1px solid #ccc;
   border-radius: 20px; /* Half of the height to create an oval shape */
   padding: 4px 8px;
-  margin-right: 4px;
   font-size: 12px;
   background-color: lightcyan;
 }

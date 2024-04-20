@@ -99,7 +99,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
+  padding: 20px 10px 10px 10px;
 }
 
 .pagination-button,
@@ -116,20 +116,21 @@ export default {
   transition: background-color 0.2s;
 }
 
-.previous-button-focused {
+.previous-button {
   background-color: #e6f5d9;
   color: #007b36;
   box-shadow: 0 0 2px 1px rgba(0, 123, 54, 0.2);
 }
 
-.previous-button-focused:hover,
+.previous-button:hover,
 .pagination-button:hover,
 .next-button:hover {
-  background-color: #f0f0f0;
+  background-color: #848b6e;
 }
 
 .pagination-button:focus,
-.previous-button-focused:focus {
+.previous-button:focus,
+.next-button:focus {
   outline: none;
   box-shadow: 0 0 2px 1px rgba(0, 123, 54, 0.2);
 }
@@ -138,8 +139,8 @@ export default {
   margin-left: 8px;
 }
 
-.previous-button-focused:focus,
-.previous-button-focused:hover,
+.previous-button:focus,
+.previous-button:hover,
 .previous-button {
   margin-right: 8px;
 }

@@ -96,14 +96,17 @@ export default {
 
 <style scoped>
 .container {
+  width: 100vw; /* Ensure the container takes the full width */
+  max-width: 100%; /* Limit the container's width to the viewport width */
+  margin: 0 auto; /* Center align the container */
+  padding: 20px; /* Add padding to the container */
+  background-image: url(""); /* Set background image */
   background: url("..\\..\\public\\bg2.png") no-repeat center center fixed; /* Set background image */
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover; /* Cover the entire container with the background image */
-  width: 95vw; /* Ensure the container takes the full width */
-  width: 100%; /* Limit the container's width to the viewport width */
-  height: 100vh;
+  background-position: center;
 }
 .background {
   background: url("..\\..\\public\\bg2.png") no-repeat center center fixed;

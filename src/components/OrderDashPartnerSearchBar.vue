@@ -9,6 +9,9 @@
     />
     <button @click="handleSearch" class="search-button">Search</button>
     <button @click="clearSearch" class="clear-button">Clear</button>
+    <span v-if="searchMade && searchText" class="currentSearch">
+      Current search: {{ searchText }}
+    </span>
   </div>
 </template>
 
@@ -17,16 +20,19 @@ export default {
   data() {
     return {
       searchText: "",
+      searchMade: false,
     };
   },
   methods: {
     handleSearch() {
+      this.searchMade = true;
       // Emit an event with the search text
       this.$emit("search", this.searchText);
     },
     clearSearch() {
       // Clear the search text and emit an event to clear the search
       this.searchText = "";
+      this.searchMade = false;
       this.$emit("search", "");
     },
   },
@@ -35,9 +41,13 @@ export default {
 
 <style scoped>
 .search-bar {
+  width: 100%;
   display: flex;
-  align-items: center;
-  padding: 10px;
+  flex-direction: row;
+  justify-content: left;
+  align-items: left;
+  margin-top: 20px;
+  padding: 10px 10px 10px 20px;
 }
 
 .search-input {
@@ -62,5 +72,14 @@ export default {
 .search-button:hover,
 .clear-button:hover {
   background-color: #f0f0f0;
+}
+
+.currentSearch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 20px;
+  font-size: 0.85rem;
+  color: #333333ce;
 }
 </style>

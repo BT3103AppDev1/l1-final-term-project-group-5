@@ -281,7 +281,7 @@ function formatDate(timestamp) {
         </tbody>
       </table>
 
-      <div v-if="totalPages > 1" class="pageNavigation">
+      <div v-show="totalPages >= 1" class="pageNavigation">
         <button
           @click="currentPage--"
           :disabled="currentPage <= 1"
@@ -307,15 +307,6 @@ function formatDate(timestamp) {
           :class="{ fadeOut: currentPage >= totalPages }"
         >
           Next
-        </button>
-      </div>
-      <div v-else-if="filteredOrders.length > 0" class="pageNavigation">
-        <button
-          @click="navigateToPage(1)"
-          class="paginationButton"
-          :class="{ activePage: currentPage === 1 }"
-        >
-          1
         </button>
       </div>
     </div>

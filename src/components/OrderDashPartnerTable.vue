@@ -59,12 +59,15 @@ import {
 } from "firebase/firestore";
 import trash from "@/assets/Trash.svg";
 import { getAuth } from "firebase/auth";
+import { mdiTrashCanOutline, mdiFilterVariant } from "@mdi/js";
 
 const db = getFirestore(firebaseApp);
 
 export default {
   data() {
     return {
+      trashIcon: mdiTrashCanOutline,
+      filterIcon: mdiFilterVariant,
       statusField: "All",
       entriesToComplete: [],
       store: null, // initialize store
@@ -221,10 +224,13 @@ export default {
           documentData.status === "Completed"
         ) {
           // Render a delete button
-          let deleteButton = document.createElement("img");
-          deleteButton.src = trash;
+          let deleteButton = document.createElement("button");
           deleteButton.className = "trash-bwt";
-          deleteButton.innerHTML = "Delete";
+          deleteButton.innerHTML = `
+            <svg style="width:24px; height:24px" viewBox="0 0 24 24">
+              <path fill="darkred" d="${this.trashIcon}"></path>
+            </svg>
+          `;
           deleteButton.addEventListener("click", () => {
             this.deleteInstrument(documentData.orderId);
           });

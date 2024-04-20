@@ -183,7 +183,7 @@ export default {
       //Filter by selected categories if any
       if (this.selectedCategories.length > 0) {
         filtered = filtered.filter((listing) =>
-          this.selectedCategories.includes(listing.category)
+          this.selectedCategories.includes(listing.product.category)
         );
       }
       //Filter by search query if present

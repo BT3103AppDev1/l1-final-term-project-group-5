@@ -1,14 +1,11 @@
 <template>
   <div class="price-sorter">
-    <label class="label" for="sort">Sort By: </label>
-    <button @click="toggleSortDropdown">
-      <img src="@/assets/CaretDown.png" alt="Options" class="img" />
-    </button>
-    <div v-if="showSortDropdown" class="customDropdown">
-      <div @click="selectSort('')">Please select one</div>
-      <div @click="selectSort('lowToHigh')">Price - Low to High</div>
-      <div @click="selectSort('highToLow')">Price - High to Low</div>
-    </div>
+      <label class="label" for="sort">Sort: </label>
+      <select class="sort-select">
+        <option disabled value>Please select one</option>
+        <option @click="selectSort('lowToHigh')">Price (Low to High)</option>
+        <option @click="selectSort('highToLow')">Price (High to Low)</option>
+      </select>
   </div>
 </template>
 
@@ -17,13 +14,9 @@ export default {
   data() {
     return {
       selected: "",
-      showSortDropdown: false,
     };
   },
   methods: {
-    toggleSortDropdown() {
-      this.showSortDropdown = !this.showSortDropdown;
-    },
     selectSort(option) {
       this.selected = option;
       this.updateSort();
@@ -53,4 +46,29 @@ export default {
 .customerDropdown:hover {
   box-shadow: 0 0 5px darkgreen;
 }
+
+.sort-select {
+  width: 100%;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px inset #4b644c;
+  letter-spacing:1px;
+  cursor:pointer;
+  text-align:center;
+}
+
+.sort-select:hover {
+  box-shadow:0 0 0 2px #ccc;
+}
+
+.sort-select:focus {
+  outline:none;
+}
+
+.sort-select option {
+  padding: 5px;
+  cursor: pointer;
+  text-align:left;
+}
+
 </style>

@@ -1,44 +1,48 @@
 <template>
-<div class="inputContainer">
-  <input type="text" class="input" v-model="localSearchQuery" @input="emitSearchQuery" placeholder="Search for ..."/>
-  <button class='clear-btn' @click="clearSearch">
-    <img src="@/assets/searchcross.png" alt="X" class="clear-img">
-  </button>
-
-</div> 
+  <div class="inputContainer">
+    <input
+      type="text"
+      class="input"
+      v-model="localSearchQuery"
+      @input="emitSearchQuery"
+      placeholder="Search for ..."
+    />
+    <button class="clear-btn" @click="clearSearch">
+      <img src="@/assets/searchcross.png" alt="X" class="clear-img" />
+    </button>
+  </div>
 </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        localSearchQuery: '',
-      };
+
+<script>
+export default {
+  data() {
+    return {
+      localSearchQuery: "",
+    };
+  },
+
+  methods: {
+    emitSearchQuery() {
+      this.$emit("update-search-query", this.localSearchQuery);
     },
 
-    methods: {
-      emitSearchQuery() {
-        this.$emit('update-search-query', this.localSearchQuery);
-      },
-
-      clearSearch() {
-        console.log("Clear search");
-        this.localSearchQuery = '';
-        this.emitSearchQuery();
-      },
+    clearSearch() {
+      console.log("Clear search");
+      this.localSearchQuery = "";
+      this.emitSearchQuery();
     },
-  };
-  
-  </script>
-  
+  },
+};
+</script>
+
 <style>
 .inputContainer {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
-  padding:3px;
+  padding: 3px;
   border: 2px outset #ccc;
-  border-radius:8px;
+  border-radius: 8px;
 }
 
 .inputContainer:focus-within {
@@ -46,32 +50,30 @@
 }
 
 .input {
-  width:100%;
+  width: 100%;
   padding: 5px;
   text-align: left;
 }
 
 input:focus {
-  outline:#4B644C;
+  outline: #4b644c;
 }
 
 .clear-btn {
   align-self: center;
-  height:30px;
-  width:30px;
+  height: 30px;
+  width: 30px;
   align-items: center;
 }
 .clear-img {
-  border:1px solid #4B644C;
+  border: 1px solid #4b644c;
   border-radius: 80%;
-  width:30px;
-  height:30px;
+  width: 30px;
+  height: 30px;
 }
 
 .clear-img:hover {
   box-shadow: 0 0 3px gray;
-  transform: scale(0.90);
+  transform: scale(0.9);
 }
-
 </style>
-  

@@ -47,6 +47,7 @@ const store = createStore({
       weight: 0,
       bankDetails: "",
       authProvider: "",
+      rank: 3,
     },
     products: [],
     listings: [],
@@ -56,6 +57,7 @@ const store = createStore({
     cart: {
       items: [],
     },
+    profilePictures: [],
   },
   getters: {
     user(state) {
@@ -74,6 +76,9 @@ const store = createStore({
             .reduce((total, item) => total + item.price * item.quantity, 0)
             .toFixed(2)
         : 0;
+    },
+    profilePictures(state) {
+      return state.profilePictures;
     },
   },
   mutations: {
@@ -178,6 +183,10 @@ const store = createStore({
     SET_PROVIDER(state, provider) {
       state.user.authProvider = provider;
     },
+
+    SET_RANK(state, rank) {
+      state.user.rank = rank;
+    },
     SET_PRODUCTS(state, products) {
       state.products = products;
     },
@@ -219,6 +228,10 @@ const store = createStore({
       }
       //console.log('Current Cart: ', state.cart.items);
     },
+
+    SET_PROFILE_PICTURES(state, profilePictures) {
+      state.profilePictures = profilePictures;
+    },
   },
 
   actions: {
@@ -244,6 +257,7 @@ const store = createStore({
             photoURL: defaultProfilePictureURL,
             weight: 0,
             bankDetails: "",
+            rank: 3,
           });
           context.commit("SET_USER_DETAILS", {
             displayName: "",
@@ -254,6 +268,7 @@ const store = createStore({
           });
           context.commit("SET_USER_ID", response.user.uid);
           context.commit("SET_PROVIDER", "local");
+          context.commit("SET_RANK", 3);
         }
       } catch (error) {
         throw new Error(error);
@@ -409,6 +424,7 @@ const store = createStore({
                 photoURL: user.photoURL,
                 weight: 0,
                 bankDetails: "",
+                rank: 3,
               });
               context.commit("SET_USER_DETAILS", {
                 displayName: user.displayName,
@@ -418,6 +434,7 @@ const store = createStore({
                 address: "",
               });
               context.commit("SET_PROVIDER", "google");
+              context.commit("SET_RANK", 3);
             } else {
               const userSnap = await getDoc(userRef);
               const userData = userSnap.data();
@@ -442,6 +459,7 @@ const store = createStore({
                 context.commit("SET_WEIGHT", userData.weight);
                 context.commit("SET_BANK_DETAILS", userData.bankDetails);
                 context.commit("SET_PROVIDER", "google");
+                context.commit("SET_RANK", userData.rank);
               }
             }
           });
@@ -992,6 +1010,15 @@ const store = createStore({
 
     clearCart({ commit }) {
       commit("CLEAR_CART");
+    },
+
+    async fetchProfilePictures({ commit }) {
+      const queryDoc = query(collection(db, "users"), 
+        where("ecoRank", "==", 1),
+        where("userType", "==", "ecoPartner"));
+      const profilePicturesSnapshot = await getDocs(queryDoc);
+      const profilePictures = profilePicturesSnapshot.docs.map(doc => doc.data().photoURL);
+      commit("SET_PROFILE_PICTURES", profilePictures);
     },
   },
 });

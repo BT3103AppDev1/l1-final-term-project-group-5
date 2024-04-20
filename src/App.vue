@@ -1,33 +1,44 @@
 <template>
   <v-app>
-    <div style="height: 64px">
-      <v-alert
-        v-if="notification"
-        :key="notification.id"
-        :type="notification.type"
-        closable
-        :icon="notification.icon"
-        class="alert-custom"
-        transition="scale-transition"
-        absolute
-        width="600"
-        @click:dismiss="dismissNotification(notification.id)"
-      >
-        {{ notification.message }}
-      </v-alert>
-    </div>
+    <div v-if="!notification" class="alert-placeholder"></div>
     <template v-if="isLoggedIn">
       <div class="nav">
+        <v-alert
+          v-if="notification"
+          :key="notification.id"
+          :type="notification.type"
+          closable
+          :icon="notification.icon"
+          class="alert-custom"
+          transition="scale-transition"
+          width="600"
+          @click:dismiss="dismissNotification(notification.id)"
+        >
+          {{ notification.message }}
+        </v-alert>
         <NavLoggedIn :user="user" />
       </div>
     </template>
     <template v-else>
       <div class="nav">
+        <v-alert
+          v-if="notification"
+          :key="notification.id"
+          :type="notification.type"
+          closable
+          :icon="notification.icon"
+          class="alert-custom"
+          transition="scale-transition"
+          width="600"
+          @click:dismiss="dismissNotification(notification.id)"
+        >
+          {{ notification.message }}
+        </v-alert>
         <NavLoggedOut />
       </div>
     </template>
 
-    <div>
+    <div :style="{ marginTop: '64px' }">
       <router-view />
     </div>
   </v-app>
@@ -54,7 +65,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 /* Import Montserrat font from Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
@@ -81,7 +92,7 @@ h6 {
 
 .alert-custom {
   position: fixed;
-  top: 0; /* Position at the top */
+  top: 0px; /* Position at the top */
   left: 50%; /* Center horizontally */
   transform: translateX(-50%); /* Center horizontally */
   z-index: 9999; /* Ensure it's above other content */

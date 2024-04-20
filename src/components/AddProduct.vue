@@ -1,25 +1,50 @@
 <template>
-  <div class="d-flex flex-column align-center" style="height: 80vh;">
+  <div class="background">
     <div class="self-start">
       <v-btn icon @click="goBackToMarketplace">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
     </div>
     <v-sheet class="mx-auto" width="300">
-      <h1>Add New Product</h1>
+      <h1 class="transparent-bg">Add New Product</h1>
       <v-form @submit.prevent="addProduct">
+        <v-text-field
+          v-model="product.name"
+          label="Product Name"
+          required
+        ></v-text-field>
 
-        <v-text-field v-model="product.name" label="Product Name" required></v-text-field>
+        <v-select
+          v-model="product.category"
+          :items="categories"
+          label="Select Product Category"
+          required
+        ></v-select>
 
-        <v-select v-model="product.category" :items="categories" label="Select Product Category" required></v-select>
+        <v-text-field
+          v-model.number="product.weight"
+          label="Enter Product Weight (grams)"
+          type="number"
+          required
+        ></v-text-field>
 
-        <v-text-field v-model.number="product.weight" label="Enter Product Weight (grams)" type="number" required></v-text-field>
-
-        <v-file-input label="Upload Product Image" prepend-icon="mdi-paperclip" @change="onFileChange" chips required>
+        <v-file-input
+          label="Upload Product Image"
+          prepend-icon="mdi-paperclip"
+          @change="onFileChange"
+          chips
+          required
+        >
         </v-file-input>
 
-        <v-btn block variant="tonal" elevation="3" class="submit-button" type="submit">Add to Marketplace</v-btn>
-
+        <v-btn
+          block
+          variant="tonal"
+          elevation="3"
+          class="submit-button"
+          type="submit"
+          >Add to Marketplace</v-btn
+        >
       </v-form>
     </v-sheet>
   </div>
@@ -27,7 +52,7 @@
 
 <script>
 import { auth } from "../firebase.js";
-import { mapActions } from 'vuex';
+import { mapActions } from "vuex";
 import { onAuthStateChanged } from "firebase/auth";
 
 export default {
@@ -35,14 +60,14 @@ export default {
     return {
       user: null,
       product: {
-        name: '',
-        category: '',
+        name: "",
+        category: "",
         imageUrl: null,
-        weight: '',
-        sellerId: '',
-        store: null
+        weight: "",
+        sellerId: "",
+        store: null,
       },
-      categories: ['Baked Good', 'Dairy', 'Fruit', 'Vegetable'] // list of categories
+      categories: ["Baked Good", "Dairy", "Fruit", "Vegetable"], // list of categories
     };
   },
   mounted() {
@@ -55,7 +80,7 @@ export default {
     this.store = this.$store;
   },
   methods: {
-    ...mapActions(['addProductToDB']),
+    ...mapActions(["addProductToDB"]),
 
     onFileChange(e) {
       const file = e.target.files[0];
@@ -65,31 +90,51 @@ export default {
     async addProduct() {
       if (this.product.name && this.product.category && this.product.image) {
         await this.addProductToDB(this.product);
-        this.$router.push('/partner/marketplace'); // redirect to marketplace after adding
-        this.store.dispatch("addNotification", { // use store from instance
+        this.$router.push("/partner/marketplace"); // redirect to marketplace after adding
+        this.store.dispatch("addNotification", {
+          // use store from instance
           type: "success",
           message: "Successfully added product!",
         });
       } else {
-        alert('All fields are required');
+        alert("All fields are required");
       }
     },
 
     goBackToMarketplace() {
       this.$router.go(-1); // This line will take you back to the previous page
     },
-  }
-}
+  },
+};
 </script>
 
-<style>
+<style scoped>
+.background {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: url("..\\..\\public\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+}
+
 .submit-button {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   /* Green */
-  color: white
+  color: white;
 }
 
 .self-start {
   align-self: flex-start;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+  background-color: transparent;
 }
 </style>

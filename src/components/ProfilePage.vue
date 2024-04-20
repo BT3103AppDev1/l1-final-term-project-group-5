@@ -1,392 +1,401 @@
 <template>
-  <v-row justify="center">
-    <v-col cols="12" md="8">
-      <v-card>
-        <v-card-title class="text-center">Profile Page</v-card-title>
-        <v-card-text class="text-center">
-          <v-alert v-if="error" type="error">{{ error }}</v-alert>
-          <v-form>
-            <v-row justify="center">
-              <v-col
-                align-self="start"
-                class="d-flex justify-center align-center pa-0"
-                cols="12"
-              >
-                <v-avatar
-                  class="profile avatar-center-heigth avatar-shadow"
-                  color="white"
-                  size="164"
+  <div class="background">
+    <v-row justify="center">
+      <v-col cols="12" md="8">
+        <v-card class="card">
+          <h1 :style="{ paddingBottom: '20px', textAlign: 'center' }">
+            Profile Page
+          </h1>
+          <v-card-text class="text-center">
+            <v-alert v-if="error" type="error">{{ error }}</v-alert>
+            <v-form>
+              <v-row justify="center" :style="{ paddingBottom: '20px' }">
+                <v-col
+                  align-self="start"
+                  class="d-flex justify-center align-center pa-0"
+                  cols="12"
                 >
-                  <img :src="user.photoURL" class="avatar-image" />
-
-                  <v-btn
-                    class="upload-btn absolute bottom"
-                    x-large
-                    icon="$vuetify"
-                    @click="onUploadButtonClick"
+                  <v-avatar
+                    class="profile avatar-center-heigth avatar-shadow"
+                    color="white"
+                    size="164"
                   >
-                    <svg-icon type="mdi" :path="path"></svg-icon>
-                  </v-btn>
+                    <img :src="user.photoURL" class="avatar-image" />
 
-                  <input
-                    type="file"
-                    ref="fileInput"
-                    accept="image/*"
-                    @change="onFileChange"
-                    style="display: none"
-                  />
-                </v-avatar>
+                    <v-btn
+                      class="upload-btn absolute bottom"
+                      x-large
+                      icon="$vuetify"
+                      @click="onUploadButtonClick"
+                    >
+                      <svg-icon type="mdi" :path="path"></svg-icon>
+                    </v-btn>
+
+                    <input
+                      type="file"
+                      ref="fileInput"
+                      accept="image/*"
+                      @change="onFileChange"
+                      style="display: none"
+                    />
+                  </v-avatar>
+                </v-col>
+              </v-row>
+
+              <v-col cols="12" md="12" flass="mt-5">
+                <v-text-field
+                  id="userType"
+                  label="Usertype"
+                  type="text"
+                  required
+                  autofocus
+                  v-model="user.type"
+                  :readonly="true"
+                >
+                </v-text-field>
               </v-col>
-            </v-row>
 
-            <v-col cols="12" md="12" flass="mt-5">
-              <v-text-field
-                id="userType"
-                label="Usertype"
-                type="text"
-                required
-                autofocus
-                v-model="user.type"
-                :readonly="true"
-              >
-              </v-text-field>
-            </v-col>
-
-            <v-col cols="12" md="12" flass="mt-5">
-              <v-text-field
-                id="displayName"
-                label="Name"
-                type="name"
-                required
-                autofocus
-                v-model="displayName"
-                autocomplete="name"
-                :readonly="!editingName"
-              >
-                <template v-slot:append>
-                  <v-btn
-                    small
-                    color="primary"
-                    v-if="!editingName"
-                    @click="startEditingName"
-                  >
-                    Edit
-                  </v-btn>
-                  <v-btn
-                    small
-                    color="green"
-                    v-if="editingName"
-                    @click="confirmNameChange"
-                  >
-                    Confirm
-                  </v-btn>
-                  <v-btn
-                    small
-                    color="red"
-                    v-if="editingName"
-                    @click="cancelNameChange"
-                  >
-                    Cancel
-                  </v-btn>
-                </template>
-              </v-text-field>
-            </v-col>
-
-            <v-col cols="12" md="12">
-              <v-text-field
-                id="email"
-                label="Email"
-                required
-                v-model="email"
-                :readonly="true"
-              >
-                <template v-slot:append>
-                  <v-btn small color="primary" @click="startEditingEmail">
-                    Edit
-                  </v-btn>
-
-                  <v-dialog v-model="dialogEmail" persistent max-width="600px">
-                    <v-card>
-                      <v-card-title class="text-center"
-                        >Update Email</v-card-title
-                      >
-                      <v-card-text class="text-center">
-                        <v-form>
-                          <!-- ... -->
-                          <v-text-field
-                            id="newEmail"
-                            label="New Email"
-                            type="email"
-                            required
-                            autofocus
-                            v-model="newEmail"
-                            autocomplete="false"
-                          ></v-text-field>
-
-                          <!-- ... -->
-                          <v-text-field
-                            id="emailPassword"
-                            label="Password"
-                            type="password"
-                            required
-                            autofocus
-                            v-model="emailPassword"
-                            autocomplete="false"
-                          ></v-text-field>
-
-                          <!-- ... -->
-                          <v-btn
-                            color="#B0E487"
-                            append-icon="$vuetify"
-                            @click="updateEmail"
-                            style="margin-right: 16px"
-                          >
-                            Confirm
-                          </v-btn>
-
-                          <v-btn
-                            color="red"
-                            append-icon="$vuetify"
-                            @click="dialogEmail = false"
-                          >
-                            Cancel
-                          </v-btn>
-                        </v-form>
-                      </v-card-text>
-                    </v-card>
-                  </v-dialog>
-                </template>
-              </v-text-field>
-            </v-col>
-
-            <v-col cols="12" md="12" v-if="user.type !== 'ecoSeeker'">
-              <v-text-field
-                id="about"
-                label="About"
-                required
-                v-model="about"
-                :readonly="!editingAbout"
-              >
-                <template v-slot:append>
-                  <v-btn
-                    small
-                    color="primary"
-                    v-if="!editingAbout"
-                    @click="startEditingAbout"
-                  >
-                    Edit
-                  </v-btn>
-                  <v-btn
-                    small
-                    color="green"
-                    v-if="editingAbout"
-                    @click="confirmAboutChange"
-                  >
-                    Confirm
-                  </v-btn>
-                  <v-btn
-                    small
-                    color="red"
-                    v-if="editingAbout"
-                    @click="cancelAboutChange"
-                  >
-                    Cancel
-                  </v-btn>
-                </template>
-              </v-text-field>
-            </v-col>
-
-            <v-col cols="12" md="12" v-if="user.type !== 'ecoSeeker'">
-              <v-text-field
-                id="address"
-                label="Address"
-                required
-                v-model="address"
-                :readonly="!editingAddress"
-              >
-                <template v-slot:append>
-                  <v-btn
-                    small
-                    color="primary"
-                    v-if="!editingAddress"
-                    @click="startEditingAddress"
-                  >
-                    Edit
-                  </v-btn>
-                  <v-btn
-                    small
-                    color="green"
-                    v-if="editingAddress"
-                    @click="confirmAddressChange"
-                  >
-                    Confirm
-                  </v-btn>
-                  <v-btn
-                    small
-                    color="red"
-                    v-if="editingAddress"
-                    @click="cancelAddressChange"
-                  >
-                    Cancel
-                  </v-btn>
-                </template>
-              </v-text-field>
-            </v-col>
-
-            <v-col cols="12" md="12">
-              <v-btn
-                id="emailVerification"
-                label="EmailVerification"
-                color="#B0E487"
-                @click="sendEmailVerification"
-                >Send Email Verification</v-btn
-              >
-            </v-col>
-
-            <v-col cols="12" md="12">
-              <v-btn
-                id="resetPassword"
-                label="Password"
-                color="#B0E487"
-                @click="dialogPassword = true"
-              >
-                Reset Password
-              </v-btn>
-
-              <v-dialog v-model="dialogPassword" persistent max-width="600px">
-                <v-card>
-                  <v-card-title class="text-center"
-                    >Reset Password</v-card-title
-                  >
-                  <v-card-text class="text-center">
-                    <v-form>
-                      <!-- ... -->
-                      <v-text-field
-                        id="emailPwReset"
-                        label="Email"
-                        type="email"
-                        required
-                        autofocus
-                        v-model="emailPwReset"
-                        autocomplete="false"
-                      ></v-text-field>
-
-                      <v-text-field
-                        id="password"
-                        label="Old Password"
-                        type="password"
-                        required
-                        autofocus
-                        v-model="oldPassword"
-                        autocomplete="false"
-                      ></v-text-field>
-
-                      <!-- ... -->
-                      <v-text-field
-                        id="newPassword"
-                        label="New Password"
-                        type="password"
-                        required
-                        autofocus
-                        v-model="newPassword"
-                        autocomplete="false"
-                        :rules="passwordRules"
-                        @input="validate"
-                      ></v-text-field>
-
-                      <v-text-field
-                        id="repeatPassword"
-                        label="Retype New Password"
-                        type="password"
-                        required
-                        autofocus
-                        v-model="repeatPassword"
-                        autocomplete="false"
-                        :rules="passwordRules"
-                        @input="validate2"
-                      ></v-text-field>
-
-                      <!-- ... -->
-                      <v-btn
-                        color="#B0E487"
-                        append-icon="$vuetify"
-                        style="margin-right: 16px"
-                        @click="updatePassword"
-                      >
-                        Confirm
-                      </v-btn>
-
-                      <v-btn
-                        color="red"
-                        append-icon="$vuetify"
-                        @click="dialogPassword = false"
-                      >
-                        Cancel
-                      </v-btn>
-                    </v-form>
-                  </v-card-text>
-                </v-card>
-              </v-dialog>
-            </v-col>
-
-            <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
-              <v-btn
-                id="bankDetails"
-                label="BankDetails"
-                color="#B0E487"
-                @click="dialogBank = true"
-              >
-              {{ bankButtonText }}
-              </v-btn>
-
-              <v-dialog v-model="dialogBank" persistent max-width="600px">
-                <v-card>
-                  <v-card-title>
-                    <span class="headline">Enter Bank Details</span>
-                  </v-card-title>
-
-                  <v-card-text>
-                    <v-form ref="bankForm">
-                      <v-text-field
-                        label="Account Number"
-                        v-model="bankNumber"
-                        required
-                        type="text"
-                      ></v-text-field>
-
-                      <v-text-field
-                        label="Confirm with Password"
-                        v-model="password"
-                        type="password"
-                        required
-                      ></v-text-field>
-                    </v-form>
-                  </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="red" text @click="dialogBank = false"
-                      >Close</v-btn
+              <v-col cols="12" md="12" flass="mt-5">
+                <v-text-field
+                  id="displayName"
+                  label="Name"
+                  type="name"
+                  required
+                  autofocus
+                  v-model="displayName"
+                  autocomplete="name"
+                  :readonly="!editingName"
+                >
+                  <template v-slot:append>
+                    <v-btn
+                      small
+                      color="#4B644C"
+                      v-if="!editingName"
+                      @click="startEditingName"
                     >
-                    <v-btn color="green darken-1" text @click="saveBankDetails"
-                      >Save</v-btn
+                      Edit
+                    </v-btn>
+                    <v-btn
+                      small
+                      color="green"
+                      v-if="editingName"
+                      @click="confirmNameChange"
                     >
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-col>
+                      Confirm
+                    </v-btn>
+                    <v-btn
+                      small
+                      color="red"
+                      v-if="editingName"
+                      @click="cancelNameChange"
+                    >
+                      Cancel
+                    </v-btn>
+                  </template>
+                </v-text-field>
+              </v-col>
 
-            <v-col cols="12" md="12">
-              <p style="font-size: 20px">
-                You have saved:
-                <span style="color: green">{{ user.weight / 1000}} kg</span>!
-              </p>
-            </v-col>
-          </v-form>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+              <v-col cols="12" md="12">
+                <v-text-field
+                  id="email"
+                  label="Email"
+                  required
+                  v-model="email"
+                  :readonly="true"
+                >
+                  <template v-slot:append>
+                    <v-btn small color="#4B644C" @click="startEditingEmail">
+                      Edit
+                    </v-btn>
+
+                    <v-dialog
+                      v-model="dialogEmail"
+                      persistent
+                      max-width="600px"
+                    >
+                      <v-card>
+                        <v-card-title class="text-center"
+                          >Update Email</v-card-title
+                        >
+                        <v-card-text class="text-center">
+                          <v-form>
+                            <!-- ... -->
+                            <v-text-field
+                              id="newEmail"
+                              label="New Email"
+                              type="email"
+                              required
+                              autofocus
+                              v-model="newEmail"
+                              autocomplete="false"
+                            ></v-text-field>
+
+                            <!-- ... -->
+                            <v-text-field
+                              id="emailPassword"
+                              label="Password"
+                              type="password"
+                              required
+                              autofocus
+                              v-model="emailPassword"
+                              autocomplete="false"
+                            ></v-text-field>
+
+                            <!-- ... -->
+                            <v-btn
+                              color="#4B644C"
+                              @click="updateEmail"
+                              style="margin-right: 16px"
+                            >
+                              Confirm
+                            </v-btn>
+
+                            <v-btn color="red" @click="dialogEmail = false">
+                              Cancel
+                            </v-btn>
+                          </v-form>
+                        </v-card-text>
+                      </v-card>
+                    </v-dialog>
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="12" v-if="user.type !== 'ecoSeeker'">
+                <v-text-field
+                  id="about"
+                  label="About"
+                  required
+                  v-model="about"
+                  :readonly="!editingAbout"
+                >
+                  <template v-slot:append>
+                    <v-btn
+                      small
+                      color="#4B644C"
+                      v-if="!editingAbout"
+                      @click="startEditingAbout"
+                    >
+                      Edit
+                    </v-btn>
+                    <v-btn
+                      small
+                      color="green"
+                      v-if="editingAbout"
+                      @click="confirmAboutChange"
+                    >
+                      Confirm
+                    </v-btn>
+                    <v-btn
+                      small
+                      color="red"
+                      v-if="editingAbout"
+                      @click="cancelAboutChange"
+                    >
+                      Cancel
+                    </v-btn>
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="12" v-if="user.type !== 'ecoSeeker'">
+                <v-text-field
+                  id="address"
+                  label="Address"
+                  required
+                  v-model="address"
+                  :readonly="!editingAddress"
+                >
+                  <template v-slot:append>
+                    <v-btn
+                      small
+                      color="#4B644C"
+                      v-if="!editingAddress"
+                      @click="startEditingAddress"
+                    >
+                      Edit
+                    </v-btn>
+                    <v-btn
+                      small
+                      color="green"
+                      v-if="editingAddress"
+                      @click="confirmAddressChange"
+                    >
+                      Confirm
+                    </v-btn>
+                    <v-btn
+                      small
+                      color="red"
+                      v-if="editingAddress"
+                      @click="cancelAddressChange"
+                    >
+                      Cancel
+                    </v-btn>
+                  </template>
+                </v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="12">
+                <v-btn
+                  id="emailVerification"
+                  label="EmailVerification"
+                  color="#4B644C"
+                  @click="sendEmailVerification"
+                  >Send Email Verification</v-btn
+                >
+              </v-col>
+
+              <v-col cols="12" md="12">
+                <v-btn
+                  id="resetPassword"
+                  label="Password"
+                  color="#4B644C"
+                  @click="dialogPassword = true"
+                >
+                  Reset Password
+                </v-btn>
+
+                <v-dialog v-model="dialogPassword" persistent max-width="600px">
+                  <v-card>
+                    <v-card-title class="text-center"
+                      >Reset Password</v-card-title
+                    >
+                    <v-card-text class="text-center">
+                      <v-form>
+                        <!-- ... -->
+                        <v-text-field
+                          id="emailPwReset"
+                          label="Email"
+                          type="email"
+                          required
+                          autofocus
+                          v-model="emailPwReset"
+                          autocomplete="false"
+                        ></v-text-field>
+
+                        <v-text-field
+                          id="password"
+                          label="Old Password"
+                          type="password"
+                          required
+                          autofocus
+                          v-model="oldPassword"
+                          autocomplete="false"
+                        ></v-text-field>
+
+                        <!-- ... -->
+                        <v-text-field
+                          id="newPassword"
+                          label="New Password"
+                          type="password"
+                          required
+                          autofocus
+                          v-model="newPassword"
+                          autocomplete="false"
+                          :rules="passwordRules"
+                          @input="validate"
+                        ></v-text-field>
+
+                        <v-text-field
+                          id="repeatPassword"
+                          label="Retype New Password"
+                          type="password"
+                          required
+                          autofocus
+                          v-model="repeatPassword"
+                          autocomplete="false"
+                          :rules="passwordRules"
+                          @input="validate2"
+                        ></v-text-field>
+
+                        <!-- ... -->
+                        <v-btn
+                          color="#4B644C"
+                          style="margin-right: 16px"
+                          @click="updatePassword"
+                        >
+                          Confirm
+                        </v-btn>
+
+                        <v-btn color="red" @click="dialogPassword = false">
+                          Cancel
+                        </v-btn>
+                      </v-form>
+                    </v-card-text>
+                  </v-card>
+                </v-dialog>
+              </v-col>
+
+              <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
+                <v-btn
+                  id="bankDetails"
+                  label="BankDetails"
+                  color="#4B644C"
+                  @click="dialogBank = true"
+                >
+                  {{ bankButtonText }}
+                </v-btn>
+
+                <v-dialog v-model="dialogBank" persistent max-width="600px">
+                  <v-card>
+                    <v-card-title>
+                      <span class="headline">Enter Bank Details</span>
+                    </v-card-title>
+
+                    <v-card-text>
+                      <v-form ref="bankForm">
+                        <v-text-field
+                          label="Account Number"
+                          v-model="bankNumber"
+                          required
+                          type="text"
+                        ></v-text-field>
+
+                        <v-text-field
+                          label="Confirm with Password"
+                          v-model="password"
+                          type="password"
+                          required
+                        ></v-text-field>
+                      </v-form>
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="red" text @click="dialogBank = false"
+                        >Close</v-btn
+                      >
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="saveBankDetails"
+                        >Save</v-btn
+                      >
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-col>
+
+              <v-col cols="12" md="12">
+                <h3 style="font-size: 20px">
+                  You have saved:
+                  <span style="color: green">{{ user.weight / 1000 }} kg</span>!
+                </h3>
+              </v-col>
+
+              <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
+                <h3 style="font-size: 20px">
+                  You are currently
+                  <span style="color: green">EcoRank {{ user.rank }}</span
+                  >!
+                </h3>
+              </v-col>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script>
@@ -409,7 +418,6 @@ export default {
     user() {
       return store.state.user;
     },
-    
   },
 
   setup() {
@@ -463,14 +471,14 @@ export default {
     const dialogEmail = ref(false);
     const newEmail = ref("");
     const emailPassword = ref("");
-    const bankButtonText = computed(() =>{
+    const bankButtonText = computed(() => {
       // Replace 'bankDetails' with the actual data property or getter that holds the bank details
       if (user.value.bankDetails === "") {
         return "Enter Bank Details";
       } else {
-        return "Change Bank Details";      
+        return "Change Bank Details";
       }
-    })
+    });
 
     watch(user, (newUser) => {
       displayName.value = newUser.displayName;
@@ -492,7 +500,7 @@ export default {
       originalAbout.value = user.value.about;
       originalAddress.value = user.value.address;
 
-      store.dispatch('fetchWeight');
+      store.dispatch("fetchWeight");
     });
 
     const onUploadButtonClick = () => {
@@ -652,19 +660,20 @@ export default {
     };
 
     const updateEmail = async () => {
-        try {
-          await store.dispatch("updateEmail", 
-          { oldEmail: email.value, 
-            newEmail: newEmail.value, 
-            password: emailPassword.value});
-          router.push("/profile");
-        } catch (error) {
-          store.dispatch("addNotification", {
-            type: "error",
-            message: "Error updating email: " + error,
-          });
-        }
-      };
+      try {
+        await store.dispatch("updateEmail", {
+          oldEmail: email.value,
+          newEmail: newEmail.value,
+          password: emailPassword.value,
+        });
+        router.push("/profile");
+      } catch (error) {
+        store.dispatch("addNotification", {
+          type: "error",
+          message: "Error updating email: " + error,
+        });
+      }
+    };
 
     return {
       editing,
@@ -727,7 +736,6 @@ export default {
       updateEmail,
 
       bankButtonText,
-
     };
   },
   data() {
@@ -738,11 +746,25 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.background {
+  background: url("..\\..\\public\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+  height: 120vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
+}
+
 .btn.active {
-  background-color: #30c77b; /* Eco-friendly green */
+  background-color: #30c77b;
   border-color: #30c77b;
-  color: white; /* You might want to change the text color to ensure it's readable on the green background */
+  color: white;
 }
 
 .upload-btn {
@@ -750,12 +772,16 @@ export default {
   z-index: 999;
   top: 121px;
   color: cadetblue;
-  background: #b0e487;
+  background: #4b644c;
 }
 
 .avatar-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.5);
 }
 </style>

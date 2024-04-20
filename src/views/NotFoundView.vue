@@ -1,15 +1,15 @@
 <script>
-import PartnerMarketplace from "../components/PartnerMarketplace.vue";
+import NotFound from "../components/NotFound.vue";
 
 export default {
   components: {
-    PartnerMarketplace,
+    NotFound,
   },
 };
 </script>
 
 <template>
-  <PartnerMarketplace class="background" />
+  <NotFound class="background" />
 </template>
 
 <style scoped>
@@ -22,5 +22,7 @@ export default {
   width: 100%;
   height: 100vh;
   display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

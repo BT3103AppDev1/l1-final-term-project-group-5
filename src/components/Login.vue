@@ -1,84 +1,86 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12" md="8">
-        <v-card>
-          <v-card-title class="text-center">Login</v-card-title>
-          <v-card-text class="text-center">
-            <v-alert v-if="error" type="error">{{ error }}</v-alert>
-            <v-form @submit.prevent="LoginWithEmail">
-              <v-col cols="12" md="12">
-                <v-text-field
-                  id="email"
-                  label="Email"
-                  type="email"
-                  required
-                  autofocus
-                  v-model="email"
-                  autocomplete="email"
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" md="12">
-                <v-text-field
-                  id="password"
-                  label="Password"
-                  type="password"
-                  required
-                  class="form-control"
-                  v-model="password"
-                ></v-text-field>
-              </v-col>
-
-              <v-row justify="center">
-                <v-col cols="12" md="2">
-                  <v-btn
-                    append-icon="$vuetify"
-                    type="submit"
-                    color="primary"
-                    @click="LoginWithEmail"
-                  >
-                    Login
-                  </v-btn>
+  <div class="background">
+    <v-container>
+      <v-row justify="center">
+        <v-col cols="12" md="8">
+          <v-card class="card">
+            <v-card-title class="text-center">Login</v-card-title>
+            <v-card-text class="text-center">
+              <v-alert v-if="error" type="error">{{ error }}</v-alert>
+              <v-form @submit.prevent="LoginWithEmail">
+                <v-col cols="12" md="12">
+                  <v-text-field
+                    id="email"
+                    label="Email"
+                    type="email"
+                    required
+                    autofocus
+                    v-model="email"
+                    autocomplete="email"
+                  ></v-text-field>
                 </v-col>
-              </v-row>
 
-              <v-row justify="center">
-                <v-col cols="12" md="3">
-                  <v-btn
-                    append-icon="$vuetify"
-                    color="primary"
-                    @click="LoginWithGoogle"
-                  >
-                    Login with Google
-                  </v-btn>
+                <v-col cols="12" md="12">
+                  <v-text-field
+                    id="password"
+                    label="Password"
+                    type="password"
+                    required
+                    class="form-control"
+                    v-model="password"
+                  ></v-text-field>
                 </v-col>
-              </v-row>
 
-              <v-row justify="center">
-                <v-col cols="12" md="4">
-                  <v-card-text>
-                    If you aren't registered, you can
-                    <router-link to="/register">register here</router-link>.
-                  </v-card-text>
-                </v-col>
-              </v-row>
-
-              <v-row justify="center">
-                <v-col cols="12" md="4">
-                  <v-card-text>
-                    <router-link to="/forgetPassword"
-                      >Forget Password</router-link
+                <v-row justify="center">
+                  <v-col cols="12" md="2">
+                    <v-btn
+                      append-icon="mdi-email-outline"
+                      type="submit"
+                      color="#4B644C"
+                      @click="LoginWithEmail"
                     >
-                  </v-card-text>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+                      Login
+                    </v-btn>
+                  </v-col>
+                </v-row>
+
+                <v-row justify="center">
+                  <v-col cols="12" md="3">
+                    <v-btn
+                      append-icon="mdi-google"
+                      color="#4B644C"
+                      @click="LoginWithGoogle"
+                    >
+                      Login with Google
+                    </v-btn>
+                  </v-col>
+                </v-row>
+
+                <v-row justify="center">
+                  <v-col cols="12" md="4">
+                    <v-card-text>
+                      If you aren't registered, you can
+                      <router-link to="/register">register here</router-link>.
+                    </v-card-text>
+                  </v-col>
+                </v-row>
+
+                <v-row justify="center">
+                  <v-col cols="12" md="4">
+                    <v-card-text>
+                      <router-link to="/forgetPassword"
+                        >Forget Password</router-link
+                      >
+                    </v-card-text>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script>
@@ -109,12 +111,11 @@ export default {
             message: "Successfully logged in!",
           });
         }
-        
       } catch (err) {
         store.dispatch("addNotification", {
-            type: "error",
-            message: err.message,
-          });
+          type: "error",
+          message: err.message,
+        });
       }
     };
 
@@ -134,3 +135,21 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.background {
+  background: url("..\\..\\public\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  padding-top: 64px;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+</style>

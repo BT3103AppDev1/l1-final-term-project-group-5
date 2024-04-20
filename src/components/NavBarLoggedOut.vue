@@ -2,7 +2,11 @@
   <v-app-bar fixed color="#4B644C">
     <v-toolbar-items>
       <router-link to="/">
-        <img src="@/assets/GreenHarborLogo.png" alt="Green Harbor Logo" class="logo" />
+        <img
+          src="@/assets/GreenHarborLogo.png"
+          alt="Green Harbor Logo"
+          class="logo"
+        />
       </router-link>
     </v-toolbar-items>
     <v-spacer></v-spacer>

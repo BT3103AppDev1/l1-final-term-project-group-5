@@ -1,26 +1,26 @@
 <template>
   <div class="background">
     <div class="stack">
-    <div class="search-bar-container">
-      <OrderDashPartnerSearchBar @search="handleSearch" />
+      <div class="search-bar-container">
+        <OrderDashPartnerSearchBar @search="handleSearch" />
+      </div>
+      <OrderDashPartnerTable
+        class="table"
+        :currentPage="currentPage"
+        :entriesPerPage="entriesPerPage"
+        :searchQuery="searchQuery"
+        @total-page="updateTotalPage($event)"
+        @handleStatus="handleStatus"
+      />
+      <br />
+      <OrderDashPartnerPageBar
+        class="page-bar"
+        :currentPage="currentPage"
+        :totalPages="totalPages"
+        :searchQuery="searchQuery"
+        @page-change="handlePageChange"
+      />
     </div>
-    <OrderDashPartnerTable
-      class="table"
-      :currentPage="currentPage"
-      :entriesPerPage="entriesPerPage"
-      :searchQuery="searchQuery"
-      @total-page="updateTotalPage($event)"
-      @handleStatus="handleStatus"
-    />
-    <br />
-    <OrderDashPartnerPageBar
-      class="page-bar"
-      :currentPage="currentPage"
-      :totalPages="totalPages"
-      :searchQuery="searchQuery"
-      @page-change="handlePageChange"
-    />
-  </div>
   </div>
 </template>
 
@@ -104,7 +104,6 @@ export default {
   width: 95vw; /* Ensure the container takes the full width */
   width: 100%; /* Limit the container's width to the viewport width */
   height: 100vh;
-
 }
 .background {
   background: url("..\\assets\\bg2.png") no-repeat center center fixed;

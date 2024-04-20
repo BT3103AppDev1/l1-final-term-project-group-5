@@ -11,31 +11,23 @@
       <v-btn to="/" :disabled="!user.detailsSubmitted">Home</v-btn>
 
       <template v-if="user.type == 'ecoSeeker'">
-        <v-btn
-          to="/seeker/marketplace"
-          :disabled="!user.detailsSubmitted"
+        <v-btn to="/seeker/marketplace" :disabled="!user.detailsSubmitted"
           >Marketplace</v-btn
         >
       </template>
       <template v-else>
-        <v-btn
-          to="/partner/marketplace"
-          :disabled="!user.detailsSubmitted"
+        <v-btn to="/partner/marketplace" :disabled="!user.detailsSubmitted"
           >Marketplace</v-btn
         >
       </template>
 
       <template v-if="user.type == 'ecoSeeker'">
-        <v-btn
-          to="/seeker/order-dashboard"
-          :disabled="!user.detailsSubmitted"
+        <v-btn to="/seeker/order-dashboard" :disabled="!user.detailsSubmitted"
           >My Orders</v-btn
         >
       </template>
       <template v-else>
-        <v-btn
-          to="/partner/order-dashboard"
-          :disabled="!user.detailsSubmitted"
+        <v-btn to="/partner/order-dashboard" :disabled="!user.detailsSubmitted"
           >My Orders</v-btn
         >
       </template>
@@ -111,7 +103,7 @@ export default {
     };
 
     onMounted(() => {
-      console.log(userData)
+      console.log(userData);
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           // Fetch basic details from the auth user object

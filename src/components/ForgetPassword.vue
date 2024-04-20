@@ -1,35 +1,31 @@
 <template>
   <div class="background">
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12" md="8">
-        <v-card>
-          <v-card-title class="text-center">Forget Password</v-card-title>
-          <v-card-text class="text-center">
-            <v-form @submit.prevent="submitForm">
-              <v-col cols="12" md="12">
-                <v-text-field
-                  id="email"
-                  label="Email"
-                  type="email"
-                  required
-                  autofocus
-                  v-model="email"
-                  autocomplete="email"
-                ></v-text-field>
-                <v-btn
-                  color="#4B644C"
-                  @click="submitForm"
-                  >Confirm</v-btn
-                >
-              </v-col>
-            </v-form>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
-</div>
+    <v-container>
+      <v-row justify="center">
+        <v-col cols="12" md="8">
+          <v-card>
+            <v-card-title class="text-center">Forget Password</v-card-title>
+            <v-card-text class="text-center">
+              <v-form @submit.prevent="submitForm">
+                <v-col cols="12" md="12">
+                  <v-text-field
+                    id="email"
+                    label="Email"
+                    type="email"
+                    required
+                    autofocus
+                    v-model="email"
+                    autocomplete="email"
+                  ></v-text-field>
+                  <v-btn color="#4B644C" @click="submitForm">Confirm</v-btn>
+                </v-col>
+              </v-form>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script>

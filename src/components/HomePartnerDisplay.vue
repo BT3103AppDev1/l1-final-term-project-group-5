@@ -74,7 +74,7 @@ export default {
 
 .scroller {
   max-width: 100%;
-  background-color: #4B644C;
+  background-color: #4b644c;
   height: 250px;
 }
 
@@ -128,7 +128,7 @@ export default {
 
 .profile-picture {
   width: 100px;
-  height: 100px; 
+  height: 100px;
 }
 
 .text-container {

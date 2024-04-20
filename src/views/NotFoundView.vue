@@ -9,7 +9,7 @@ export default {
 </script>
 
 <template>
-  <NotFound class="background"/>
+  <NotFound class="background" />
 </template>
 
 <style scoped>

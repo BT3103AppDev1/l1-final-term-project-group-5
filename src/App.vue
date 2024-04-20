@@ -4,36 +4,36 @@
     <template v-if="isLoggedIn">
       <div class="nav">
         <v-alert
-        v-if="notification"
-        :key="notification.id"
-        :type="notification.type"
-        closable
-        :icon="notification.icon"
-        class="alert-custom"
-        transition="scale-transition"
-        width="600"
-        @click:dismiss="dismissNotification(notification.id)"
-      >
-        {{ notification.message }}
-      </v-alert>
+          v-if="notification"
+          :key="notification.id"
+          :type="notification.type"
+          closable
+          :icon="notification.icon"
+          class="alert-custom"
+          transition="scale-transition"
+          width="600"
+          @click:dismiss="dismissNotification(notification.id)"
+        >
+          {{ notification.message }}
+        </v-alert>
         <NavLoggedIn :user="user" />
       </div>
     </template>
     <template v-else>
       <div class="nav">
         <v-alert
-        v-if="notification"
-        :key="notification.id"
-        :type="notification.type"
-        closable
-        :icon="notification.icon"
-        class="alert-custom"
-        transition="scale-transition"
-        width="600"
-        @click:dismiss="dismissNotification(notification.id)"
-      >
-        {{ notification.message }}
-      </v-alert>
+          v-if="notification"
+          :key="notification.id"
+          :type="notification.type"
+          closable
+          :icon="notification.icon"
+          class="alert-custom"
+          transition="scale-transition"
+          width="600"
+          @click:dismiss="dismissNotification(notification.id)"
+        >
+          {{ notification.message }}
+        </v-alert>
         <NavLoggedOut />
       </div>
     </template>

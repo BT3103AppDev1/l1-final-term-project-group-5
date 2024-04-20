@@ -12,6 +12,4 @@ export default {
   <ForgetPasswordComponent />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

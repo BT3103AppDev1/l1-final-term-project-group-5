@@ -12,5 +12,4 @@ export default {
   <LoginComponent />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

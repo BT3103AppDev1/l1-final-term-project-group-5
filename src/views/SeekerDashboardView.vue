@@ -4,7 +4,7 @@ import SeekerDashboard from "../components/SeekerDashboard.vue";
 
 <template>
   <main>
-    <SeekerDashboard class="background"/>
+    <SeekerDashboard class="background" />
   </main>
 </template>
 

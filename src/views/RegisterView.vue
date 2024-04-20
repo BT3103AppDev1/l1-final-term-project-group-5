@@ -12,6 +12,4 @@ export default {
   <RegisterComponent />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

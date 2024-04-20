@@ -1,368 +1,408 @@
 <template>
-    <div class="product-card">
-        <div class="img-container" @mouseleave="showOverlay = false">
-            <img :src="listing.product.imageUrl" alt="Product Image" class="img">
-            <div class="company-picture">
-                <img :src="seller?.photoURL" alt="logo" class="company" @click="showOverlay =! showOverlay">
-            </div>
-            <transition name="fade">
-            <div class="company-overlay" v-show="showOverlay">
-                <img :src="seller?.photoURL" alt="Company Logo" class="company-logo">
-                <h3>{{ seller?.displayName }}</h3>
-                <p>Address: {{ seller?.address }}</p>  
-            </div>
-            </transition>
+  <div class="product-card">
+    <div class="img-container" @mouseleave="showOverlay = false">
+      <img :src="listing.product.imageUrl" alt="Product Image" class="img" />
+      <div class="company-picture">
+        <img
+          :src="seller?.photoURL"
+          alt="logo"
+          class="company"
+          @click="showOverlay = !showOverlay"
+        />
+      </div>
+      <transition name="fade">
+        <div class="company-overlay" v-show="showOverlay">
+          <img
+            :src="seller?.photoURL"
+            alt="Company Logo"
+            class="company-logo"
+          />
+          <h3>{{ seller?.displayName }}</h3>
+          <p>Address: {{ seller?.address }}</p>
         </div>
-        <div class="product-details">
-            <h2 class="name">{{ listing.product.name }}</h2>
-            <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
-            <h3 class="category">{{ listing.product.category }} </h3>
-            <h3 class="expiry">Expires: {{ formattedDate }}</h3>
-            <h5 class="rem"> {{ listing.unitsRemaining }} available </h5>
-        </div>
-        <div class="qty-btn-container">
-            <div class="qty-selector">
-                <label for="quantity">Quantity:  </label>
-                <button class="qty-edit" @mousedown="startDecrement" @mouseup="stopDecrement" @mouseleave="stopDecrement" :class="{pressed : isDecrementPressed}">-</button>
-                <input type="number" class="input-qty"v-model.lazy="listing.quantity" @input="handleQtyInputs" :max="listing.unitsRemaining" ref="qtyInput">
-                <button class="qty-edit"@mousedown="startIncrement" @mouseup="stopIncrement" @mouseleave="stopIncrement":class="{pressed : isIncrementPressed}">+</button>
-            </div>
-            <div class="add-btn" 
-                @click="handleAddToCart" 
-                @mousedown="isPressed=true" 
-                @mouseup="isPressed=false" 
-                @mouseleave="isPressed=false"
-                :class="{ pressed:isPressed, disabled:isAddToCartDisabled}">
-                <img src="@/assets/cart.png" alt="Add to Cart" :class="{ pressed: isPressed }">
-            </div>
-        </div>
+      </transition>
     </div>
-
+    <div class="product-details">
+      <h2 class="name">{{ listing.product.name }}</h2>
+      <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
+      <h3 class="category">{{ listing.product.category }}</h3>
+      <h3 class="expiry">Expires: {{ formattedDate }}</h3>
+      <h5 class="rem">{{ listing.unitsRemaining }} available</h5>
+    </div>
+    <div class="qty-btn-container">
+      <div class="qty-selector">
+        <label for="quantity">Quantity: </label>
+        <button
+          class="qty-edit"
+          @mousedown="startDecrement"
+          @mouseup="stopDecrement"
+          @mouseleave="stopDecrement"
+          :class="{ pressed: isDecrementPressed }"
+        >
+          -
+        </button>
+        <input
+          type="number"
+          class="input-qty"
+          v-model.lazy="listing.quantity"
+          @input="handleQtyInputs"
+          :max="listing.unitsRemaining"
+          ref="qtyInput"
+        />
+        <button
+          class="qty-edit"
+          @mousedown="startIncrement"
+          @mouseup="stopIncrement"
+          @mouseleave="stopIncrement"
+          :class="{ pressed: isIncrementPressed }"
+        >
+          +
+        </button>
+      </div>
+      <div
+        class="add-btn"
+        @click="handleAddToCart"
+        @mousedown="isPressed = true"
+        @mouseup="isPressed = false"
+        @mouseleave="isPressed = false"
+        :class="{ pressed: isPressed, disabled: isAddToCartDisabled }"
+      >
+        <img
+          src="@/assets/cart.png"
+          alt="Add to Cart"
+          :class="{ pressed: isPressed }"
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import { doc, getDoc } from "firebase/firestore";
-import { db } from '@/firebase';
-import { useStore } from 'vuex';
+import { db } from "@/firebase";
+import { useStore } from "vuex";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 
 export default {
-    props: ['listing'],
+  props: ["listing"],
 
-    data() {
-        return {
-            quantity: 1,
-            showOverlay: false,
-            seller: null,
-            isPressed: false,
-            isIncrementPressed: false,
-            isDecrementPressed: false,
-        };
-    },
+  data() {
+    return {
+      quantity: 1,
+      showOverlay: false,
+      seller: null,
+      isPressed: false,
+      isIncrementPressed: false,
+      isDecrementPressed: false,
+    };
+  },
 
-    async created() {
+  async created() {
+    this.listing.quantity = 1;
+    this.maxQuantity = this.listing.unitsRemaining;
+
+    const sellerRef = doc(db, "users", this.listing.sellerId);
+    const sellerDoc = await getDoc(sellerRef);
+
+    if (sellerDoc.exists()) {
+      this.seller = sellerDoc.data();
+    } else {
+      console.log("No such document!");
+    }
+  },
+
+  watch: {
+    "listing.quantity": function (newVal, oldVal) {
+      if (newVal > this.listing.unitsRemaining) {
+        this.listing.quantity = this.listing.unitsRemaining;
+      } else if (newVal < 1) {
         this.listing.quantity = 1;
-        this.maxQuantity = this.listing.unitsRemaining;
+      }
+    },
+  },
+  computed: {
+    ...mapGetters(["cartItems"]),
 
+    cartItems() {
+      return this.$store.getters.cartItems;
+    },
 
-        const sellerRef = doc(db, 'users', this.listing.sellerId);
-        const sellerDoc = await getDoc(sellerRef);
-        
+    formattedQuantity() {
+      return this.listing.quantity.toString().padStart(2, "0");
+    },
 
-        if (sellerDoc.exists()) {
-            this.seller = sellerDoc.data();
+    formattedDate() {
+      const date = new Date(this.listing.expirationDate.seconds * 1000);
+      const day = ("0" + date.getDate()).slice(-2);
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    },
+
+    cartQty() {
+      const cartItem = this.cartItems.find(
+        (item) => item.id === this.listing.id
+      );
+      return cartItem ? cartItem.quantity : 0;
+    },
+
+    isAddToCartDisabled() {
+      return this.listing.quantity + this.cartQty > this.listing.unitsRemaining;
+    },
+  },
+
+  methods: {
+    handleAddToCart() {
+      //console.log(this.listing);
+      //console.log(this.listing.quantity);
+      console.log("weight: ", this.listing.product.weight);
+      this.$emit("add-to-cart", {
+        ...this.listing,
+        quantity: this.listing.quantity,
+      });
+      this.$store.dispatch("addNotification", {
+        type: "success",
+        message: "Added to cart succesfully!",
+      });
+    },
+
+    increment() {
+      if (this.listing.quantity < this.listing.unitsRemaining) {
+        this.listing.quantity++;
+        console.log("Increased listing quantity");
+      }
+    },
+
+    decrement() {
+      if (this.listing.quantity > 1) {
+        console.log("Decreased listing quantity");
+        this.listing.quantity--;
+      }
+    },
+
+    handleQtyInput(event) {
+      if (this.listing.quantity === this.listing.unitsRemaining) {
+        this.listing.quantity = this.listing.unitsRemaining;
+        console.log("stopped?: ");
+        return;
+      }
+      const qty = parseInt(event.target.value);
+      if (!isNaN(qty)) {
+        if (qty > this.listing.unitsRemaining) {
+          this.listing.quantity = this.listing.unitsRemaining; // if input is more than max
+        } else if (qty < 1) {
+          this.listing.quantity = 1; // if input is less than 1
         } else {
-            console.log("No such document!");
+          this.listing.quantity = qty;
         }
+      }
     },
-
-    watch: {
-    'listing.quantity': function(newVal, oldVal) {
-        if (newVal > this.listing.unitsRemaining) {
-            this.listing.quantity = this.listing.unitsRemaining;
-        } else if (newVal < 1) {
-            this.listing.quantity = 1;
-            }
-        },
-    },
-    computed : {
-        ...mapGetters(["cartItems"]),
-
-        cartItems() {
-            return this.$store.getters.cartItems;
-        },
-
-        formattedQuantity() {
-            return this.listing.quantity.toString().padStart(2, '0');
-        },
-
-        formattedDate() {
-            const date = new Date(this.listing.expirationDate.seconds * 1000);
-            const day = ("0" + date.getDate()).slice(-2);
-            const month = ("0" + (date.getMonth() + 1)).slice(-2);
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        },
-
-        cartQty() {
-            const cartItem = this.cartItems.find(item => item.id === this.listing.id);
-            return cartItem ? cartItem.quantity : 0;
-        },
-        
-        isAddToCartDisabled() {
-            return this.listing.quantity + this.cartQty > this.listing.unitsRemaining;
+    handleQtyInputs(event) {
+      const qty = parseInt(event.target.value);
+      if (!isNaN(qty)) {
+        if (qty > this.listing.unitsRemaining) {
+          this.listing.quantity = this.listing.unitsRemaining;
+          this.$nextTick(() => {
+            this.$refs.qtyInput.value = this.listing.quantity;
+          });
+        } else if (qty < 1) {
+          this.listing.quantity = 1;
+          this.$nextTick(() => {
+            this.$refs.qtyInput.value = this.listing.quantity;
+          });
+        } else {
+          this.listing.quantity = qty;
         }
+      }
     },
 
-    methods : {
-        handleAddToCart() {
-            //console.log(this.listing);
-            //console.log(this.listing.quantity);
-            console.log('weight: ', this.listing.product.weight);
-            this.$emit('add-to-cart', {... this.listing, quantity:this.listing.quantity});
-            this.$store.dispatch("addNotification", {type: "success", message: "Added to cart succesfully!"})
-        },
-
-        increment() {
-            if (this.listing.quantity < this.listing.unitsRemaining) {
-                this.listing.quantity++;
-                console.log("Increased listing quantity");
-            }
-        },
-
-        decrement() {
-            if (this.listing.quantity >1) {
-                console.log("Decreased listing quantity");
-                this.listing.quantity--;
-            };
-        },
-
-        handleQtyInput(event) {
-            if (this.listing.quantity === this.listing.unitsRemaining) {
-                this.listing.quantity = this.listing.unitsRemaining;
-                console.log("stopped?: ");
-                return;
-            }
-            const qty = parseInt(event.target.value);
-            if (!isNaN(qty)) {
-                if (qty > this.listing.unitsRemaining) {
-                    this.listing.quantity = this.listing.unitsRemaining; // if input is more than max
-                } else if (qty < 1) {
-                    this.listing.quantity = 1; // if input is less than 1
-                } else {
-                    this.listing.quantity = qty;
-                } 
-            }
-        },
-        handleQtyInputs(event) {
-        const qty = parseInt(event.target.value);
-        if (!isNaN(qty)) {
-            if (qty > this.listing.unitsRemaining) {
-                this.listing.quantity = this.listing.unitsRemaining;
-                this.$nextTick(() => {
-                    this.$refs.qtyInput.value = this.listing.quantity;
-                });
-            } else if (qty < 1) {
-                this.listing.quantity = 1;
-                this.$nextTick(() => {
-                    this.$refs.qtyInput.value = this.listing.quantity;
-                });
-            } else {
-                this.listing.quantity = qty;
-                }
-            }
-        },
-
-
-
-        /*onlyNumber($event) {
+    /*onlyNumber($event) {
             let keyCode = ($event.keyCode ? $event.keyCode : $event.which);
             if ((keyCode < 48 || keyCode > 57) && keyCode !== 8) { // 8 is backspace
                 $event.preventDefault();
             }
         },*/
 
-        startIncrement() {
-            this.increment();
-            this.incrementPressed = true;
-            this.incrementTimeout = setTimeout(() => {
-                this.incrementInterval = setInterval(this.increment, 80);
-            }, 500);
-        },
+    startIncrement() {
+      this.increment();
+      this.incrementPressed = true;
+      this.incrementTimeout = setTimeout(() => {
+        this.incrementInterval = setInterval(this.increment, 80);
+      }, 500);
+    },
 
-        stopIncrement() {
-            this.incrementPressed = false;
-            clearTimeout(this.incrementTimeout);
-            clearInterval(this.incrementInterval);
-        },
+    stopIncrement() {
+      this.incrementPressed = false;
+      clearTimeout(this.incrementTimeout);
+      clearInterval(this.incrementInterval);
+    },
 
-        startDecrement() {
-            this.decrement();
-            this.decrementPressed = true;
-            this.decrementTimeout = setTimeout(() => {
-                this.decrementInterval = setInterval(this.decrement, 80);
-            }, 500);
-        },
+    startDecrement() {
+      this.decrement();
+      this.decrementPressed = true;
+      this.decrementTimeout = setTimeout(() => {
+        this.decrementInterval = setInterval(this.decrement, 80);
+      }, 500);
+    },
 
-        stopDecrement() {
-            this.decrementPressed = false;
-            clearTimeout(this.decrementTimeout);
-            clearInterval(this.decrementInterval);
-        },
-    },  
+    stopDecrement() {
+      this.decrementPressed = false;
+      clearTimeout(this.decrementTimeout);
+      clearInterval(this.decrementInterval);
+    },
+  },
 };
 </script>
 
 <style scoped>
 .product-card {
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    border: 4px groove #4B644C;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 8px;
-    width: 250px;
-    height:420px;
-    background-color:#4B644C;
-    box-shadow: 0 0 3px #4B644C;
-    transition: transform 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  border: 4px groove #4b644c;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 8px;
+  width: 250px;
+  height: 420px;
+  background-color: #4b644c;
+  box-shadow: 0 0 3px #4b644c;
+  transition: transform 0.2s ease-in-out;
 }
-.product-card:hover{
-    transform: scale(1.05);
+.product-card:hover {
+  transform: scale(1.05);
 }
 
 .img-container {
-    position:relative;
-    width:100%;
-    height:100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .company-logo {
-    height:40px;
-    width:40px;
+  height: 40px;
+  width: 40px;
 }
 .company-overlay {
-    border-radius: 15px;
-    color:#ccc;
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background-color: white;
-    color:#00350a;
-    font-weight:bold;
-    display:flex;
-    flex-direction:column;
-    justify-content: center;
-    align-items:center;
-    opacity:50;
-    transition:opacity 0.5s ease;
+  border-radius: 15px;
+  color: #ccc;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  color: #00350a;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 50;
+  transition: opacity 0.5s ease;
 }
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.2s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
 }
-.fade-enter, .fade-leave-to {
-    transition: opacity 0.2s ease;
-    opacity: 0;
+.fade-enter,
+.fade-leave-to {
+  transition: opacity 0.2s ease;
+  opacity: 0;
 }
 
 .img {
-    border-radius: 15px;
-    align-self: center;
-    height: 200px;
-    width: 210px;
-    margin-bottom: 3px;
-    object-fit: cover; /* Ensures the image fills the container without distortion */
+  border-radius: 15px;
+  align-self: center;
+  height: 200px;
+  width: 210px;
+  margin-bottom: 3px;
+  object-fit: cover; /* Ensures the image fills the container without distortion */
 }
 .product-details {
-    color:#ccc;
+  color: #ccc;
 }
 .name {
-    color:white;
-    text-align: left;
-    border-top: 2px white;
-    border-bottom: 2px white;
+  color: white;
+  text-align: left;
+  border-top: 2px white;
+  border-bottom: 2px white;
 }
 .price {
-    color:white;
+  color: white;
 }
 .category {
-    text-align:left;
+  text-align: left;
 }
 .expiry {
-    text-align:left;
-    padding-bottom: 5px;
+  text-align: left;
+  padding-bottom: 5px;
 }
 
 .qty-selector {
-    align-self:flex-start;
-    
+  align-self: flex-start;
 }
 .qty-btn-container {
-    color:white;
-    display:flex;
-    justify-content: space-between;
-    width: 100%;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 .add-btn {
-    align-self: flex-end;
-    cursor: pointer;
-    display: inline-block;
-    padding: 0;  
+  align-self: flex-end;
+  cursor: pointer;
+  display: inline-block;
+  padding: 0;
 }
 .add-btn img {
-    width: 35px;
-    height: 35px;
-    display:inline-block;
-    padding:0;
+  width: 35px;
+  height: 35px;
+  display: inline-block;
+  padding: 0;
 }
 .add-btn.disabled {
-    cursor:not-allowed;
-    opacity:0.5;
-    pointer-events:none;
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
 }
 .input-qty {
-    width: 50px;
-    color:white;
-    text-align:center;
-    padding: 3px;
-    font-size: larger;
+  width: 50px;
+  color: white;
+  text-align: center;
+  padding: 3px;
+  font-size: larger;
 }
 .input-qty:focus {
-    outline: none;
-    box-shadow: 0 0 0 1px white;
+  outline: none;
+  box-shadow: 0 0 0 1px white;
 }
 .qty-edit {
-    font-weight:bold;
-    width: 16px;
-    height:16px;
-    font-size:x-large;
+  font-weight: bold;
+  width: 16px;
+  height: 16px;
+  font-size: x-large;
 }
 .pressed {
-    transform: scale(0.8);
-    transition: transform 0.1s ease;
+  transform: scale(0.8);
+  transition: transform 0.1s ease;
 }
 .company {
-    width: 40px;
-    height: 40px;
-    background-color: white;
-    border: 1px solid black;
-    border-radius: 80%;
-    position:absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 80%;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
 }
 
 .input-qty::-webkit-outer-spin-button,
 .input-qty::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 </style>
-

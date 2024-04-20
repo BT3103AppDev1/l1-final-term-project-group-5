@@ -1,22 +1,26 @@
 <template>
-  <div class="container">
-    <div class="search-bar-container">
-      <OrderDashPartnerSearchBar @search="handleSearch" />
+  <div class="background">
+    <div class="stack">
+      <div class="search-bar-container">
+        <OrderDashPartnerSearchBar @search="handleSearch" />
+      </div>
+      <OrderDashPartnerTable
+        class="table"
+        :currentPage="currentPage"
+        :entriesPerPage="entriesPerPage"
+        :searchQuery="searchQuery"
+        @total-page="updateTotalPage($event)"
+        @handleStatus="handleStatus"
+      />
+      <br />
+      <OrderDashPartnerPageBar
+        class="page-bar"
+        :currentPage="currentPage"
+        :totalPages="totalPages"
+        :searchQuery="searchQuery"
+        @page-change="handlePageChange"
+      />
     </div>
-    <OrderDashPartnerTable
-      :currentPage="currentPage"
-      :entriesPerPage="entriesPerPage"
-      :searchQuery="searchQuery"
-      @total-page="updateTotalPage($event)"
-      @handleStatus="handleStatus"
-    />
-    <br />
-    <OrderDashPartnerPageBar
-      :currentPage="currentPage"
-      :totalPages="totalPages"
-      :searchQuery="searchQuery"
-      @page-change="handlePageChange"
-    />
   </div>
 </template>
 
@@ -90,18 +94,44 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .container {
-  width: 95vw; /* Ensure the container takes the full width */
-  max-width: 100%; /* Limit the container's width to the viewport width */
-  margin: 0 auto; /* Center align the container */
-  padding: 20px; /* Add padding to the container */
-  background-image: url(""); /* Set background image */
+  background: url("..\\..\\public\\bg2.png") no-repeat center center fixed; /* Set background image */
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
   background-size: cover; /* Cover the entire container with the background image */
-  background-position: center; /* Center the background image */
+  width: 95vw; /* Ensure the container takes the full width */
+  width: 100%; /* Limit the container's width to the viewport width */
+  height: 100vh;
+}
+.background {
+  background: url("..\\..\\public\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+}
 .search-bar-container {
   margin-left: 10px;
+}
+.page-bar {
+  margin: auto;
+}
+.table {
+  margin: auto;
+  background-color: transparent;
 }
 </style>

@@ -1,21 +1,20 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import Login from '../components/Login.vue';
-import Register from '../components/Register.vue';
-import NotFound from '../components/NotFound.vue';
+import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "../views/HomeView.vue";
+import LoginView from "../views/LoginView.vue";
+import RegisterView from "../views/RegisterView.vue";
+import NotFoundView from "../views/NotFoundView.vue";
 
-import ForgetPassword from '../components/ForgetPassword.vue';
-import ProfilePage from '../components/ProfilePage.vue';
-import RegisterDetails from '@/components/RegisterDetails.vue';
-import { auth } from '../firebase';
-import AddProduct from '../components/AddProduct.vue';
-import AddListing from '../components/AddListing.vue';
-import CheckoutPageView from '../views/CheckoutPageView.vue';
-import SeekerMarketplaceView from '../views/SeekerMarketplaceView.vue';
+import ForgetPasswordView from "../views/ForgetPasswordView.vue";
+import ProfilePageView from "../views/ProfilePageView.vue";
+import RegisterDetails from "@/components/RegisterDetails.vue";
+import { auth } from "../firebase";
+import AddProduct from "../components/AddProduct.vue";
+import AddListing from "../components/AddListing.vue";
+import CheckoutPageView from "../views/CheckoutPageView.vue";
+import SeekerMarketplaceView from "../views/SeekerMarketplaceView.vue";
 import SeekerDashboardView from "../views/SeekerDashboardView.vue";
-import OrderDashPartnerView from '../views/OrderDashPartnerView.vue';
+import OrderDashPartnerView from "../views/OrderDashPartnerView.vue";
 import { useStore } from "vuex";
-
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,20 +27,21 @@ const router = createRouter({
     {
       path: "/register",
       name: "register",
-      component: Register,
+      component: RegisterView,
     },
-    
+
     {
-      path: '/login',
-      name: 'login',
-      component: Login
+      path: "/login",
+      name: "login",
+      component: LoginView,
     },
     {
-      path: '/forgetPassword',
-      name: 'forgetPassword',
-      component: ForgetPassword,
+      path: "/forgetPassword",
+      name: "forgetPassword",
+      component: ForgetPasswordView,
       beforeEnter(to, from, next) {
         const authUser = auth.currentUser;
+        console.log(authUser);
         // console.log(user)
         if (!authUser) {
           next();
@@ -51,8 +51,8 @@ const router = createRouter({
       },
     },
     {
-      path: '/registerDetails',
-      name: 'registerDetails',
+      path: "/registerDetails",
+      name: "registerDetails",
       component: RegisterDetails,
       beforeEnter(to, from, next) {
         const store = useStore();
@@ -67,9 +67,9 @@ const router = createRouter({
       },
     },
     {
-      path: '/profile',
-      name: 'profile',
-      component: ProfilePage,
+      path: "/profile",
+      name: "profile",
+      component: ProfilePageView,
       beforeEnter(to, from, next) {
         const store = useStore();
         const user = store.state.user;
@@ -79,12 +79,12 @@ const router = createRouter({
         } else {
           next({ name: "notFound" });
         }
-      }
+      },
     },
     {
-       path: '/partner/marketplace',
-      name: 'partner-marketplace',
-      component: () => import('../views/PartnerMktView.vue'),
+      path: "/partner/marketplace",
+      name: "partner-marketplace",
+      component: () => import("../views/PartnerMktView.vue"),
       beforeEnter(to, from, next) {
         const store = useStore();
         const user = store.state.user;
@@ -94,11 +94,11 @@ const router = createRouter({
         } else {
           next({ name: "notFound" });
         }
-      }
+      },
     },
     {
-      path: '/partner/marketplace/add-product',
-      name: 'add-product',
+      path: "/partner/marketplace/add-product",
+      name: "add-product",
       component: AddProduct,
       beforeEnter(to, from, next) {
         const store = useStore();
@@ -109,11 +109,11 @@ const router = createRouter({
         } else {
           next({ name: "notFound" });
         }
-      }
+      },
     },
     {
-      path: '/partner/marketplace/add-listing',
-      name: 'add-listing',
+      path: "/partner/marketplace/add-listing",
+      name: "add-listing",
       component: AddListing,
       beforeEnter(to, from, next) {
         const store = useStore();
@@ -124,11 +124,11 @@ const router = createRouter({
         } else {
           next({ name: "notFound" });
         }
-      }
+      },
     },
     {
-      path: '/seeker/marketplace',
-      name: 'SeekerMarketplaceView',
+      path: "/seeker/marketplace",
+      name: "SeekerMarketplaceView",
       component: SeekerMarketplaceView,
       beforeEnter(to, from, next) {
         const store = useStore();
@@ -139,11 +139,11 @@ const router = createRouter({
         } else {
           next({ name: "notFound" });
         }
-      }
+      },
     },
     {
-      path: '/partner/order-dashboard',
-      name: 'orderDashPartnerView',
+      path: "/partner/order-dashboard",
+      name: "orderDashPartnerView",
       component: OrderDashPartnerView,
       beforeEnter(to, from, next) {
         const store = useStore();
@@ -154,7 +154,7 @@ const router = createRouter({
         } else {
           next({ name: "notFound" });
         }
-      }
+      },
     },
     {
       path: "/seeker/order-dashboard",
@@ -169,11 +169,11 @@ const router = createRouter({
         } else {
           next({ name: "notFound" });
         }
-      }
+      },
     },
     {
-      path: '/seeker/checkout',
-      name: 'CheckoutPage',
+      path: "/seeker/checkout",
+      name: "CheckoutPage",
       component: CheckoutPageView,
       props: true,
       beforeEnter(to, from, next) {
@@ -185,14 +185,14 @@ const router = createRouter({
         } else {
           next({ name: "notFound" });
         }
-      }
+      },
     },
     {
       path: "/:pathMatch(.*)*",
       name: "notFound",
-      component: NotFound,
+      component: NotFoundView,
     },
-  ]
-})
+  ],
+});
 
 export default router;

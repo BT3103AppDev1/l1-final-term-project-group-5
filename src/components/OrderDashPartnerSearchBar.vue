@@ -1,6 +1,12 @@
 <template>
   <div class="search-bar">
-    <input type="text" v-model="searchText" placeholder="Search by ID..." class="search-input" @keyup.enter="handleSearch">
+    <input
+      type="text"
+      v-model="searchText"
+      placeholder="Search by ID..."
+      class="search-input"
+      @keyup.enter="handleSearch"
+    />
     <button @click="handleSearch" class="search-button">Search</button>
     <button @click="clearSearch" class="clear-button">Clear</button>
   </div>
@@ -10,21 +16,21 @@
 export default {
   data() {
     return {
-      searchText: ''
+      searchText: "",
     };
   },
   methods: {
     handleSearch() {
       // Emit an event with the search text
-      this.$emit('search', this.searchText);
+      this.$emit("search", this.searchText);
     },
     clearSearch() {
       // Clear the search text and emit an event to clear the search
-      this.searchText = '';
-      this.$emit('search', '');
-    }
-  }
-}
+      this.searchText = "";
+      this.$emit("search", "");
+    },
+  },
+};
 </script>
 
 <style scoped>

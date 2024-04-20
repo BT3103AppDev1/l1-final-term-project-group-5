@@ -1,41 +1,33 @@
 <template>
-  <v-app-bar fixed color="#B0E487">
+  <v-app-bar fixed color="#4B644C">
     <v-toolbar-items>
-      <v-btn to="/" :disabled="!user.detailsSubmitted">
+      <router-link to="/" tag="v-btn" :disabled="!user.detailsSubmitted">
         <img
-          src="@/assets/GreenHarborLogo.png"
+          src="../../GreenHarborLogo.png"
           alt="Green Harbor Logo"
           class="logo"
         />
-      </v-btn>
+      </router-link>
       <v-btn to="/" :disabled="!user.detailsSubmitted">Home</v-btn>
 
       <template v-if="user.type == 'ecoSeeker'">
-        <v-btn
-          to="/seeker/marketplace"
-          :disabled="!user.detailsSubmitted"
+        <v-btn to="/seeker/marketplace" :disabled="!user.detailsSubmitted"
           >Marketplace</v-btn
         >
       </template>
       <template v-else>
-        <v-btn
-          to="/partner/marketplace"
-          :disabled="!user.detailsSubmitted"
+        <v-btn to="/partner/marketplace" :disabled="!user.detailsSubmitted"
           >Marketplace</v-btn
         >
       </template>
 
       <template v-if="user.type == 'ecoSeeker'">
-        <v-btn
-          to="/seeker/order-dashboard"
-          :disabled="!user.detailsSubmitted"
+        <v-btn to="/seeker/order-dashboard" :disabled="!user.detailsSubmitted"
           >My Orders</v-btn
         >
       </template>
       <template v-else>
-        <v-btn
-          to="/partner/order-dashboard"
-          :disabled="!user.detailsSubmitted"
+        <v-btn to="/partner/order-dashboard" :disabled="!user.detailsSubmitted"
           >My Orders</v-btn
         >
       </template>
@@ -111,7 +103,7 @@ export default {
     };
 
     onMounted(() => {
-      console.log(userData)
+      console.log(userData);
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           // Fetch basic details from the auth user object
@@ -147,6 +139,7 @@ export default {
 .logo {
   max-height: 60px;
   margin-bottom: -10px;
+  cursor: pointer;
 }
 .v-toolbar-items {
   float: right !important;

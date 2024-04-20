@@ -31,6 +31,7 @@ import {
 } from "firebase/firestore";
 import { getDownloadURL, list, ref, uploadBytes } from "firebase/storage";
 import CryptoJS from "crypto-js";
+import { mdiConsolidate } from "@mdi/js";
 
 const store = createStore({
   state: {
@@ -925,14 +926,14 @@ const store = createStore({
       const updates = [];
       querySnapshot.forEach((doc) => {
         const listing = doc.data();
-        //const listingExpirationDate = new Date(listing.expirationDate.seconds * 1000);
-
+        const date = listing.expirationDate.toDate();
         // Determine if the listing should be marked as inactive
         const shouldBeInactive =
-          listing.unitsRemaining <= 0 || new Date(listing.expirationDate) < now;
+          listing.unitsRemaining <= 0 || date < now;
 
         if (listing.isActive && shouldBeInactive) {
           // Only update if the listing is currently active but should be inactive
+          console.log("change of status for " + listing.listingId);
           updates.push({
             id: doc.id,
             updateFn: updateDoc(doc.ref, { isActive: false }),

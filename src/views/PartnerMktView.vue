@@ -20,7 +20,7 @@ export default {
   -o-background-size: cover;
   background-size: cover;
   width: 100%;
-  height: 100vh;
+  height: 140vh;
   display: flex;
 }
 </style>

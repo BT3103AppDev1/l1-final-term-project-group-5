@@ -47,6 +47,7 @@ export default {
 .label {
   font-family: "Public Sans", sans-serif;
   color: #00350a;
+  font-size:medium;
 }
 .category-filter {
   display: flex;

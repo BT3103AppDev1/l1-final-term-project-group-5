@@ -316,6 +316,7 @@ function formatDate(timestamp) {
 <style scoped>
 .orderDashboardContainer {
   width: 100vw;
+  min-height: calc(100vh - 64px);
   max-width: 100%;
   padding: 20px;
   margin: 0 auto;

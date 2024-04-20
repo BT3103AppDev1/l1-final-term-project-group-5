@@ -3,7 +3,7 @@
     <v-toolbar-items>
       <router-link to="/">
         <img
-          src="../../GreenHarborLogo.png"
+          src="../assets/GreenHarborLogo.png"
           alt="Green Harbor Logo"
           class="logo"
         />

@@ -9,7 +9,7 @@
 
     <div class="ecograde">
       <h2>What is EcoGrade?</h2>
-      <img src="../../EcoGradeInfo.png"></img>
+      <img src="../assets/EcoGradeInfo.png"></img>
     </div>
   </div>
 </template>
@@ -22,7 +22,7 @@ export default {
 
 <style scoped>
 .background {
-  background: url("../../bg1.png") no-repeat center center fixed;
+  background: url("../assets/bg1.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;

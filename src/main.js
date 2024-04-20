@@ -22,4 +22,6 @@ app.use(router)
 app.use(store)
 app.use(vuetify)
 
-app.mount('#app')
+store.dispatch('initialize').then(() => {
+  app.mount('#app')
+});

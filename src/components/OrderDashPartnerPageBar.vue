@@ -116,12 +116,6 @@ export default {
   transition: background-color 0.2s;
 }
 
-.previous-button {
-  background-color: #e6f5d9;
-  color: #007b36;
-  box-shadow: 0 0 2px 1px rgba(0, 123, 54, 0.2);
-}
-
 .previous-button:hover,
 .pagination-button:hover,
 .next-button:hover {

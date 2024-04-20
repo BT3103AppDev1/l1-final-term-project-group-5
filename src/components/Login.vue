@@ -32,7 +32,7 @@
                 </v-col>
 
                 <v-row justify="center">
-                  <v-col cols="12" md="2">
+                  <v-col cols="12" sm="8" md="6" lg="4" xl="3">
                     <v-btn
                       append-icon="mdi-email-outline"
                       type="submit"
@@ -45,7 +45,7 @@
                 </v-row>
 
                 <v-row justify="center">
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" sm="8" md="6" lg="4" xl="3">
                     <v-btn
                       append-icon="mdi-google"
                       color="#4B644C"

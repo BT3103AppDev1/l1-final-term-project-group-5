@@ -282,7 +282,12 @@ function formatDate(timestamp) {
       </table>
 
       <div v-if="totalPages > 1" class="pageNavigation">
-        <button @click="currentPage--" :disabled="currentPage <= 1">
+        <button
+          @click="currentPage--"
+          :disabled="currentPage <= 1"
+          class="previousButton"
+          :class="{ fadeOut: currentPage <= 1 }"
+        >
           Previous
         </button>
         <button
@@ -290,11 +295,17 @@ function formatDate(timestamp) {
           :key="pageNum"
           @click="navigateToPage(pageNum)"
           :disabled="currentPage === pageNum"
+          class="paginationButton"
           :class="{ activePage: currentPage === pageNum }"
         >
           {{ pageNum }}
         </button>
-        <button @click="currentPage++" :disabled="currentPage >= totalPages">
+        <button
+          @click="currentPage++"
+          :disabled="currentPage >= totalPages"
+          class="nextButton"
+          :class="{ fadeOut: currentPage >= totalPages }"
+        >
           Next
         </button>
       </div>
@@ -427,23 +438,46 @@ td:nth-child(8) {
 .pageNavigation {
   display: flex;
   justify-content: center;
-  padding-top: 20px;
-  padding-bottom: 10px;
+  align-items: center;
+  padding: 20px 10px 10px 10px;
+}
+.paginationButton,
+.previousButton,
+.nextButton {
+  background-color: #f5f5f5;
+  color: #222;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px 12px;
+  margin: 0 4px;
+  transition: background-color 0.2s;
+}
+.previousButton:hover,
+.paginationButton:hover,
+.nextButton:hover {
+  background-color: #848b6e;
+}
+.paginationButton:focus,
+.previousButton:focus,
+.nextButton:focus {
+  outline: none;
+  box-shadow: 0 0 2px 1px rgba(0, 123, 54, 0.2);
+}
+.previousButton {
+  margin-right: 8px;
+}
+.nextButton {
+  margin-left: 8px;
 }
 .activePage {
-  background-color: #00350a;
+  background-color: #6b7b38;
   color: white;
-  border: none;
 }
-.pageNavigation button {
-  padding-left: 8px;
-  padding-right: 8px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-.pageNavigation button:disabled {
-  cursor: default;
-  opacity: 0.7;
+.fadeOut {
+  opacity: 0.5; /* Adjust the opacity value as needed */
+  cursor: not-allowed;
 }
 
 .customDropdown {

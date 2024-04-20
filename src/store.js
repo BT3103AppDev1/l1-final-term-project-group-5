@@ -195,8 +195,8 @@ const store = createStore({
         (product) => product.listingId === item.listingId
       );
       if (found) {
-        if(found.quantity + item.quantity > found.unitsRemaining) {
-          console.log('Not enough units remaining');
+        if (found.quantity + item.quantity > found.unitsRemaining) {
+          console.log("Not enough units remaining");
           alert("Failed to add to cart: Not enough units remaining");
           return;
         }
@@ -387,7 +387,7 @@ const store = createStore({
             about: userData.about,
             address: userData.address,
           });
-          console.log(userData);
+          // console.log(userData);
         } else {
           console.log("No such document!");
         }
@@ -496,7 +496,7 @@ const store = createStore({
     ) {
       try {
         const uid = state.user.uid;
-        console.log(uid);
+        // console.log(uid);
         const userRef = doc(db, "users", uid);
 
         await updateDoc(userRef, {
@@ -506,7 +506,7 @@ const store = createStore({
           address: address,
         });
         const docSnap = await getDoc(userRef);
-        console.log(docSnap.get("photoURL"));
+        // console.log(docSnap.get("photoURL"));
 
         commit("SET_USER_DETAILS", {
           displayName: displayName,
@@ -533,33 +533,40 @@ const store = createStore({
     },
 
     async reauthenticate({ dispatch, state, commit }, { email, password }) {
-      try {
-        const user = state.user;
-        if (user.authProvider === "google") {
+      const user = state.user;
+      if (user.authProvider === "google") {
+        try {
           const credential = GoogleAuthProvider.credential(email, password);
-          await reauthenticateWithCredential(
+          const response = await reauthenticateWithCredential(
             auth.currentUser,
             credential
-          ).catch((error) => {
-            dispatch("addNotification", {
-              type: "error",
-              message: "Failed email validation:" + error,
-            });
+          );
+          return true;
+        } catch (error) {
+          dispatch("addNotification", {
+            type: "error",
+            message: "Failed email validation:" + error,
           });
-        } else {
-          const credential = EmailAuthProvider.credential(email, password);
-          await reauthenticateWithCredential(
-            auth.currentUser,
-            credential
-          ).catch((error) => {
-            dispatch("addNotification", {
-              type: "error",
-              message: "Failed email validation:" + error,
-            });
-          });
+          console.log("Failed email validation:" + error);
+          return false;
         }
-      } catch (error) {
-        console.error("Failed to reauthenticate:", error);
+      } else {
+        try {
+          const credential = EmailAuthProvider.credential(email, password);
+          console.log(password);
+          const response = await reauthenticateWithCredential(
+            auth.currentUser,
+            credential
+          );
+          return true;
+        } catch (error) {
+          dispatch("addNotification", {
+            type: "error",
+            message: "Failed email validation:" + error,
+          });
+          console.log("Failed email validation:" + error);
+          return false;
+        }
       }
     },
 
@@ -568,6 +575,8 @@ const store = createStore({
       { email, oldPassword, newPassword }
     ) {
       try {
+        console.log(auth.currentUser);
+        console.log(auth.currentUser.emailVerified);
         if (!auth.currentUser.emailVerified) {
           dispatch("addNotification", {
             type: "error",
@@ -576,14 +585,22 @@ const store = createStore({
           return "error";
           //throw new Error("Please verify the new email before changing email.");
         } else {
-          await dispatch("reauthenticate", { email, oldPassword });
-          await updatePassword(auth.currentUser, newPassword).then(
-            console.log("Password updated")
-          );
-          dispatch("addNotification", {
-            type: "success",
-            message: "Password updated successfully",
-          });
+          console.log(email, oldPassword, newPassword);
+          const bool = await dispatch("reauthenticate", { email: email, password: oldPassword });
+          if (bool) {
+            await updatePassword(auth.currentUser, newPassword).then(
+              console.log("Password updated")
+            );
+            dispatch("addNotification", {
+              type: "success",
+              message: "Password updated successfully",
+            });
+          } else {
+            dispatch("addNotification", {
+              type: "error",
+              message: "Failed to reauthenticate",
+            });
+          }
         }
       } catch (error) {
         console.error("Failed to update password:", error);
@@ -662,7 +679,7 @@ const store = createStore({
     },
 
     checkEmailVerified({ dispatch, state }) {
-      if (!state.user.emailVerified) {
+      if (!auth.currentUser.emailVerified) {
         dispatch("addNotification", {
           type: "error",
           message: "Please verify your email before proceeding",
@@ -688,14 +705,24 @@ const store = createStore({
             return "error";
             //throw new Error("Please verify the new email before changing email.");
           } else {
-            await dispatch("reauthenticate", { oldEmail, password });
-            await updateEmail(auth.currentUser, newEmail);
-            dispatch("addNotification", {
-              type: "success",
-              message: "Email updated successfully",
+            const bool = await dispatch("reauthenticate", {
+              email: oldEmail,
+              password: password,
             });
-            await updateDoc(doc(db, "users", user.uid), { email: newEmail });
-            commit("SET_USER_DETAILS", { ...user, email: newEmail });
+            if (bool) {
+              await updateEmail(auth.currentUser, newEmail);
+              dispatch("addNotification", {
+                type: "success",
+                message: "Email updated successfully",
+              });
+              await updateDoc(doc(db, "users", user.uid), { email: newEmail });
+              commit("SET_USER_DETAILS", { ...user, email: newEmail });
+            } else {
+              dispatch("addNotification", {
+                type: "error",
+                message: "Failed to reauthenticate",
+              });
+            }
           }
         } else {
           console.log("Email is the same");
@@ -793,9 +820,10 @@ const store = createStore({
       newListing.unitsRemaining = Number(newListing.unitsToSell);
       newListing.createdDate = now;
       const expirationTimestamp = new Date(newListing.expirationDate);
-      expirationTimestamp.setHours(23, 59, 59); 
+      expirationTimestamp.setHours(23, 59, 59);
       newListing.isActive =
-        newListing.unitsRemaining > 0 && new Date(newListing.expirationDate) >= now;
+        newListing.unitsRemaining > 0 &&
+        new Date(newListing.expirationDate) >= now;
       const docRef = await addDoc(collection(db, "listings"), newListing);
       await updateDoc(doc(db, "listings", docRef.id), {
         listingId: docRef.id,
@@ -812,7 +840,7 @@ const store = createStore({
         expirationTimestamp.setHours(23, 59, 59); // Set the time to end of the day
         const listingRef = doc(db, "listings", id);
         await updateDoc(listingRef, editedListing);
-        await updateDoc(listingRef, { expirationDate: expirationTimestamp })
+        await updateDoc(listingRef, { expirationDate: expirationTimestamp });
         commit("updateListing", { id, editedListing });
       } catch (error) {
         console.error("Error updating listing:", error);
@@ -961,15 +989,22 @@ const store = createStore({
         const uid = state.user.uid;
         const userRef = doc(db, "users", uid);
         const email = state.user.email;
-        await dispatch("reauthenticate", { email, password });
-        await updateDoc(userRef, {
-          bankDetails: ciphertext,
-        });
-        commit("SET_BANK_DETAILS", ciphertext);
-        dispatch("addNotification", {
-          type: "success",
-          message: "Bank details updated successfully",
-        });
+        const bool = await dispatch("reauthenticate", { email, password });
+        if (bool) {
+          await updateDoc(userRef, {
+            bankDetails: ciphertext,
+          });
+          commit("SET_BANK_DETAILS", ciphertext);
+          dispatch("addNotification", {
+            type: "success",
+            message: "Bank details updated successfully",
+          });
+        } else {
+          dispatch("addNotification", {
+            type: "error",
+            message: "Failed to reauthenticate",
+          });
+        }
       } catch (error) {
         dispatch("addNotification", {
           type: "error",
@@ -1013,11 +1048,15 @@ const store = createStore({
     },
 
     async fetchProfilePictures({ commit }) {
-      const queryDoc = query(collection(db, "users"), 
+      const queryDoc = query(
+        collection(db, "users"),
         where("ecoRank", "==", 1),
-        where("userType", "==", "ecoPartner"));
+        where("userType", "==", "ecoPartner")
+      );
       const profilePicturesSnapshot = await getDocs(queryDoc);
-      const profilePictures = profilePicturesSnapshot.docs.map(doc => doc.data().photoURL);
+      const profilePictures = profilePicturesSnapshot.docs.map(
+        (doc) => doc.data().photoURL
+      );
       commit("SET_PROFILE_PICTURES", profilePictures);
     },
   },

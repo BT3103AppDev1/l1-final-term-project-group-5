@@ -32,7 +32,7 @@
                 </v-col>
 
                 <v-row justify="center">
-                  <v-col cols="12" md="2">
+                  <v-col cols="12" sm="8" md="6" lg="4" xl="3">
                     <v-btn
                       append-icon="mdi-email-outline"
                       type="submit"
@@ -45,7 +45,7 @@
                 </v-row>
 
                 <v-row justify="center">
-                  <v-col cols="12" md="3">
+                  <v-col cols="12" sm="8" md="6" lg="4" xl="3">
                     <v-btn
                       append-icon="mdi-google"
                       color="#4B644C"
@@ -138,7 +138,7 @@ export default {
 
 <style scoped>
 .background {
-  background: url("..\\..\\public\\bg2.png") no-repeat center center fixed;
+  background: url("..\\..\\bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;

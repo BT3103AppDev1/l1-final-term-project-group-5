@@ -217,7 +217,7 @@ export default {
 </script>
 <style scoped>
 .background {
-  background: url("..\\..\\public\\bg2.png") no-repeat center center fixed;
+  background: url("..\\..\\bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;

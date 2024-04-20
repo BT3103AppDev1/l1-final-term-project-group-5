@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column align-center" style="height: 80vh;">
+  <div class="background" >
     <div class="self-start">
       <v-btn icon @click="goBackToMarketplace">
         <v-icon>mdi-arrow-left</v-icon>
@@ -100,6 +100,20 @@ export default {
 </script>
 
 <style scoped>
+.background {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+
+}
+
 .form-group {
   margin-bottom: 1rem;
 }
@@ -127,5 +141,10 @@ select {
   align-self: flex-start;
 }
 
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+  background-color: transparent;
+}
 /* Add responsiveness or other styles as needed */
 </style>

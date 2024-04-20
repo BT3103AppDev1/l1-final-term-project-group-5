@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex justify-center align-center" style="height: 100vh;">
+    <div class="d-flex justify-center align-center">
       <h1>Not Found! Please log in or register! :> </h1>
     </div>
 </template>

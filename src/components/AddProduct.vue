@@ -1,12 +1,12 @@
 <template>
-  <div class="d-flex flex-column align-center" style="height: 80vh;">
+  <div class="background">
     <div class="self-start">
       <v-btn icon @click="goBackToMarketplace">
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
     </div>
     <v-sheet class="mx-auto" width="300">
-      <h1>Add New Product</h1>
+      <h1 class="transparent-bg">Add New Product</h1>
       <v-form @submit.prevent="addProduct">
 
         <v-text-field v-model="product.name" label="Product Name" required></v-text-field>
@@ -82,7 +82,20 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.background {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+}
+
 .submit-button {
   background-color: #4CAF50;
   /* Green */
@@ -91,5 +104,11 @@ export default {
 
 .self-start {
   align-self: flex-start;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+  background-color: transparent;
 }
 </style>

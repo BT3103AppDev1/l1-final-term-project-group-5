@@ -1,8 +1,9 @@
 <template>
+  <div class="background">
   <v-container>
     <v-row justify="center">
       <v-col cols="12" md="8">
-        <v-card>
+        <v-card class="card">
           <v-card-title class="text-center">Register</v-card-title>
           <v-card-text class="text-center">
             <v-alert v-if="error" type="error">{{ error }}</v-alert>
@@ -37,7 +38,7 @@
                   <v-btn
                     append-icon="mdi-email-outline"
                     type="submit"
-                    color="primary"
+                    color="#4B644C"
                     :disabled="!valid"
                     @click="RegisterWithEmail"
                   >
@@ -50,7 +51,7 @@
                 <v-col cols="12" md="3" sm="2">
                   <v-btn
                     append-icon="mdi-google"
-                    color="primary"
+                    color="#4B644C"
                     @click="RegisterWithGoogle"
                   >
                     Register with Google
@@ -72,6 +73,7 @@
       </v-col>
     </v-row>
   </v-container>
+</div>
 </template>
 
 <script>
@@ -149,10 +151,26 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.background {
+  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  padding-top: 64px;
+}
+
 .btn.active {
   background-color: #30c77b; /* Eco-friendly green */
   border-color: #30c77b;
   color: white; /* You might want to change the text color to ensure it's readable on the green background */
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.5);
 }
 </style>

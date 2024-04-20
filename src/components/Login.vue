@@ -3,7 +3,7 @@
   <v-container>
     <v-row justify="center">
       <v-col cols="12" md="8">
-        <v-card>
+        <v-card class="card">
           <v-card-title class="text-center">Login</v-card-title>
           <v-card-text class="text-center">
             <v-alert v-if="error" type="error">{{ error }}</v-alert>
@@ -147,7 +147,10 @@ export default {
   width: 100%;
   height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  padding-top: 64px;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.5);
 }
 </style>

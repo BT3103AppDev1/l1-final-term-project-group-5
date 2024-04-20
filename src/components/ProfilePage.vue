@@ -1,12 +1,13 @@
 <template>
+  <div class="background">
   <v-row justify="center">
     <v-col cols="12" md="8">
-      <v-card>
-        <v-card-title class="text-center">Profile Page</v-card-title>
+      <v-card class="card">
+        <h1 :style="{ paddingBottom: '20px', textAlign: 'center' }">Profile Page</h1>
         <v-card-text class="text-center">
           <v-alert v-if="error" type="error">{{ error }}</v-alert>
           <v-form>
-            <v-row justify="center">
+            <v-row justify="center" :style="{ paddingBottom: '20px' }">
               <v-col
                 align-self="start"
                 class="d-flex justify-center align-center pa-0"
@@ -66,7 +67,7 @@
                 <template v-slot:append>
                   <v-btn
                     small
-                    color="primary"
+                    color="#4B644C"
                     v-if="!editingName"
                     @click="startEditingName"
                   >
@@ -101,7 +102,7 @@
                 :readonly="true"
               >
                 <template v-slot:append>
-                  <v-btn small color="primary" @click="startEditingEmail">
+                  <v-btn small color="#4B644C" @click="startEditingEmail">
                     Edit
                   </v-btn>
 
@@ -136,7 +137,7 @@
 
                           <!-- ... -->
                           <v-btn
-                            color="#7C8E76"
+                            color="#4B644C"
                             @click="updateEmail"
                             style="margin-right: 16px"
                           >
@@ -168,7 +169,7 @@
                 <template v-slot:append>
                   <v-btn
                     small
-                    color="primary"
+                    color="#4B644C"
                     v-if="!editingAbout"
                     @click="startEditingAbout"
                   >
@@ -205,7 +206,7 @@
                 <template v-slot:append>
                   <v-btn
                     small
-                    color="primary"
+                    color="#4B644C"
                     v-if="!editingAddress"
                     @click="startEditingAddress"
                   >
@@ -235,7 +236,7 @@
               <v-btn
                 id="emailVerification"
                 label="EmailVerification"
-                color="#7C8E76"
+                color="#4B644C"
                 @click="sendEmailVerification"
                 >Send Email Verification</v-btn
               >
@@ -245,7 +246,7 @@
               <v-btn
                 id="resetPassword"
                 label="Password"
-                color="#7C8E76"
+                color="#4B644C"
                 @click="dialogPassword = true"
               >
                 Reset Password
@@ -306,7 +307,7 @@
 
                       <!-- ... -->
                       <v-btn
-                        color="#7C8E76"
+                        color="#4B644C"
                         style="margin-right: 16px"
                         @click="updatePassword"
                       >
@@ -329,7 +330,7 @@
               <v-btn
                 id="bankDetails"
                 label="BankDetails"
-                color="#7C8E76"
+                color="#4B644C"
                 @click="dialogBank = true"
               >
               {{ bankButtonText }}
@@ -373,17 +374,17 @@
             </v-col>
 
             <v-col cols="12" md="12">
-              <p style="font-size: 20px">
+              <h3 style="font-size: 20px">
                 You have saved:
                 <span style="color: green">{{ user.weight / 1000}} kg</span>!
-              </p>
+              </h3>
             </v-col>
 
             <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
-              <p style="font-size: 20px">
+              <h3 style="font-size: 20px">
                 You are currently 
                 <span style="color: green">EcoRank {{ user.rank }}</span>!
-              </p>
+              </h3>
             </v-col>
 
           </v-form>
@@ -391,6 +392,7 @@
       </v-card>
     </v-col>
   </v-row>
+  </div>
 </template>
 
 <script>
@@ -742,11 +744,25 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.background {
+  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  width: 100%;
+  height: 120vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
+}
+
 .btn.active {
-  background-color: #30c77b; /* Eco-friendly green */
+  background-color: #30c77b;
   border-color: #30c77b;
-  color: white; /* You might want to change the text color to ensure it's readable on the green background */
+  color: white; 
 }
 
 .upload-btn {
@@ -754,12 +770,16 @@ export default {
   z-index: 999;
   top: 121px;
   color: cadetblue;
-  background: #7C8E76;
+  background: #4B644C;
 }
 
 .avatar-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.5);
 }
 </style>

@@ -235,6 +235,46 @@ const store = createStore({
   },
 
   actions: {
+    initialize({ commit }) {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          // User is signed in, set the user in the Vuex store
+          const useruid = user.uid;
+          commit("SET_LOGGED_IN", true);
+          commit("SET_USER_ID", useruid);
+          const userRef = doc(db, "users", useruid);
+          const docSnap = await getDoc(userRef);
+          if (docSnap.exists()) {
+            commit("SET_USER_TYPE", docSnap.get("userType"));
+            commit("SET_USER_DETAILS", {
+              displayName: docSnap.get("displayName"),
+              email: docSnap.get("email"),
+              photoURL: docSnap.get("photoURL"),
+              about: docSnap.get("about"),
+              address: docSnap.get("address"),
+            });
+            commit("SET_USER_REGISTERED", true);
+            commit("SET_WEIGHT", docSnap.get("weight"));
+            commit("SET_BANK_DETAILS", docSnap.get("bankDetails"));
+            commit("SET_PROVIDER", "local");
+          } 
+        } else {
+          // User is signed out, remove the user from the Vuex store
+          commit("SET_LOGGED_IN", false);
+          commit("SET_USER_DETAILS", {
+            displayName: "",
+            email: "",
+            photoURL: "",
+            uid: "",
+            about: "",
+            address: "",
+          });
+          commit("SET_USER_ID", "");
+          commit("SET_USER_REGISTERED", false);
+        }
+      });
+    },
+
     async registerWithEmail(context, { email, password }) {
       try {
         const response = await createUserWithEmailAndPassword(
@@ -586,7 +626,10 @@ const store = createStore({
           //throw new Error("Please verify the new email before changing email.");
         } else {
           console.log(email, oldPassword, newPassword);
-          const bool = await dispatch("reauthenticate", { email: email, password: oldPassword });
+          const bool = await dispatch("reauthenticate", {
+            email: email,
+            password: oldPassword,
+          });
           if (bool) {
             await updatePassword(auth.currentUser, newPassword).then(
               console.log("Password updated")
@@ -969,7 +1012,7 @@ const store = createStore({
       commit("SET_NOTIFICATION", notification);
       setTimeout(() => {
         commit("CLEAR_NOTIFICATION");
-      }, 7000);
+      }, 3000);
     },
 
     removeNotification({ commit }) {

@@ -65,7 +65,7 @@ const db = getFirestore(firebaseApp);
 
 export default {
   components: {
-    SvgIcon
+    SvgIcon,
   },
 
   data() {
@@ -301,6 +301,22 @@ export default {
         console.log("After:", this.entriesToComplete);
       }
     },
+
+    // Eco ranks calculation
+    getEcoRank(weight) {
+      if (weight >= 0 && weight <= 9999) {
+        return 5;
+      } else if (weight >= 10000 && weight <= 19999) {
+        return 4;
+      } else if (weight >= 20000 && weight <= 29999) {
+        return 3;
+      } else if (weight >= 30000 && weight <= 39999) {
+        return 2;
+      } else {
+        return 1;
+      }
+    },
+
     // Method to complete selected entries
     async completeSelectedEntries() {
       // Perform completion action for selected entries
@@ -328,7 +344,9 @@ export default {
 
         await updateDoc(docRef, { status: "Completed" });
         await updateDoc(sellerDocRef, { weight: sellerWeight });
+        await updateDoc(sellerDocRef, { ecoRank: getEcoRank(sellerWeight) });
         await updateDoc(buyerDocRef, { weight: buyerWeight });
+        await updateDoc(buyerDocRef, { ecoRank: getEcoRank(buyerWeight) });
       }
       this.display();
       this.store.dispatch("addNotification", {

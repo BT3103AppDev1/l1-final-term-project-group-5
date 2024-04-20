@@ -9,7 +9,7 @@
 
     <div class="ecograde">
       <h2>What is EcoGrade?</h2>
-      <img src="../../EcoGradeInfo.png"></img>
+      <img src="../assets/EcoGradeInfo.png"></img>
     </div>
   </div>
 </template>

@@ -12,11 +12,11 @@
           <th>
             <div class="status-container">
               <span>Status</span>
-              <div class="custom-dropdown">
-                <button class="headerIcons" @click="toggleDropdown">
+              <div class="dropdown">
+                <button class="header-icons" @click="toggleDropdown">
                   <svg-icon type="mdi" :path="filterIcon"></svg-icon>
                 </button>
-                <div class="customDropdown" v-show="isDropdownOpen">
+                <div class="custom-dropdown" v-show="isDropdownOpen">
                   <div @click="selectStatus('All')">All</div>
                   <div @click="selectStatus('Ongoing')">Ongoing</div>
                   <div @click="selectStatus('Completed')">Completed</div>
@@ -519,14 +519,14 @@ tbody tr:nth-child(odd) {
   cursor: not-allowed; /* Change cursor to 'not-allowed' */
 }
 
-.headerIcons {
+.header-icons {
   display: flex;
   align-items: center;
   justify-content: center;
   padding-left: 4px;
 }
 
-.customDropdown {
+.custom-dropdown {
   position: absolute;
   background-color: white;
   border: 1px solid #ccc;
@@ -534,14 +534,15 @@ tbody tr:nth-child(odd) {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   padding: 10px;
   z-index: 100;
+  margin-left: -75px;
 }
 
-.customDropdown div {
+.custom-dropdown div {
   padding: 5px;
   cursor: pointer;
   color: black;
 }
-.customDropdown div:hover {
+.custom-dropdown div:hover {
   background-color: #f0f0f0;
 }
 </style>

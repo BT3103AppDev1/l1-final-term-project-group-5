@@ -69,8 +69,8 @@ export default {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  height: 100vh;
-  width: 100vh;
+  height: calc(100vh - 64px);
+  width: 100vw;
   margin: 0;
   padding: 0;
 }

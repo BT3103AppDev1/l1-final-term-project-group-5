@@ -22,7 +22,7 @@
               </div>
             </div>
           </th>
-          <th>Select</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -66,10 +66,10 @@ export default {
     },
   },
   async mounted() {
-    this.checkAndExpireOrders();
     this.store = this.$store;
     const auth = getAuth()
     this.sellerId = auth.currentUser.uid
+    this.checkAndExpireOrders();
     this.display();
   },
   watch: {
@@ -102,16 +102,14 @@ export default {
       const startIndex = (this.currentPage - 1) * this.entriesPerPage;
       const endIndex = this.currentPage * this.entriesPerPage;
 
-      // Get the logged-in user's partnerUID 
-      const currentUser = this.sellerId;
-
       // Create a Firestore query
       let queryRef = collection(db, 'order');
+      
+      // Apply filter for orders that have not been deleted
+      queryRef = query(queryRef, where('companyDeleted', '==', false))
 
       // Apply filter for partnerUID
-      if (currentUser) {
-        queryRef = query(queryRef, where('sellerId', '==', currentUser));
-      }
+      queryRef = query(queryRef, where('sellerId', '==', this.sellerId));
 
       // Apply search filter if searchQuery is not empty
       if (this.searchQuery) {
@@ -208,7 +206,15 @@ export default {
         if (!confirmDelete) {
           return; // If user cancels, exit the function
         }
-        await deleteDoc(doc(db, 'order', id.toString()));
+        const currDoc = doc(db, 'order', id.toString());
+        const currDocSnapshot = await getDoc(currDoc)
+        const currDocData = currDocSnapshot.data();
+        if (currDocData.customerDeleted) {
+          await deleteDoc(currDoc);
+        }
+        else {
+          await updateDoc(currDoc, { companyDeleted: true });
+        }
         this.display(); // Refresh table after deletion
         this.store.dispatch("addNotification", { // use store from instance
             type: "success",
@@ -261,7 +267,7 @@ export default {
         const docData = docSnapshot.data();
         const sellerId = docData.sellerId;
         const buyerId = docData.buyerId;
-        const foodWeight = docData.weight;
+        const foodWeight = docData.totalWeight
 
         const sellerDocRef = doc(db, 'users', sellerId);
         const sellerDocSnapshot = await getDoc(sellerDocRef);
@@ -274,8 +280,8 @@ export default {
         const buyerWeight = buyerDocData.weight + foodWeight;
 
         await updateDoc(docRef, { status: 'Completed' });
-        await updateDoc(sellerDocRef, { weight: sellerWeight});
-        await updateDoc(buyerDocRef, { weight: buyerWeight});
+        await updateDoc(sellerDocRef, { weight: (sellerWeight)});
+        await updateDoc(buyerDocRef, { weight: (buyerWeight)});
       }
       this.display();
       this.store.dispatch("addNotification", { // use store from instance
@@ -288,11 +294,12 @@ export default {
     async checkAndExpireOrders() {
       console.log('checkAndExpireOrders() ran')
       const currentDate = new Date();
-      const queryRef = collection(db, 'order');
+      let queryRef = collection(db, 'order');
+      queryRef = query(queryRef, where('sellerId', '==', this.sellerId));
       const querySnapshot = await getDocs(queryRef);
       querySnapshot.forEach(async (documentData) => {
         const order = documentData.data();
-        if (order.status === 'Ongoing' && order.expirationDate.toDate() < currentDate) {
+        if (order.status === 'Ongoing' && order.expirationDate.toMillis() < currentDate.getTime()) {
           const docRef = doc(db, 'order', order.orderId.toString());
           await updateDoc(docRef, { status: 'Expired' });
         }

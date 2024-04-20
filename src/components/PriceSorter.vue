@@ -1,8 +1,8 @@
 <template>
     <div class="price-sorter">
-        <label for="sort">Sort By:</label>
+        <label class="label" for="sort">Sort By: </label>
         <button @click="toggleSortDropdown">
-            <img src="@/assets/CaretDown.png" alt="Options">
+            <img src="@/assets/CaretDown.png" alt="Options" class="img">
         </button>
         <div v-if="showSortDropdown" class="customDropdown">
             <div @click="selectSort('')">Please select one</div>
@@ -46,14 +46,9 @@ export default {
     align-items: center;
 }
 
-.label {
-    width:85px;
-
-}
 
 .customDropdown {
     cursor:pointer;
-    border:1px solid #00350a;
 }
 
 .customerDropdown:hover {

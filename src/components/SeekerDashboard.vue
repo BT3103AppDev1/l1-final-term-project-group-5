@@ -1,121 +1,164 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useStore } from "vuex";
 import {
   collection,
   doc,
   updateDoc,
   deleteDoc,
+  getDoc,
   getDocs,
   query,
   orderBy,
 } from "firebase/firestore";
-import { db } from "../firebase.js";
+import { db, auth } from "../firebase.js";
+import SvgIcon from "@jamescoyle/vue-icon";
+import {
+  mdiTrashCanOutline,
+  mdiFilterCogOutline,
+  mdiChevronUpBox,
+  mdiChevronDownBox,
+  mdiAlphaX,
+} from "@mdi/js";
+
+const store = useStore();
+
+// Vuetify icons
+const trashCan = mdiTrashCanOutline;
+const filterCog = mdiFilterCogOutline;
+const chevronUp = mdiChevronUpBox;
+const chevronDown = mdiChevronDownBox;
+const alphaX = mdiAlphaX;
 
 // Reactive reference to store the documents
 const orders = ref([]);
 
+// Fetch documents once the component is mounted
+onMounted(fetchDocuments);
+
 // Function to fetch documents from a specified collection
 async function fetchDocuments() {
   const ordersCollectionRef = collection(db, "order");
-  let queryRef;
-  if (dateSortOrder.value === "desc") {
-    queryRef = query(ordersCollectionRef, orderBy("datePurchased", "desc"));
-  } else {
-    queryRef = query(ordersCollectionRef, orderBy("datePurchased", "asc"));
-  }
+  let queryRef = query(
+    ordersCollectionRef,
+    orderBy("datePurchased", dateSortOrder.value)
+  );
   const querySnapshot = await getDocs(queryRef);
   orders.value = querySnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
+    order: Array.isArray(doc.data().order)
+      ? doc
+          .data()
+          .order.map((item) => `${item.name} x${item.quantity}`)
+          .join(", ")
+      : "Invalid order data",
   }));
 }
 
-// Fetch documents once the component is mounted
-onMounted(fetchDocuments);
+// Reactive states for filtering and searching
+const searchTerm = ref("");
+const appliedSearchTerm = ref("");
+const currentFilter = ref("All");
+const dateSortOrder = ref("desc");
 
-// Date formatting function
-function formatDate(timestamp) {
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear().toString().substr(-2);
-  return `${day}/${month}/${year}`;
-}
-
-// Pagination
+// Reactive state for pagination
 const currentPage = ref(1);
 const ordersPerPage = 10;
-const totalOrders = computed(() => orders.value.length);
+
+// Computed properties
+const userOrders = computed(() =>
+  orders.value.filter((order) => order.buyerId !== auth.currentUser.uid)
+);
+
+const nonDeletedOrders = computed(() =>
+  userOrders.value.filter((order) => !order.customerDeleted)
+);
+
+const searchedOrders = computed(() => {
+  if (!appliedSearchTerm.value) {
+    return nonDeletedOrders.value;
+  }
+  return nonDeletedOrders.value.filter((order) =>
+    order.order.toLowerCase().includes(appliedSearchTerm.value)
+  );
+});
+
+const filteredOrders = computed(() => {
+  return searchedOrders.value.filter(
+    (order) =>
+      currentFilter.value === "All" || order.status === currentFilter.value
+  );
+});
+
+const totalOrders = computed(() => filteredOrders.value.length);
 const totalPages = computed(() => Math.ceil(totalOrders.value / ordersPerPage));
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * ordersPerPage;
+  return filteredOrders.value.slice(start, start + ordersPerPage);
+});
+
+// Handlers for search and pagination
+const applySearch = () => {
+  appliedSearchTerm.value = searchTerm.value.trim().toLowerCase();
+  currentPage.value = 1;
+};
+
+const clearSearch = () => {
+  searchTerm.value = "";
+  appliedSearchTerm.value = "";
+  currentPage.value = 1;
+};
 
 const navigateToPage = (pageNum) => {
   currentPage.value = pageNum;
 };
 
-// Update order status
-const updateOrderStatus = async (orderId) => {
-  const orderDocRef = doc(db, "order", orderId);
-  await updateDoc(orderDocRef, { status: "Completed" });
-  fetchDocuments(); // Refresh the list after update
+const toggleDateSortOrder = () => {
+  dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
+  fetchDocuments();
 };
 
-// Delete order
 const deleteOrder = async (orderId) => {
-  const orderDocRef = doc(db, "order", orderId);
-  await deleteDoc(orderDocRef);
-  fetchDocuments(); // Refresh the list after deletion
+  if (confirm("Are you sure you want to delete this order?")) {
+    const orderDocRef = doc(db, "order", orderId);
+    const orderSnapshot = await getDoc(orderDocRef);
+    if (!orderSnapshot.exists()) {
+      console.error("Document does not exist!");
+      return;
+    }
+    const orderData = orderSnapshot.data();
+    if (orderData.companyDeleted) {
+      await deleteDoc(orderDocRef);
+    } else {
+      await updateDoc(orderDocRef, { customerDeleted: true });
+    }
+    store.dispatch("addNotification", {
+      type: "success",
+      message: "Successfully deleted order!",
+    });
+    fetchDocuments();
+  }
 };
 
-// Filtering by order status
-const currentFilter = ref("All");
-const filteredOrders = computed(() => {
-  // Apply the filter first on searched orders.
-  let filtered = searchedOrders.value.filter(
-    (order) =>
-      currentFilter.value === "All" || order.status === currentFilter.value
-  );
-
-  // Then, apply pagination to the filtered list.
-  const start = (currentPage.value - 1) * ordersPerPage;
-  return filtered.slice(start, start + ordersPerPage);
-});
-
+// Additional handlers for dropdown and formatting
 const showFilterDropdown = ref(false);
 const toggleFilterDropdown = () => {
   showFilterDropdown.value = !showFilterDropdown.value;
 };
+
 const selectFilter = (filterValue) => {
   currentFilter.value = filterValue;
-  showFilterDropdown.value = false; // Hide dropdown after selection
+  showFilterDropdown.value = false;
 };
 
-// Filtering by date purchased
-const dateSortOrder = ref("desc");
-const toggleDateSortOrder = () => {
-  dateSortOrder.value = dateSortOrder.value === "asc" ? "desc" : "asc";
-  fetchDocuments(); // Re-fetch documents with the new sort order
-};
-
-// Search based on order name
-const searchTerm = ref("");
-const appliedSearchTerm = ref("");
-const applySearch = () => {
-  appliedSearchTerm.value = searchTerm.value;
-};
-const searchedOrders = computed(() => {
-  if (appliedSearchTerm.value.trim() === "") {
-    return orders.value;
-  }
-  return orders.value.filter((order) =>
-    (order.order ? order.order.toLowerCase() : "").includes(
-      appliedSearchTerm.value.toLowerCase()
-    )
-  );
-});
-const clearSearch = () => {
-  searchTerm.value = "";
-  appliedSearchTerm.value = "";
-};
+function formatDate(timestamp) {
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}/${date.getFullYear().toString().substr(-2)}`;
+}
 </script>
 
 <template>
@@ -126,9 +169,17 @@ const clearSearch = () => {
           type="text"
           v-model="searchTerm"
           @keyup.enter="applySearch"
-          placeholder="Search orders..."
+          :placeholder="
+            appliedSearchTerm !== ''
+              ? `Current search: ${appliedSearchTerm}`
+              : 'Search orders...'
+          "
         />
-        <button @click="clearSearch" :disabled="!searchTerm">✕</button>
+        <button @click="clearSearch" :disabled="!appliedSearchTerm">
+          <div class="removeSearch">
+            <svg-icon type="mdi" :path="alphaX"></svg-icon>
+          </div>
+        </button>
       </div>
       <button @click="applySearch">Search</button>
     </div>
@@ -142,58 +193,86 @@ const clearSearch = () => {
             <th>Company</th>
             <th>Address</th>
             <th>
-              Date
-              <button @click="toggleDateSortOrder">
-                {{ dateSortOrder === "desc" ? "🔽" : "🔼" }}
-              </button>
+              <div class="headerContent">
+                Date
+                <button @click="toggleDateSortOrder" class="headerIcons">
+                  <svg-icon
+                    :type="'mdi'"
+                    :path="dateSortOrder === 'desc' ? chevronUp : chevronDown"
+                    style="color: white"
+                  ></svg-icon>
+                </button>
+              </div>
             </th>
             <th>Price</th>
             <th>
-              Status <button @click="toggleFilterDropdown">⚙️</button>
-              <div v-if="showFilterDropdown" class="customDropdown">
-                <div @click="selectFilter('All')">All</div>
-                <div @click="selectFilter('Ongoing')">Ongoing</div>
-                <div @click="selectFilter('Completed')">Completed</div>
-                <div @click="selectFilter('Expired')">Expired</div>
+              <div class="headerContent">
+                Status
+                <button @click="toggleFilterDropdown" class="headerIcons">
+                  <svg-icon type="mdi" :path="filterCog"></svg-icon>
+                </button>
+                <div v-if="showFilterDropdown" class="customDropdown">
+                  <div @click="selectFilter('All')">All</div>
+                  <div @click="selectFilter('Ongoing')">Ongoing</div>
+                  <div @click="selectFilter('Completed')">Completed</div>
+                  <div @click="selectFilter('Expired')">Expired</div>
+                </div>
               </div>
             </th>
-            <th>Mark as Completed</th>
+            <th>Comments</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="order in filteredOrders" :key="order.id">
+        <tbody v-if="paginatedOrders.length > 0">
+          <tr v-for="order in paginatedOrders" :key="order.id">
             <td>{{ order.orderId }}</td>
             <td>{{ order.order }}</td>
             <td>{{ order.companyName }}</td>
             <td>{{ order.companyAddress }}</td>
             <td>{{ formatDate(order.datePurchased) }}</td>
             <td>{{ order.totalPrice }}</td>
-            <td class="orderStatus">
+            <td>
               <div :class="`orderStatus-${order.status.toLowerCase()}`">
                 {{ order.status }}
               </div>
             </td>
             <td v-if="order.status === 'Ongoing'" style="text-align: center">
-              <button @click="updateOrderStatus(order.id)">✓</button>
+              To be collected
             </td>
             <td
               v-else-if="order.status === 'Completed'"
               style="text-align: center"
             >
-              <button disabled>✓</button>
+              <button @click="deleteOrder(order.id)">
+                <svg-icon
+                  type="mdi"
+                  :path="trashCan"
+                  style="color: darkred"
+                ></svg-icon>
+              </button>
             </td>
             <td
               v-else-if="order.status === 'Expired'"
               style="text-align: center"
             >
-              <button @click="deleteOrder(order.id)">🗑</button>
+              <button @click="deleteOrder(order.id)">
+                <svg-icon
+                  type="mdi"
+                  :path="trashCan"
+                  style="color: darkred"
+                ></svg-icon>
+              </button>
             </td>
             <td v-else></td>
           </tr>
         </tbody>
+        <tbody v-else class="emptyTable">
+          <tr>
+            <td colspan="8">No orders found</td>
+          </tr>
+        </tbody>
       </table>
 
-      <div class="pageNavigation">
+      <div v-if="totalPages > 1" class="pageNavigation">
         <button @click="currentPage--" :disabled="currentPage <= 1">
           Previous
         </button>
@@ -210,19 +289,28 @@ const clearSearch = () => {
           Next
         </button>
       </div>
+      <div v-else-if="filteredOrders.length > 0" class="pageNavigation">
+        <button
+          @click="navigateToPage(1)"
+          :class="{ activePage: currentPage === 1 }"
+        >
+          1
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .orderDashboardContainer {
-  height: calc(100vh - 64px);
-  width: calc(100vw - 40px);
+  width: 95vw;
+  max-width: 100%;
+  padding: 20px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: top;
-  margin: 0px 20px 0px 20px;
 }
 .orderContainer {
   padding: 10px;
@@ -246,11 +334,55 @@ th {
   background-color: #00350a;
   color: white;
 }
-tbody tr:nth-child(odd) {
-  background-color: #b3d2b3;
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.headerIcons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 4px;
 }
 tbody tr:nth-child(even) {
+  background-color: #b3d2b3;
+}
+tbody tr:nth-child(odd) {
   background-color: #e6e6e6;
+}
+tbody.emptyTable {
+  text-align: center;
+}
+th,
+td {
+  white-space: normal;
+}
+th:nth-child(1),
+td:nth-child(1) {
+  width: 5%;
+}
+th:nth-child(2),
+td:nth-child(2) {
+  width: 25%;
+}
+th:nth-child(3),
+td:nth-child(3),
+th:nth-child(5),
+td:nth-child(5),
+th:nth-child(6),
+td:nth-child(6),
+th:nth-child(7),
+td:nth-child(7) {
+  width: 10%;
+}
+th:nth-child(4),
+td:nth-child(4) {
+  width: 15%;
+}
+th:nth-child(8),
+td:nth-child(8) {
+  width: 15%;
 }
 
 .orderStatus {
@@ -271,7 +403,6 @@ tbody tr:nth-child(even) {
   padding: 2px 8px 2px 8px;
   background-color: #f8d7da;
   color: #721c24;
-  width: fit-content;
 }
 .orderStatus-ongoing {
   text-align: center;
@@ -293,8 +424,10 @@ tbody tr:nth-child(even) {
   border: none;
 }
 .pageNavigation button {
-  margin-right: 5px;
+  padding-left: 8px;
+  padding-right: 8px;
   cursor: pointer;
+  border-radius: 5px;
 }
 .pageNavigation button:disabled {
   cursor: default;
@@ -339,7 +472,7 @@ tbody tr:nth-child(even) {
   color: #333;
 }
 .inputWithClear button:disabled {
-  cursor: not-allowed;
+  pointer-events: none;
   color: #ccc;
 }
 .searchContainer {
@@ -349,9 +482,10 @@ tbody tr:nth-child(even) {
   flex-direction: row;
   justify-content: left;
   align-items: left;
-  margin-top: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
+  margin-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 15px;
 }
 .searchContainer input {
   width: 100%;
@@ -370,5 +504,10 @@ tbody tr:nth-child(even) {
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+.removeSearch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

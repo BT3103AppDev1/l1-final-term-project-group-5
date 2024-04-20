@@ -1,7 +1,7 @@
 <template>
     <div class="product-card">
         <div class="img-container" @mouseleave="showOverlay = false">
-            <img :src="listing.imageUrl" alt="Product Image" class="img">
+            <img :src="listing.product.imageUrl" alt="Product Image" class="img">
             <div class="company-picture">
                 <img :src="seller?.photoURL" alt="logo" class="company" @click="showOverlay =! showOverlay">
             </div>
@@ -14,20 +14,25 @@
             </transition>
         </div>
         <div class="product-details">
-            <h2 class="name">{{ listing.name }}</h2>
+            <h2 class="name">{{ listing.product.name }}</h2>
             <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
-            <h3 class="category">{{ listing.category }} </h3>
-            <h3 class="expiry">Expires: {{ listing.expirationDate }} </h3>
+            <h3 class="category">{{ listing.product.category }} </h3>
+            <h3 class="expiry">Expires: {{ formattedDate }}</h3>
+            <h5 class="rem"> {{ listing.unitsRemaining }} available </h5>
         </div>
         <div class="qty-btn-container">
             <div class="qty-selector">
-                <label for="quantity">Quantity </label>
+                <label for="quantity">Quantity:  </label>
                 <button class="qty-edit" @mousedown="startDecrement" @mouseup="stopDecrement" @mouseleave="stopDecrement" :class="{pressed : isDecrementPressed}">-</button>
-                <input type="text" id="quantity" :value="formattedQuantity" class="input-qty" @input="handleQtyInput" @keypress="onlyNumber($event)" readonly>
+                <input type="number" class="input-qty"v-model.lazy="listing.quantity" @input="handleQtyInputs" :max="listing.unitsRemaining" ref="qtyInput">
                 <button class="qty-edit"@mousedown="startIncrement" @mouseup="stopIncrement" @mouseleave="stopIncrement":class="{pressed : isIncrementPressed}">+</button>
             </div>
             <div class="add-btn" 
-                @click="handleAddToCart" @mousedown="isPressed=true" @mouseup="isPressed=false" @mouseleave="isPressed=false">
+                @click="handleAddToCart" 
+                @mousedown="isPressed=true" 
+                @mouseup="isPressed=false" 
+                @mouseleave="isPressed=false"
+                :class="{ pressed:isPressed, disabled:isAddToCartDisabled}">
                 <img src="@/assets/cart.png" alt="Add to Cart" :class="{ pressed: isPressed }">
             </div>
         </div>
@@ -39,6 +44,7 @@
 import { doc, getDoc } from "firebase/firestore";
 import { db } from '@/firebase';
 import { useStore } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from "vuex";
 
 export default {
     props: ['listing'],
@@ -56,6 +62,8 @@ export default {
 
     async created() {
         this.listing.quantity = 1;
+        this.maxQuantity = this.listing.unitsRemaining;
+
 
         const sellerRef = doc(db, 'users', this.listing.sellerId);
         const sellerDoc = await getDoc(sellerRef);
@@ -68,16 +76,49 @@ export default {
         }
     },
 
+    watch: {
+    'listing.quantity': function(newVal, oldVal) {
+        if (newVal > this.listing.unitsRemaining) {
+            this.listing.quantity = this.listing.unitsRemaining;
+        } else if (newVal < 1) {
+            this.listing.quantity = 1;
+            }
+        },
+    },
     computed : {
+        ...mapGetters(["cartItems"]),
+
+        cartItems() {
+            return this.$store.getters.cartItems;
+        },
+
         formattedQuantity() {
             return this.listing.quantity.toString().padStart(2, '0');
         },
+
+        formattedDate() {
+            const date = new Date(this.listing.expirationDate.seconds * 1000);
+            const day = ("0" + date.getDate()).slice(-2);
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        },
+
+        cartQty() {
+            const cartItem = this.cartItems.find(item => item.id === this.listing.id);
+            return cartItem ? cartItem.quantity : 0;
+        },
+        
+        isAddToCartDisabled() {
+            return this.listing.quantity + this.cartQty > this.listing.unitsRemaining;
+        }
     },
 
     methods : {
         handleAddToCart() {
             //console.log(this.listing);
             //console.log(this.listing.quantity);
+            console.log('weight: ', this.listing.product.weight);
             this.$emit('add-to-cart', {... this.listing, quantity:this.listing.quantity});
             this.$store.dispatch("addNotification", {type: "success", message: "Added to cart succesfully!"})
         },
@@ -97,18 +138,49 @@ export default {
         },
 
         handleQtyInput(event) {
-            const qty = parseInt(event.target.value, 10);
-            if (!isNaN(qty) && qty >= 1 && qty <= this.listing.unitsRemaining) {
+            if (this.listing.quantity === this.listing.unitsRemaining) {
+                this.listing.quantity = this.listing.unitsRemaining;
+                console.log("stopped?: ");
+                return;
+            }
+            const qty = parseInt(event.target.value);
+            if (!isNaN(qty)) {
+                if (qty > this.listing.unitsRemaining) {
+                    this.listing.quantity = this.listing.unitsRemaining; // if input is more than max
+                } else if (qty < 1) {
+                    this.listing.quantity = 1; // if input is less than 1
+                } else {
+                    this.listing.quantity = qty;
+                } 
+            }
+        },
+        handleQtyInputs(event) {
+        const qty = parseInt(event.target.value);
+        if (!isNaN(qty)) {
+            if (qty > this.listing.unitsRemaining) {
+                this.listing.quantity = this.listing.unitsRemaining;
+                this.$nextTick(() => {
+                    this.$refs.qtyInput.value = this.listing.quantity;
+                });
+            } else if (qty < 1) {
+                this.listing.quantity = 1;
+                this.$nextTick(() => {
+                    this.$refs.qtyInput.value = this.listing.quantity;
+                });
+            } else {
                 this.listing.quantity = qty;
+                }
             }
         },
 
-        onlyNumber($event) {
+
+
+        /*onlyNumber($event) {
             let keyCode = ($event.keyCode ? $event.keyCode : $event.which);
             if ((keyCode < 48 || keyCode > 57) && keyCode !== 8) { // 8 is backspace
                 $event.preventDefault();
             }
-        },
+        },*/
 
         startIncrement() {
             this.increment();
@@ -142,7 +214,6 @@ export default {
 </script>
 
 <style scoped>
-
 .product-card {
     display: flex;
     flex-direction: column;
@@ -152,9 +223,13 @@ export default {
     padding: 16px;
     margin: 8px;
     width: 250px;
-    height:400px;
+    height:420px;
     background-color:#4B644C;
     box-shadow: 0 0 3px #4B644C;
+    transition: transform 0.2s ease-in-out;
+}
+.product-card:hover{
+    transform: scale(1.05);
 }
 
 .img-container {
@@ -188,11 +263,9 @@ export default {
     opacity:50;
     transition:opacity 0.5s ease;
 }
-
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.2s ease;
 }
-
 .fade-enter, .fade-leave-to {
     transition: opacity 0.2s ease;
     opacity: 0;
@@ -206,26 +279,21 @@ export default {
     margin-bottom: 3px;
     object-fit: cover; /* Ensures the image fills the container without distortion */
 }
-
 .product-details {
     color:#ccc;
 }
-
 .name {
     color:white;
     text-align: left;
     border-top: 2px white;
     border-bottom: 2px white;
 }
-
 .price {
     color:white;
 }
 .category {
     text-align:left;
-
 }
-
 .expiry {
     text-align:left;
     padding-bottom: 5px;
@@ -233,29 +301,31 @@ export default {
 
 .qty-selector {
     align-self:flex-start;
+    
 }
-
 .qty-btn-container {
     color:white;
     display:flex;
     justify-content: space-between;
     width: 100%;
 }
-
 .add-btn {
     align-self: flex-end;
     cursor: pointer;
     display: inline-block;
-    padding: 0;
+    padding: 0;  
 }
-
 .add-btn img {
     width: 35px;
     height: 35px;
     display:inline-block;
     padding:0;
 }
-
+.add-btn.disabled {
+    cursor:not-allowed;
+    opacity:0.5;
+    pointer-events:none;
+}
 .input-qty {
     width: 50px;
     color:white;
@@ -263,19 +333,20 @@ export default {
     padding: 3px;
     font-size: larger;
 }
-
+.input-qty:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px white;
+}
 .qty-edit {
     font-weight:bold;
     width: 16px;
     height:16px;
     font-size:x-large;
 }
-
 .pressed {
     transform: scale(0.8);
     transition: transform 0.1s ease;
 }
-
 .company {
     width: 40px;
     height: 40px;
@@ -286,6 +357,12 @@ export default {
     top: 10px;
     right: 10px;
     cursor: pointer;
+}
+
+.input-qty::-webkit-outer-spin-button,
+.input-qty::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 </style>
 

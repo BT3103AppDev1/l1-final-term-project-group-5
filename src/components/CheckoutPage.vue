@@ -34,8 +34,8 @@
                                 </button>
                             </td>
                             <td class="item">
-                                <img :src="item.imageUrl" alt="Product Image" class="item-img"> 
-                                <h3 class="item-name">{{ item.name }}</h3>
+                                <img :src="item.product.imageUrl" alt="Product Image" class="item-img"> 
+                                <h3 class="item-name">{{ item.product.name }}</h3>
                             </td>
                             <td class="item-price">${{ item.price.toFixed(2) }} </td>
                             <td class="item-qty">
@@ -58,7 +58,9 @@
             <img src="@/assets/Go Back.png" class="back-img">
             Continue Shopping
         </button>
-        <button class="order"@click="placeOrders()">Place Order</button>
+        <button class="order"@click="placeOrders()">
+            Place Order
+        </button>
     </div>
     
 </template>
@@ -75,7 +77,6 @@ export default {
     ...mapGetters(['cartItems', 'totalPrice','getUser',])
     },
     methods: {
-
         ...mapActions(['removeFromCart']),
 
         continueShopping() {
@@ -83,24 +84,27 @@ export default {
         },
         async fetchSellers(cartItems) {
             const uniqueSellers = Array.from(new Set(cartItems.map(item => item.sellerId)));
-            if (uniqueSellers.length === 1) {
-                return uniqueSellers[0]; //if only 1 unique seller
-            } else {
-                return uniqueSellers; // if more than 1 seller, return array of unique sellers
-            }
+            return uniqueSellers; // if more than 1 seller, return array of unique sellers
         },
         async placeOrders() {
-            let counter = 0; // track how many orders made
+            if (!this.cartItems.length) {
+                this.$store.dispatch("addNotification", {type: "warning", message: "Cart is empty! Cannot place order."});
+                return;
+            }
+            //let counter = 0; // track how many orders made
             const datePurchased = new Date();
             const sellers = await this.fetchSellers(this.cartItems); //returns either a single seller or array of sellers
+            console.log(sellers);
             try {
                 for (const sellerId of sellers) {
                     let orderId = Math.floor(Math.random() * 900) + 100; // generate random orderID
                     const sellerRef = doc(db, 'users', sellerId);
+                    //console.log('SellerRef: ', sellerRef);
                     const sellerSnap = await getDoc(sellerRef);
                     const sellerData = sellerSnap.data();
+                    console.log(sellerData.displayName);
                     const sellerItems = this.cartItems.filter(item => item.sellerId === sellerId);
-                    //console.log(sellerData.displayName + ":" + sellerItems);
+                    const totalWeight = sellerItems.reduce((acc, item) => acc + Number(item.product.weight) * Number(item.quantity), 0);
 
                     await setDoc(doc(db, 'order', orderId.toString()), {
                         buyerId: this.getUser.uid,
@@ -109,12 +113,30 @@ export default {
                         datePurchased: datePurchased,
                         expirationDate: sellerItems[0].expirationDate,
                         name: this.getUser.displayName,
-                        order: sellerItems.map(item => ({ name: item.name, quantity: item.quantity })),
+                        order: sellerItems.map(item => ({ name: item.product.name, quantity: item.quantity })),
                         orderId: orderId,
                         sellerId: sellerId,
                         status: 'Ongoing',
                         totalPrice: sellerItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2),
+                        totalWeight: totalWeight,
+                        companyDeleted: false,
+                        customerDeleted: false,
                     });
+
+                    for (const item of sellerItems) {
+                        const listingRef = doc(db, 'listings', item.listingId);
+                        const listingSnap = await getDoc(listingRef);
+
+                        if (listingSnap.exists()) {
+                            const listingData = listingSnap.data();
+
+                            const newUnitsRemaining = listingData.unitsRemaining - item.quantity;
+
+                            await setDoc(listingRef, { unitsRemaining: newUnitsRemaining}, { merge: true});
+                            console.log('Updated units remaining for listing: ' + item.listingId);
+                        }
+                    }
+                    
                     console.log('Order placed successfully with orderID: ' + orderId);
                     
                 }
@@ -181,8 +203,7 @@ export default {
 }
 
 .summary {
-    text-align:left;
-    padding-left: 16px;
+    text-align: center;
 }
 
 .cart-table {
@@ -192,6 +213,8 @@ export default {
     border-bottom: 1px solid #ccc;
 }
 
+
+
 .cart-table thead th {
     width:150px;
     position:sticky;
@@ -200,6 +223,13 @@ export default {
 
 .cart-table td {
     height:80px;
+}
+
+.cart-table td.item {
+    display:flex;
+    justify-content:left;
+    gap: 8px;
+    align-items:center;
 }
 
 .subtotal {
@@ -255,6 +285,14 @@ export default {
     border-radius: 4px;
     border: none;
     cursor: pointer;
+    border:4px outset #4B644C;
+}
+.order:hover {
+    background-color: #3B523C;
+}
+
+.order:active {
+    transform: scale(0.90);
 }
 .back-img {
     height: 30px;
@@ -282,6 +320,32 @@ export default {
 .qty-edit {
     font-size:x-large;
 }
+
+.cart-table th:first-child {
+    width:50px;
+}
+
+.cart-table th:nth-child(2) {
+    width: 200px;
+}
+
+.cart-table th:nth-child(3) {
+    width: 80px;
+}
+
+.cart-table th:nth-child(4) {
+    width: 80px;
+}
+
+.cart-table th:nth-child(5) {
+    width: 100px;
+}
+
+.cart-table td.subtotal {
+    font-weight:bold;
+    font-size: large;
+}
+
 
 
 

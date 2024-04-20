@@ -29,7 +29,7 @@ import {
   where,
   onSnapshot,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, list, ref, uploadBytes } from "firebase/storage";
 import CryptoJS from "crypto-js";
 
 const store = createStore({
@@ -71,15 +71,17 @@ const store = createStore({
     },
     totalPrice: (state) => {
       //console.log(state.cart.items);
-        return state.cart && state.cart.items 
-        ? state.cart.items.reduce((total,item) => (total + item.price * item.quantity), 0).toFixed(2)
+      return state.cart && state.cart.items
+        ? state.cart.items
+            .reduce((total, item) => total + item.price * item.quantity, 0)
+            .toFixed(2)
         : 0;
     },
     profilePictures(state) {
       return state.profilePictures;
     },
   },
-    mutations: {
+  mutations: {
     SET_LOGGED_IN(state, value) {
       state.user.loggedIn = value;
     },
@@ -112,6 +114,19 @@ const store = createStore({
       state.products = products;
     },
 
+    UPDATE_PRODUCT(state, { id, updates }) {
+      const index = state.products.findIndex((product) => product.id === id);
+      if (index !== -1) {
+        state.products[index] = updates;
+      }
+    },
+
+    REMOVE_PRODUCT(state, productId) {
+      state.products = state.products.filter(
+        (product) => product.id !== productId
+      );
+    },
+
     ADD_LISTING(state, listing) {
       state.listings.push(listing);
     },
@@ -125,7 +140,7 @@ const store = createStore({
     },
 
     updateListing(state, { id, updates }) {
-      const index = state.listings.findIndex(listing => listing.id === id);
+      const index = state.listings.findIndex((listing) => listing.id === id);
       if (index !== -1) {
         state.listings[index] = updates;
       }
@@ -175,16 +190,22 @@ const store = createStore({
     SET_PRODUCTS(state, products) {
       state.products = products;
     },
-    ADD_TO_CART(state, item ) {
-      const found = state.cart.items.find(product => product.listingId === item.listingId);
+    ADD_TO_CART(state, item) {
+      const found = state.cart.items.find(
+        (product) => product.listingId === item.listingId
+      );
       if (found) {
+        if(found.quantity + item.quantity > found.unitsRemaining) {
+          console.log('Not enough units remaining');
+          alert("Failed to add to cart: Not enough units remaining");
+          return;
+        }
         found.quantity += item.quantity;
         //console.log('Added existing ' + item.name +  ' to cart x ', item.quantity);
-
       } else {
         state.cart.items.push({
-          ...item, 
-          quantity: item.quantity
+          ...item,
+          quantity: item.quantity,
         });
         //console.log('Added ' + item.name +  ' to cart x ', item.quantity);
       }
@@ -196,10 +217,12 @@ const store = createStore({
     },
 
     REMOVE_FROM_CART(state, item) {
-      const index = state.cart.items.findIndex(cartItem => cartItem.listingId === item.listingId);
+      const index = state.cart.items.findIndex(
+        (cartItem) => cartItem.listingId === item.listingId
+      );
       if (index !== -1) {
         //console.log('Removed ' + item.name + ' from cart');
-        state.cart.items.splice(index,1);
+        state.cart.items.splice(index, 1);
       } else {
         //console.log(item.name + ' not found in cart');
       }
@@ -512,15 +535,27 @@ const store = createStore({
     async reauthenticate({ dispatch, state, commit }, { email, password }) {
       try {
         const user = state.user;
-        if (user.authProvider === "google") { 
+        if (user.authProvider === "google") {
           const credential = GoogleAuthProvider.credential(email, password);
-          await reauthenticateWithCredential(auth.currentUser, credential).catch((error) => {
-            dispatch("addNotification", { type: "error", message: "Failed email validation:" + error });
+          await reauthenticateWithCredential(
+            auth.currentUser,
+            credential
+          ).catch((error) => {
+            dispatch("addNotification", {
+              type: "error",
+              message: "Failed email validation:" + error,
+            });
           });
         } else {
           const credential = EmailAuthProvider.credential(email, password);
-          await reauthenticateWithCredential(auth.currentUser, credential).catch((error) => {
-            dispatch("addNotification", { type: "error", message: "Failed email validation:" + error });
+          await reauthenticateWithCredential(
+            auth.currentUser,
+            credential
+          ).catch((error) => {
+            dispatch("addNotification", {
+              type: "error",
+              message: "Failed email validation:" + error,
+            });
           });
         }
       } catch (error) {
@@ -731,17 +766,40 @@ const store = createStore({
       commit("SET_PRODUCTS", products);
     },
 
+    async editProduct({ commit }, editedProduct) {
+      try {
+        const id = editedProduct.productId;
+        const listingRef = doc(db, "products", id);
+        await updateDoc(listingRef, editedProduct);
+        commit("UPDATE_PRODUCT", { id, editedProduct });
+      } catch (error) {
+        console.error("Error updating listing:", error);
+      }
+    },
+
+    async deleteProduct({ commit }, productId) {
+      try {
+        await deleteDoc(doc(db, "products", productId));
+        commit("REMOVE_PRODUCT", productId);
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        // Handle the error appropriately
+      }
+    },
+
     async addListing({ commit }, newListing) {
       const now = new Date();
       now.setHours(0, 0, 0, 0); // Set now to beginning of the day
       newListing.unitsRemaining = Number(newListing.unitsToSell);
       newListing.createdDate = now;
+      const expirationTimestamp = new Date(newListing.expirationDate);
+      expirationTimestamp.setHours(23, 59, 59); 
       newListing.isActive =
-        newListing.unitsRemaining > 0 &&
-        new Date(newListing.expirationDate) >= now;
+        newListing.unitsRemaining > 0 && new Date(newListing.expirationDate) >= now;
       const docRef = await addDoc(collection(db, "listings"), newListing);
       await updateDoc(doc(db, "listings", docRef.id), {
         listingId: docRef.id,
+        expirationDate: expirationTimestamp,
       });
       newListing.listingId = docRef.id;
       commit("ADD_LISTING", { id: docRef.id, ...newListing });
@@ -750,11 +808,14 @@ const store = createStore({
     async editListing({ commit }, editedListing) {
       try {
         const id = editedListing.listingId;
-        const listingRef = doc(db, 'listings', id);
+        const expirationTimestamp = new Date(editedListing.expirationDate);
+        expirationTimestamp.setHours(23, 59, 59); // Set the time to end of the day
+        const listingRef = doc(db, "listings", id);
         await updateDoc(listingRef, editedListing);
-        commit('updateListing', { id, editedListing });
+        await updateDoc(listingRef, { expirationDate: expirationTimestamp })
+        commit("updateListing", { id, editedListing });
       } catch (error) {
-        console.error('Error updating listing:', error);
+        console.error("Error updating listing:", error);
       }
     },
 
@@ -769,20 +830,20 @@ const store = createStore({
       const listings = await Promise.all(
         querySnapshot.docs.map(async (listingDoc) => {
           const listing = listingDoc.data();
-          const productRef = doc(db, "products", String(listing.productId));
-          const productSnap = await getDoc(productRef);
+          //const productRef = doc(db, "products", String(listing.productId));
+          //const productSnap = await getDoc(productRef);
 
           // Assuming the product exists and adding a check for the same
-          if (productSnap.exists()) {
-            const product = productSnap.data();
-            // Return the listing with additional product details
-            return {
-              ...listing,
-              productName: product.name,
-              productImage: product.imageUrl,
-              productCategory: product.category,
-            };
-          }
+          //if (productSnap.exists()) {
+          //const product = productSnap.data();
+          // Return the listing with additional product details
+          //   return {
+          //     ...listing,
+          //     productName: product.name,
+          //     productImage: product.imageUrl,
+          //     productCategory: product.category,
+          //   };
+          // }
 
           // If the product does not exist, return the listing without product details
           return listing;
@@ -803,20 +864,20 @@ const store = createStore({
       const listings = await Promise.all(
         querySnapshot.docs.map(async (listingDoc) => {
           const listing = listingDoc.data();
-          const productRef = doc(db, "products", listing.productId);
-          const productSnap = await getDoc(productRef);
+          // const productRef = doc(db, "products", listing.productId);
+          // const productSnap = await getDoc(productRef);
 
-          // Assuming the product exists and adding a check for the same
-          if (productSnap.exists()) {
-            const product = productSnap.data();
-            // Return the listing with additional product details
-            return {
-              ...listing,
-              productName: product.name,
-              productImage: product.imageUrl,
-              productCategory: product.category,
-            };
-          }
+          // // Assuming the product exists and adding a check for the same
+          // if (productSnap.exists()) {
+          //   const product = productSnap.data();
+          //   // Return the listing with additional product details
+          //   return {
+          //     ...listing,
+          //     productName: product.name,
+          //     productImage: product.imageUrl,
+          //     productCategory: product.category,
+          //   };
+          // }
 
           // If the product does not exist, return the listing without product details
           return listing;
@@ -887,7 +948,10 @@ const store = createStore({
       commit("CLEAR_NOTIFICATION");
     },
 
-    async updateBankDetails({ dispatch, state, commit }, {bankDetails, password}) {
+    async updateBankDetails(
+      { dispatch, state, commit },
+      { bankDetails, password }
+    ) {
       try {
         const secretKey = import.meta.env.VITE_APP_SECRET_KEY;
         const ciphertext = CryptoJS.AES.encrypt(
@@ -929,9 +993,12 @@ const store = createStore({
       }
     },
 
-    fetchProducts({commit}) {
+    fetchProducts({ commit }) {
       const products = [];
-      commit('SET_PRODUCTS', products.filter(p => p.isActive));
+      commit(
+        "SET_PRODUCTS",
+        products.filter((p) => p.isActive)
+      );
     },
 
     addToCart({ commit }, item) {
@@ -955,6 +1022,5 @@ const store = createStore({
     },
   },
 });
-
 
 export default store;

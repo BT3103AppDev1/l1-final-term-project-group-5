@@ -77,7 +77,7 @@ export default {
     background-position:center;
     background-repeat:no-repeat;
     height:95vh;
-    width:100%;
+    width:100vw;
     display:flex;
     flex-direction:column;
     align-items: center;
@@ -110,8 +110,10 @@ export default {
 .sidebar {
     display:flex;
     flex-direction: column;
-    width:200px;
-    padding:20px;
+    width:25vw;
+    
+    min-width:200px;
+    max-width:400px
 }
 
 .filter {
@@ -126,6 +128,7 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 20px;
+    
 }
 
 

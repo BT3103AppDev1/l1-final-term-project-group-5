@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <div class="scroller" data-direction="left" data-speed="medium">
+    <div class="scroller" data-direction="left" data-speed="slow">
       <div class="text-container">
-        <h1>Our Partners With EcoGrade 1</h1>
+        <h1 style="font-weight: 500">Our Partners With EcoGrade 1!</h1>
       </div>
       <div class="scroller__inner">
         <v-img
@@ -22,6 +22,8 @@ import { computed } from "vue";
 import { useStore } from "vuex";
 
 export default {
+  name: "HomePartnerDisplay",
+
   data() {
     return {
       items: [],
@@ -29,68 +31,58 @@ export default {
     };
   },
 
-  mounted() {
+  async mounted() {
+    await this.fetchProfilePictures();
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       this.addAnimation();
     }
   },
 
   methods: {
+    async fetchProfilePictures() {
+      const store = useStore();
+      await store.dispatch("fetchProfilePictures");
+      this.items = store.getters.profilePictures;
+    },
+
     addAnimation() {
+      // this.animated = true;
       const scroller = this.$el.querySelector(".scroller");
       scroller.setAttribute("data-animated", true);
 
-      const scrollerInner = scroller.querySelector(".scroller__inner");
-      const scrollerContent = Array.from(scrollerInner.children);
-
-      scrollerContent.forEach((item) => {
-        const duplicatedItem = item.cloneNode(true);
-        duplicatedItem.setAttribute("aria-hidden", true);
-        scrollerInner.appendChild(duplicatedItem);
-      });
-
       const targetLength = 50; // Replace with your target length
-      const times = Math.ceil(targetLength / this.items.length);
 
-      this.duplicatedItems = [];
-      for (let i = 0; i < times; i++) {
-        this.duplicatedItems = [...this.duplicatedItems, ...this.items];
+      if (this.items.length > 0) {
+        const times = Math.ceil(targetLength / this.items.length);
+
+        this.duplicatedItems = [];
+        for (let i = 0; i < times; i++) {
+          this.duplicatedItems = [...this.duplicatedItems, ...this.items];
+        }
+      } else {
+        console.warn("items is empty");
       }
     },
-  },
-
-  setup() {
-    const store = useStore();
-    store.dispatch("fetchProfilePictures");
-    const items = computed(() => store.getters.profilePictures);
-    // const items = [
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    //   "https://firebasestorage.googleapis.com/v0/b/greenharbor-cd03b.appspot.com/o/profilePictures%2FqYcmdc4udiN4butJN7F9m6CTPvs2.png?alt=media&token=7b65eae6-a923-416b-9405-1fdd8a7e9f5d",
-    // ];
-    // console.log(items);
-    return { items };
   },
 };
 </script>
 
 <style scoped>
+.container {
+  width: 100%;
+}
+
 .scroller {
   max-width: 100%;
-  background-color: #7c8e76;
+  background-color: #4B644C;
+  height: 250px;
 }
 
 .scroller__inner {
   padding-block: 2rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 3rem;
 }
 
 .scroller[data-animated="true"] {
@@ -135,8 +127,8 @@ export default {
 }
 
 .profile-picture {
-  width: 100px; /* Replace with your desired width */
-  height: 100px; /* Replace with your desired height */
+  width: 100px;
+  height: 100px; 
 }
 
 .text-container {
@@ -144,5 +136,7 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
+  padding-top: 20px;
+  color: white;
 }
 </style>

@@ -49,7 +49,7 @@ async function fetchDocuments() {
       ? doc
           .data()
           .order.map((item) => `${item.name} x${item.quantity}`)
-          .join(", ")
+          .join("<br>")
       : "Invalid order data",
   }));
 }
@@ -234,7 +234,7 @@ function formatDate(timestamp) {
         <tbody v-if="paginatedOrders.length > 0">
           <tr v-for="order in paginatedOrders" :key="order.id">
             <td>{{ order.orderId }}</td>
-            <td>{{ order.order }}</td>
+            <td v-html="order.order"></td>
             <td>{{ order.companyName }}</td>
             <td>{{ order.companyAddress }}</td>
             <td>{{ formatDate(order.datePurchased) }}</td>

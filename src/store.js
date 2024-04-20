@@ -48,7 +48,7 @@ const store = createStore({
       weight: 0,
       bankDetails: "",
       authProvider: "",
-      rank: 3,
+      rank: 5,
     },
     products: [],
     listings: [],
@@ -258,7 +258,7 @@ const store = createStore({
             photoURL: defaultProfilePictureURL,
             weight: 0,
             bankDetails: "",
-            rank: 3,
+            rank: 5,
           });
           context.commit("SET_USER_DETAILS", {
             displayName: "",
@@ -425,7 +425,7 @@ const store = createStore({
                 photoURL: user.photoURL,
                 weight: 0,
                 bankDetails: "",
-                rank: 3,
+                rank: 5,
               });
               context.commit("SET_USER_DETAILS", {
                 displayName: user.displayName,
@@ -587,7 +587,10 @@ const store = createStore({
           //throw new Error("Please verify the new email before changing email.");
         } else {
           console.log(email, oldPassword, newPassword);
-          const bool = await dispatch("reauthenticate", { email: email, password: oldPassword });
+          const bool = await dispatch("reauthenticate", {
+            email: email,
+            password: oldPassword,
+          });
           if (bool) {
             await updatePassword(auth.currentUser, newPassword).then(
               console.log("Password updated")
@@ -928,8 +931,7 @@ const store = createStore({
         const listing = doc.data();
         const date = listing.expirationDate.toDate();
         // Determine if the listing should be marked as inactive
-        const shouldBeInactive =
-          listing.unitsRemaining <= 0 || date < now;
+        const shouldBeInactive = listing.unitsRemaining <= 0 || date < now;
 
         if (listing.isActive && shouldBeInactive) {
           // Only update if the listing is currently active but should be inactive
@@ -1051,7 +1053,7 @@ const store = createStore({
     async fetchProfilePictures({ commit }) {
       const queryDoc = query(
         collection(db, "users"),
-        where("ecoRank", "==", 1),
+        where("rank", "==", 1),
         where("userType", "==", "ecoPartner")
       );
       const profilePicturesSnapshot = await getDocs(queryDoc);

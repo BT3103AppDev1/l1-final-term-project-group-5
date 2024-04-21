@@ -6,7 +6,18 @@
           <th>ID</th>
           <th>Order</th>
           <th>Customer</th>
-          <th>Date Ordered</th>
+          <th>
+            <div class="date-container">
+              <span>Date Ordered</span>
+              <button class="header-icons" @click="toggleSortOrder">
+                <svg-icon
+                  :type="'mdi'"
+                  :path="sortIcon"
+                  style="color: rgba(255, 255, 255, 0.844)"
+                ></svg-icon>
+              </button>
+            </div>
+          </th>
           <th>Expiry Date</th>
           <th>Price</th>
           <th>
@@ -64,7 +75,12 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import SvgIcon from "@jamescoyle/vue-icon";
-import { mdiTrashCanOutline, mdiFilterVariant } from "@mdi/js";
+import {
+  mdiTrashCanOutline,
+  mdiFilterVariant,
+  mdiSortCalendarDescending,
+  mdiSortCalendarAscending,
+} from "@mdi/js";
 
 const db = getFirestore(firebaseApp);
 
@@ -82,6 +98,8 @@ export default {
       store: null, // initialize store
       isDropdownOpen: false,
       numDocs: 1,
+      sortIcon: mdiSortCalendarAscending,
+      sortOrder: "desc",
     };
   },
   props: {
@@ -166,9 +184,11 @@ export default {
       // Update number of pages
       this.$emit("total-page", filteredDocuments.length);
 
-      // Sort documents by date ordered
+      // Sort documents by date ordered based on sortOrder
       filteredDocuments.sort((a, b) => {
-        return b.datePurchased.seconds - a.datePurchased.seconds;
+        const dateA = new Date(a.datePurchased.seconds * 1000);
+        const dateB = new Date(b.datePurchased.seconds * 1000);
+        return this.sortOrder === "asc" ? dateA - dateB : dateB - dateA;
       });
 
       // Filter documents based on pagination
@@ -250,6 +270,14 @@ export default {
         }
       });
       this.entriesToComplete = []; // Ensure previously checked boxes are unchecked
+    },
+    toggleSortOrder() {
+      this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+      this.sortIcon =
+        this.sortOrder === "asc"
+          ? mdiSortCalendarDescending
+          : mdiSortCalendarAscending;
+      this.display(); // Refresh the display with the new sort order
     },
     async deleteInstrument(id) {
       try {
@@ -462,7 +490,8 @@ tbody tr:nth-child(odd) {
   transform: scale(1.1); /* Scale up by 10% on hover */
 }
 
-/* Styles for status container */
+/* Styles for date and status container */
+.date-container,
 .status-container {
   display: flex;
   align-items: center;

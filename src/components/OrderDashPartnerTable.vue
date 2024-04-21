@@ -469,10 +469,6 @@ tbody tr:nth-child(odd) {
   justify-content: center; /* Center the content horizontally */
 }
 
-.status-container span {
-  margin-right: 10px;
-}
-
 .status-container select {
   border-radius: 4px;
   border: 2px solid #ccc;

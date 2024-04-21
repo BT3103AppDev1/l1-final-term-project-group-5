@@ -351,9 +351,9 @@ export default {
 
         await updateDoc(docRef, { status: "Completed" });
         await updateDoc(sellerDocRef, { weight: sellerWeight });
-        await updateDoc(sellerDocRef, { ecoRank: getEcoRank(sellerWeight) });
+        await updateDoc(sellerDocRef, { ecoRank: this.getEcoRank(sellerWeight) });
         await updateDoc(buyerDocRef, { weight: buyerWeight });
-        await updateDoc(buyerDocRef, { ecoRank: getEcoRank(buyerWeight) });
+        await updateDoc(buyerDocRef, { ecoRank: this.getEcoRank(buyerWeight) });
       }
       this.display();
       this.store.dispatch("addNotification", {

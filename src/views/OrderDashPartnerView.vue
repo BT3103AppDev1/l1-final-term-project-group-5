@@ -99,7 +99,6 @@ export default {
 
 <style scoped>
 .container {
-  background: url("../assets/bg2.png") no-repeat center center fixed; /* Set background image */
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -112,15 +111,15 @@ export default {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  width: 100%;
-  height: calc(100vh - 64px);
+  width: 100vw;
+  height: 100%;
 }
 
 .stack {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  height: 100%;
+  min-height: calc(100vh - 64px);
 }
 .search-bar-container {
   margin-left: 10px;

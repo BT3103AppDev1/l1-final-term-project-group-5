@@ -1,6 +1,7 @@
 <template>
   <div class="pagination-container">
     <button
+      v-if="this.visiblePages.length > 0"
       class="previous-button"
       @click="handlePrev"
       :disabled="currentPage < 4 || searchQuery !== ''"
@@ -18,6 +19,7 @@
       {{ pageNumber }}
     </button>
     <button
+      v-if="this.visiblePages.length > 0"
       class="next-button"
       @click="handleNext"
       :disabled="isNextDisabled"

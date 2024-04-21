@@ -28,7 +28,7 @@ export default {
   -o-background-size: cover;
   background-size: cover;
   width: 100%;
-  height: 120vh;
+  height: 135vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -59,6 +59,5 @@ h4 {
   color: black;
   position: absolute;
   bottom: 0;
-  width: 80%;
 }
 </style>

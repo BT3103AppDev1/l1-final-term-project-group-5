@@ -6,7 +6,7 @@
       :disabled="currentPage < 4 || searchQuery !== ''"
       :class="{ 'fade-out': currentPage < 4 }"
     >
-      <
+      &lt;
     </button>
     <button
       v-for="pageNumber in visiblePages"
@@ -23,7 +23,7 @@
       :disabled="isNextDisabled"
       :class="{ 'fade-out': isNextDisabled }"
     >
-      >
+      &gt;
     </button>
   </div>
 </template>

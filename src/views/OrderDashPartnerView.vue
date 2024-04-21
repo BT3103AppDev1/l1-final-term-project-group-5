@@ -120,18 +120,26 @@ export default {
   flex-direction: column;
   align-items: flex-start;
   min-height: calc(100vh - 64px);
+  padding: 20px;
 }
 .search-bar-container {
-  margin-left: 10px;
-}
-.page-bar-container {
-  margin-top: -130px; /* Adjust this value to create space between the table and the page bar */
-  margin-left: auto;
-  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 10px 10px 20px;
 }
 .table-container {
   background-color: transparent;
   position: relative; /* Make the table container a positioned element */
   top: 0; /* Set the top position to 0 */
+  padding: 20px;
+}
+.page-bar-container {
+  display: flex;
+  margin-top: -125px;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>

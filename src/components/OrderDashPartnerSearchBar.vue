@@ -9,9 +9,9 @@
     />
     <button @click="handleSearch" class="search-button">Search</button>
     <button @click="clearSearch" class="clear-button">Clear</button>
-    <span v-if="searchMade && searchText" class="currentSearch">
+    <div v-if="searchMade && searchText" class="currentSearch">
       Current search: {{ searchText }}
-    </span>
+    </div>
   </div>
 </template>
 
@@ -46,8 +46,7 @@ export default {
   flex-direction: row;
   justify-content: left;
   align-items: left;
-  margin-top: 20px;
-  padding: 10px 10px 10px 20px;
+  margin: 0;
 }
 
 .search-input {

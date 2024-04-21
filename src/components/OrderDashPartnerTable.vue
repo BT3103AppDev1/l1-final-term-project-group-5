@@ -400,7 +400,6 @@ export default {
 .container {
   max-width: 100%; /* Limit the container's width to the viewport width */
   margin: 0 auto; /* Center align the container */
-  padding: 20px; /* Add padding to the container */
 }
 
 /* Table styles */

@@ -29,6 +29,11 @@
         </tr>
       </thead>
       <tbody></tbody>
+      <tbody v-if="numDocs < 1">
+        <tr>
+          <td colspan="8">No orders found</td>
+        </tr>
+      </tbody>
     </table>
     <br />
     <div id="completeButtonContainer">
@@ -76,6 +81,7 @@ export default {
       entriesToComplete: [],
       store: null, // initialize store
       isDropdownOpen: false,
+      numDocs: 1,
     };
   },
   props: {
@@ -155,6 +161,7 @@ export default {
 
       const querySnapshot = await getDocs(queryRef);
       const filteredDocuments = querySnapshot.docs.map((doc) => doc.data());
+      this.numDocs = filteredDocuments.length;
 
       // Update number of pages
       this.$emit("total-page", filteredDocuments.length);

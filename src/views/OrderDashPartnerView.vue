@@ -4,22 +4,25 @@
       <div class="search-bar-container">
         <OrderDashPartnerSearchBar @search="handleSearch" />
       </div>
-      <OrderDashPartnerTable
-        class="table"
-        :currentPage="currentPage"
-        :entriesPerPage="entriesPerPage"
-        :searchQuery="searchQuery"
-        @total-page="updateTotalPage($event)"
-        @handleStatus="handleStatus"
-      />
-      <br />
-      <OrderDashPartnerPageBar
-        class="page-bar"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        :searchQuery="searchQuery"
-        @page-change="handlePageChange"
-      />
+      <div class="table-container">
+        <OrderDashPartnerTable
+          class="table"
+          :currentPage="currentPage"
+          :entriesPerPage="entriesPerPage"
+          :searchQuery="searchQuery"
+          @total-page="updateTotalPage($event)"
+          @handleStatus="handleStatus"
+        />
+      </div>
+      <div class="page-bar-container">
+        <OrderDashPartnerPageBar
+          class="page-bar"
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          :searchQuery="searchQuery"
+          @page-change="handlePageChange"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -42,7 +45,7 @@ export default {
   data() {
     return {
       currentPage: 1,
-      entriesPerPage: 5,
+      entriesPerPage: 10,
       totalEntries: 0,
       searchQuery: "",
       entriesToComplete: [],
@@ -125,11 +128,14 @@ export default {
 .search-bar-container {
   margin-left: 10px;
 }
-.page-bar {
-  margin: auto;
+.page-bar-container {
+  margin-top: -130px; /* Adjust this value to create space between the table and the page bar */
+  margin-left: auto;
+  margin-right: auto;
 }
-.table {
-  margin: auto;
+.table-container {
   background-color: transparent;
+  position: relative; /* Make the table container a positioned element */
+  top: 0; /* Set the top position to 0 */
 }
 </style>

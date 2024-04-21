@@ -137,9 +137,10 @@ export default {
   padding: 20px;
 }
 .page-bar-container {
+  width: 100%;
   display: flex;
+  justify-content: center;
+  align-items: center;
   margin-top: -125px;
-  margin-left: auto;
-  margin-right: auto;
 }
 </style>

@@ -9,8 +9,8 @@
     />
     <button @click="handleSearch" class="search-button">Search</button>
     <button @click="clearSearch" class="clear-button">Clear</button>
-    <div v-if="searchMade && searchText" class="currentSearch">
-      Current search: {{ searchText }}
+    <div v-if="searchMade && appliedSearchText" class="currentSearch">
+      Current search: {{ appliedSearchText }}
     </div>
   </div>
 </template>
@@ -20,12 +20,14 @@ export default {
   data() {
     return {
       searchText: "",
+      appliedSearchText: "",
       searchMade: false,
     };
   },
   methods: {
     handleSearch() {
       this.searchMade = true;
+      this.appliedSearchText = this.searchText;
       // Emit an event with the search text
       this.$emit("search", this.searchText);
     },
@@ -33,6 +35,7 @@ export default {
       // Clear the search text and emit an event to clear the search
       this.searchText = "";
       this.searchMade = false;
+      this.appliedSearchText = "";
       this.$emit("search", "");
     },
   },

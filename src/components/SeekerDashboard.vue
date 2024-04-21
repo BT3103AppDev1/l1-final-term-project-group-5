@@ -322,7 +322,7 @@ function formatDate(timestamp) {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: top;
   justify-content: top;
 }
 .orderContainer {

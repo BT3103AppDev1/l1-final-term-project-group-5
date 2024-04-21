@@ -99,7 +99,6 @@ export default {
 
 <style scoped>
 .container {
-  background: url("../assets/bg2.png") no-repeat center center fixed; /* Set background image */
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -112,30 +111,36 @@ export default {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  width: 100%;
-  height: calc(100vh - 64px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100vw;
+  height: 100%;
 }
 
 .stack {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  height: 100%;
+  min-height: calc(100vh - 64px);
+  padding: 20px;
 }
 .search-bar-container {
-  margin-left: 10px;
-}
-.page-bar-container {
-  margin-top: -130px; /* Adjust this value to create space between the table and the page bar */
-  margin-left: auto;
-  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 10px 10px 20px;
 }
 .table-container {
   background-color: transparent;
   position: relative; /* Make the table container a positioned element */
   top: 0; /* Set the top position to 0 */
+  padding: 20px;
+}
+.page-bar-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -125px;
 }
 </style>

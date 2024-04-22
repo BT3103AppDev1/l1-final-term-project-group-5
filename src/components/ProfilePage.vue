@@ -31,6 +31,7 @@
                   </v-avatar>
                 </v-col>
               </v-row>
+              <v-row no-gutters>
               <v-col cols="12" md="12">
                 <v-text-field
                   id="userType"
@@ -223,7 +224,8 @@
                   </template>
                 </v-text-field>
               </v-col>
-
+            </v-row>
+            <v-row dense>
               <v-col cols="12" md="12">
                 <v-btn
                   id="emailVerification"
@@ -379,6 +381,7 @@
                   >!
                 </h3>
               </v-col>
+            </v-row>
             </v-form>
           </v-card-text>
         </v-card>

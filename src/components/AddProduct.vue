@@ -143,8 +143,7 @@ export default {
 }
 
 .submit-button {
-  background-color: #4caf50;
-  /* Green */
+  background-color: #4B644C;
   color: white;
 }
 

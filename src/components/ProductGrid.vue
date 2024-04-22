@@ -128,7 +128,7 @@ export default {
 
     //sort listings by expiry-date
     this.filteredActiveListings.sort((a, b) => {
-      return new Date(a.expirationDate) - new Date(b.expirationDate);
+      return a.expirationDate - b.expirationDate;
     });
   },
 

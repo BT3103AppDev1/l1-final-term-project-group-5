@@ -7,10 +7,11 @@
     </div>
     <v-sheet class="mx-auto" width="300">
       <h1 class="transparent-bg">Add New Product</h1>
-      <v-form @submit.prevent="addProduct">
+      <v-form ref="form" @submit.prevent="addProduct">
         <v-text-field
           v-model="product.name"
           label="Product Name"
+          :rules="nameRules"
           required
         ></v-text-field>
 
@@ -18,6 +19,7 @@
           v-model="product.category"
           :items="categories"
           label="Select Product Category"
+          :rules="[v => !!v || 'Category is required']"
           required
         ></v-select>
 
@@ -25,6 +27,7 @@
           v-model.number="product.weight"
           label="Enter Product Weight (grams)"
           type="number"
+          :rules="weightRules"
           required
         ></v-text-field>
 
@@ -67,7 +70,14 @@ export default {
         sellerId: "",
         store: null,
       },
-      categories: ["Baked Good", "Dairy", "Fruit", "Vegetable"], // list of categories
+      categories: ["Baked Good", "Dairy", "Fruit", "Vegetable"], // list of categories,
+      nameRules: [
+        v => !!v || 'Name is required',
+        v => (v && v.length <= 10) || 'Name must be less than 10 characters'
+      ],
+      weightRules: [
+        v => !isNaN(parseFloat(v)) && v >= 0 || 'Weight must be a positive number',
+      ],
     };
   },
   mounted() {
@@ -88,16 +98,26 @@ export default {
     },
 
     async addProduct() {
-      if (this.product.name && this.product.category && this.product.image) {
-        await this.addProductToDB(this.product);
-        this.$router.push("/partner/marketplace"); // redirect to marketplace after adding
-        this.store.dispatch("addNotification", {
-          // use store from instance
-          type: "success",
-          message: "Successfully added product!",
-        });
+      if (this.product.name && this.product.category && this.product.weight && this.product.image) {
+        if (this.product.name.length <= 10 && this.product.weight > 0) {
+          await this.addProductToDB(this.product);
+          this.$router.push("/partner/marketplace"); // redirect to marketplace after adding
+          this.store.dispatch("addNotification", {
+            // use store from instance
+            type: "success",
+            message: "Successfully added product!",
+          });
+        } else {
+          this.store.dispatch("addNotification", {
+            type: "error",
+            message: "Please correct the errors in the form",
+          });
+        }
       } else {
-        alert("All fields are required");
+        this.store.dispatch("addNotification", {
+          type: "error",
+          message: "Please fill in all fields",
+        });
       }
     },
 
@@ -123,8 +143,7 @@ export default {
 }
 
 .submit-button {
-  background-color: #4caf50;
-  /* Green */
+  background-color: #4B644C;
   color: white;
 }
 

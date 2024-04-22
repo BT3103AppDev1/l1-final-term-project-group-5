@@ -10,76 +10,51 @@
         </div>
 
         <div class="product-card" v-for="product in products" :key="product.id">
-          <v-dialog v-model="productDialog" max-width="500">
-            <template v-slot:activator="{ props: activatorProps }">
-              <v-btn
-                v-bind="activatorProps"
-                color="surface-variant"
-                text="Edit"
-                variant="flat"
-                @click="openEditWindow(product, 'product')"
-              ></v-btn>
-            </template>
+          <div class="edit-button">
+            <v-dialog v-model="productDialog" max-width="500">
+              <template v-slot:activator="{ props: activatorProps }">
+                <v-btn v-bind="activatorProps" variant="flat" icon @click="openEditWindow(product, 'product')">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
 
-            <template v-slot:default="{ productDialog }">
-              <v-card title="Edit Product Details">
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field
-                    label="Product Name"
-                    v-model="editedProduct.name"
-                    required
-                  ></v-text-field>
-                  <v-select
-                    v-model="editedProduct.category"
-                    :items="categories"
-                    label="Select Product Category"
-                    required
-                  ></v-select>
+              </template>
 
-                  <v-text-field
-                    v-model.number="editedProduct.weight"
-                    label="Enter Product Weight (grams)"
-                    type="number"
-                    required
-                  ></v-text-field>
+              <template v-slot:default="{ productDialog }">
+                <v-card title="Edit Product Details">
+                  <v-form ref="form" v-model="valid" lazy-validation>
+                    <v-text-field label="Product Name" v-model="editedProduct.name" required></v-text-field>
+                    <v-select v-model="editedProduct.category" :items="categories" label="Select Product Category"
+                      required></v-select>
 
-                  <v-file-input
-                    label="Upload Product Image"
-                    prepend-icon="mdi-paperclip"
-                    @change="onFileChange"
-                    chips
-                  >
-                  </v-file-input>
-                </v-form>
+                    <v-text-field v-model.number="editedProduct.weight" label="Enter Product Weight (grams)"
+                      type="number" required></v-text-field>
 
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text="Save Changes"
-                    @click="saveProductDetails()"
-                  ></v-btn>
-                  <v-btn
-                    text="Close"
-                    @click="this.productDialog = false"
-                  ></v-btn>
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
+                    <v-file-input label="Upload Product Image" prepend-icon="mdi-paperclip" @change="onFileChange"
+                      chips>
+                    </v-file-input>
+                  </v-form>
 
-          <img
-            :src="product.imageUrl"
-            :alt="product.name"
-            class="product-image"
-          />
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text="Save Changes" @click="saveProductDetails()"></v-btn>
+                    <v-btn text="Close" @click="this.productDialog = false"></v-btn>
+                  </v-card-actions>
+                </v-card>
+              </template>
+            </v-dialog>
+          </div>
+          <div class="product-img">
+            <img :src="product.imageUrl" :alt="product.name" class="product-image" />
+          </div>
+          <hr class="divider">
           <div class="product-info">
             <h3>{{ product.name }}</h3>
             <p>{{ product.category }}</p>
             <p>{{ product.weight }} grams</p>
-            <v-btn
-              text="Delete"
-              @click="confirmDeleteProduct(product.productId)"
-            ></v-btn>
+            <v-btn click="confirmDeleteProduct(product.productId)">
+              <v-icon>mdi-delete</v-icon>
+              Delete
+            </v-btn>
           </div>
         </div>
       </div>
@@ -88,80 +63,48 @@
     <div class="listings-section">
       <h2>Current Listings</h2>
       <div class="listings-container" name="active-listings">
-        <div
-          class="listing-card"
-          v-for="listing in activeListings"
-          :key="listing.id"
-        >
-          <v-dialog v-model="listingDialog" max-width="500">
-            <template v-slot:activator="{ props: activatorProps }">
-              <v-btn
-                v-bind="activatorProps"
-                color="surface-variant"
-                text="Edit"
-                variant="flat"
-                @click="openEditWindow(listing, 'listing')"
-              ></v-btn>
-            </template>
+        
+        <!-- Add New Listing card here -->
+        <div @click="AddListing" class="listing-card-add-new">
+          <span class="plus-icon">+</span>
+          <p>Add New Listing</p>
+        </div>
 
-            <template v-slot:default="{ isActive }">
-              <v-card title="Edit Listing Details">
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field
-                    v-model="editedListing.expirationDate"
-                    id="expirationDate"
-                    label="Expiration Date"
-                    type="date"
-                    :min="today"
-                    required
-                  ></v-text-field>
+        <div class="listing-card" v-for="listing in activeListings" :key="listing.id">
+          <div class="edit-button">
+            <v-dialog v-model="listingDialog" max-width="500">
+              <template v-slot:activator="{ props: activatorProps }">
+                <v-btn v-bind="activatorProps" variant="flat" icon @click="openEditWindow(listing, 'listing')">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+              </template>
 
-                  <v-text-field
-                    v-model.number="editedListing.price"
-                    id="price"
-                    label="Price of product ($)"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    required
-                  ></v-text-field>
+              <template v-slot:default="{ isActive }">
+                <v-card title="Edit Listing Details">
+                  <v-form ref="form" v-model="valid" lazy-validation>
+                    <v-text-field v-model="editedListing.expirationDate" id="expirationDate" label="Expiration Date"
+                      type="date" :min="today" required></v-text-field>
 
-                  <v-text-field
-                    v-model.number="editedListing.unitsRemaining"
-                    id="unitsRemaining"
-                    label="# of units remaining"
-                    type="number"
-                    min="0"
-                    required
-                  ></v-text-field>
+                    <v-text-field v-model.number="editedListing.price" id="price" label="Price of product ($)"
+                      type="number" min="0" step="0.01" required></v-text-field>
 
-                  <v-text-field
-                    v-model.number="editedListing.unitsToSell"
-                    id="unitsToSell"
-                    label="# of quantity to sell"
-                    type="number"
-                    min="0"
-                    required
-                  ></v-text-field>
-                </v-form>
+                    <v-text-field v-model.number="editedListing.unitsRemaining" id="unitsRemaining"
+                      label="# of units remaining" type="number" min="0" required></v-text-field>
 
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text="Save Changes"
-                    @click="saveListingDetails()"
-                  ></v-btn>
-                  <v-btn text="Close" @click="isActive.value = false"></v-btn>
-                </v-card-actions>
-              </v-card>
-            </template>
-          </v-dialog>
+                    <v-text-field v-model.number="editedListing.unitsToSell" id="unitsToSell"
+                      label="# of quantity to sell" type="number" min="0" required></v-text-field>
+                  </v-form>
 
-          <img
-            :src="listing.product.imageUrl"
-            :alt="listing.product.name"
-            class="listing-image"
-          />
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text="Save Changes" @click="saveListingDetails()"></v-btn>
+                    <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                  </v-card-actions>
+                </v-card>
+              </template>
+            </v-dialog>
+          </div>
+          <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image" />
           <div class="listing-details">
             <h3>{{ listing.product.name }}</h3>
             <p>{{ listing.product.category }}</p>
@@ -170,17 +113,11 @@
               {{ listing.unitsToSell }}
             </p>
             <p>Price: ${{ listing.price }}</p>
-            <v-btn
-              text="Delete"
-              @click="confirmDelete(listing.listingId)"
-            ></v-btn>
+            <v-btn @click="confirmDelete(listing.listingId)">
+              <v-icon>mdi-delete</v-icon>
+              Delete
+            </v-btn>
           </div>
-        </div>
-
-        <!-- Add New Listing card here -->
-        <div @click="AddListing" class="listing-card-add-new">
-          <span class="plus-icon">+</span>
-          <p>Add New Listing</p>
         </div>
       </div>
     </div>
@@ -188,16 +125,8 @@
     <div class="expired-section">
       <h2>Expired Listings</h2>
       <div class="listings-container" name="expired-listings">
-        <div
-          class="expired-listing-card"
-          v-for="listing in inactiveListings"
-          :key="listing.id"
-        >
-          <img
-            :src="listing.product.imageUrl"
-            :alt="listing.product.name"
-            class="listing-image"
-          />
+        <div class="expired-listing-card" v-for="listing in inactiveListings" :key="listing.id">
+          <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image" />
           <div class="listing-details">
             <h3>{{ listing.product.name }}</h3>
             <p>{{ listing.product.category }}</p>
@@ -446,30 +375,36 @@ export default {
 .product-card,
 .product-card-add-new,
 .listing-card,
-.listing-card-add-new {
+.listing-card-add-new,
+.expired-listing-card {
   flex: 0 1 200px; /* Cards will flex but have a base width of 200px */
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adds shadow */
   overflow: hidden; /* Ensures the image does not break the card's round corners */
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 15px;
+  background: #fff; /* Background color */
+  margin: 10px; /* Adds space around the cards */
+  padding: 10px;
+  width: 200px; /* Set the width of the cards */
+}
+
+.edit-button {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.divider {
+  border-top: 1px solid #ccc; /* Style for the horizontal line */
+  margin: 0; /* Removes default margin from <hr> */
 }
 
 .expired-listing-card {
-  flex: 0 1 200px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 15px;
   opacity: 0.5; /* Add a visual cue that the listing is expired */
 }
 
@@ -477,7 +412,6 @@ export default {
 .listing-image {
   max-width: 100%;
   height: auto;
-  border-bottom: 1px solid #ccc;
 }
 
 .product-info,

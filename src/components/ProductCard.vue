@@ -27,7 +27,7 @@
       <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
       <h3 class="category">{{ listing.product.category }}</h3>
       <h3 class="expiry">Expires: {{ formattedDate }}</h3>
-      <h5 class="rem">id : {{ listing.unitsRemaining }}</h5>
+      <h5 class="rem">Left: {{ remainingUnits }}</h5>
     </div>
     <div class="qty-btn-container">
       <div class="qty-selector">
@@ -88,7 +88,7 @@ export default {
 
   data() {
     return {
-      quantity: 1,
+      quantity: 0,
       showOverlay: false,
       seller: null,
       isPressed: false,
@@ -140,6 +140,7 @@ export default {
     },
 
     cartQty() {
+      console.log("cartItems: ", this.cartItems);
       const cartItem = this.cartItems.find(
         (item) => item.id === this.listing.id
       );
@@ -147,39 +148,25 @@ export default {
       return cartItem ? cartItem.quantity : 0;
     },
 
+    remainingUnits() {
+      const found = this.cartItems.find((item) => item.listingId === this.listing.listingId);
+      console.log("found: ", found);
+      if (found) {
+        return this.listing.unitsRemaining - found.quantity;
+      } else {
+        return this.listing.unitsRemaining;
+      }
+    },
+
     isAddToCartDisabled() {
-      //console.log(this.listing.product.name, 'listing qty: ' + this.listing.quantity, 'cart qty: ' + this.cartQty,
-      //'units remaining: ' + this.listing.unitsRemaining);
-      return this.listing.quantity > this.listing.unitsRemaining;
+
+      return this.remainingUnits > 0 ? false : true;
     },
   },
 
   methods: {
     handleAddToCart() {
-      //console.log(this.listing);
-      //console.log(this.listing.quantity);
-      //console.log("weight: ", this.listing.product.weight);
-      const found = this.cartItems.find((item) => item.id === this.listing.id);
-      console.log(found);
-      if (found) {
-        if (found.quantity + this.listing.quantity > this.listing.unitsRemaining) {
-          this.$store.dispatch("addNotification", {
-            type: "error",
-            message: "Failed to add to cart. Selected quantity exceeds units remaining!",
-          });
-          return;
-        } else {
-          this.$emit("add-to-cart", {
-            ...this.listing,
-            quantity: this.listing.quantity,
-          });
-          this.$store.dispatch("addNotification", {
-            type: "success",
-            message: "Added to cart succesfully!",
-          });
-        }
-      } else {
-        this.$emit("add-to-cart", {
+      this.$emit("add-to-cart", {
           ...this.listing,
           quantity: this.listing.quantity,
         });
@@ -187,7 +174,7 @@ export default {
           type: "success",
           message: "Added to cart succesfully!",
         });
-      }
+        this.listing.quantity = 1; // reset quantity to 1 after adding to cart
     },
 
     increment() {

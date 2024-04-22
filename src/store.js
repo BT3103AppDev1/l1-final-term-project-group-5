@@ -410,7 +410,7 @@ const store = createStore({
             resolve();
           } else {
             commit("SET_LOGGED_IN", false);
-            commit("SET_USER", {
+            commit("SET_USER_DETAILS", {
               displayName: "",
               email: "",
               photoURL: "",
@@ -418,6 +418,12 @@ const store = createStore({
               about: "",
               address: "",
             });
+            commit("SET_USER_REGISTERED", false);
+            commit("SET_USER_TYPE", "");
+            commit("SET_WEIGHT", 0);
+            commit("SET_BANK_DETAILS", "");
+            commit("SET_PROVIDER", "");
+            commit("SET_RANK", 5);
             resolve();
           }
         });

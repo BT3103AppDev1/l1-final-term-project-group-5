@@ -8,13 +8,14 @@
     <v-sheet class="mx-auto" width="300">
       <h2>Add New Listing</h2>
       <v-form @submit.prevent="submitListing">
-        <!--<label for="product">Product</label>-->
+
         <v-select
           v-model="newListing.product"
           :items="products"
           item-title="name"
           :item-value="(item) => item"
           label="Select Product"
+          :rules="[v => !!v || 'Product is required']"
         ></v-select>
 
         <v-text-field
@@ -23,10 +24,11 @@
           label="Expiration Date"
           type="date"
           :min="today"
+          :rules="[v => !!v || 'Expiration date is required']"
           required
         ></v-text-field>
 
-        <!--<label for="price">Price</label>-->
+
         <v-text-field
           v-model.number="newListing.price"
           id="price"
@@ -34,16 +36,25 @@
           type="number"
           min="0"
           step="0.01"
+          :rules="[
+            v => !!v || 'Price is required',
+            v => !isNaN(parseFloat(v)) && v >= 0 || 'Price must be a positive number'
+          ]"
+          @blur="formatPrice"
           required
         ></v-text-field>
 
-        <label for="price">Units To Sell</label>
+
         <v-text-field
           v-model.number="newListing.unitsToSell"
           id="unitsToSell"
           label="# of quantity"
           type="number"
           min="1"
+          :rules="[
+            v => !!v || 'Price is required',
+            v => !isNaN(parseFloat(v)) && v >= 0 || 'Price must be a positive number'
+          ]"
           required
         ></v-text-field>
 
@@ -120,16 +131,32 @@ export default {
         ...doc.data(),
       }));
     },
+      formatPrice() {
+        this.newListing.price = Math.round(this.newListing.price * 100) / 100;
+      },
     async submitListing() {
       try {
-        await this.addListing(this.newListing);
-        this.$router.push("/partner/marketplace");
-        this.store.dispatch("addNotification", {
-          // use store from instance
-          type: "success",
-          message: "Successfully added listing!",
-        });
-        // Reset the form or give user feedback
+        if (this.newListing.product && this.newListing.expirationDate && this.newListing.price && this.newListing.unitsToSell) {
+          if (this.newListing.price > 0 && this.newListing.unitsToSell > 0) {
+            console.log("new listing added" + this.newListing);
+            await this.addListing(this.newListing);
+            this.$router.push("/partner/marketplace");
+            this.store.dispatch("addNotification", {
+              type: "success",
+              message: "Successfully added listing!",
+            });
+          } else {
+            this.store.dispatch("addNotification", {
+              type: "error",
+              message: "Please correct the errors in the form",
+            });
+          }
+        } else {
+          this.store.dispatch("addNotification", {
+            type: "error",
+            message: "Please fill in all fields",
+          });
+        }
       } catch (error) {
         console.error("Error adding listing:", error);
       }

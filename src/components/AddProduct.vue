@@ -98,8 +98,8 @@ export default {
     },
 
     async addProduct() {
-      if (this.product.name.length <= 10 && this.product.weight > 0) {
-        if (this.product.name && this.product.category && this.product.weight && this.product.image) {
+      if (this.product.name && this.product.category && this.product.weight && this.product.image) {
+        if (this.product.name.length <= 10 && this.product.weight > 0) {
           await this.addProductToDB(this.product);
           this.$router.push("/partner/marketplace"); // redirect to marketplace after adding
           this.store.dispatch("addNotification", {
@@ -108,10 +108,16 @@ export default {
             message: "Successfully added product!",
           });
         } else {
-          alert("All fields are required");
+          this.store.dispatch("addNotification", {
+            type: "error",
+            message: "Please correct the errors in the form",
+          });
         }
       } else {
-        alert("Please correct the errors in the form");
+        this.store.dispatch("addNotification", {
+          type: "error",
+          message: "Please fill in all fields",
+        });
       }
     },
 

@@ -124,7 +124,7 @@ export default {
     this.listings = listingSnapshot.docs.map((doc) => doc.data());
 
     this.filteredActiveListings = this.activeListings;
-    console.log(this.filteredActiveListings);
+    //console.log(this.filteredActiveListings);
 
     //sort listings by expiry-date
     this.filteredActiveListings.sort((a, b) => {
@@ -150,7 +150,7 @@ export default {
     ...mapGetters(["cartItems", "totalPrice"]),
 
     cartItems() {
-      console.log("Cart items: ", this.$store.getters.cartItems);
+      //console.log("Cart items: ", this.$store.getters.cartItems);
       return this.$store.getters.cartItems;
     },
 

@@ -275,6 +275,10 @@ h3 {
   overflow: hidden;
 }
 
+.product-grid.active {
+  opacity:0.5;
+}
+
 .view-cart-btn {
   position: absolute;
   bottom: 30px;

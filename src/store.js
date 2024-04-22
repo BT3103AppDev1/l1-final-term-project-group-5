@@ -410,7 +410,7 @@ const store = createStore({
             resolve();
           } else {
             commit("SET_LOGGED_IN", false);
-            commit("SET_USER", {
+            commit("SET_USER_DETAILS", {
               displayName: "",
               email: "",
               photoURL: "",
@@ -418,6 +418,12 @@ const store = createStore({
               about: "",
               address: "",
             });
+            commit("SET_USER_REGISTERED", false);
+            commit("SET_USER_TYPE", "");
+            commit("SET_WEIGHT", 0);
+            commit("SET_BANK_DETAILS", "");
+            commit("SET_PROVIDER", "");
+            commit("SET_RANK", 5);
             resolve();
           }
         });
@@ -727,6 +733,17 @@ const store = createStore({
         //await updateEmail(user, email);
         await updateDoc(doc(db, "users", user.uid), { displayName: name });
         context.commit("SET_USER_DETAILS", { ...user, displayName: name });
+        const ordersCollectionRef = collection(db, "order");
+        const querySnapshot = await getDocs(ordersCollectionRef);
+        for (const doc of querySnapshot.docs) {
+          const orderData = doc.data();
+          console.log(orderData);
+          if (orderData.sellerId == user.uid) {
+            await updateDoc(doc.ref, { companyName: name });
+          } else if (orderData.buyerId == user.uid) {
+            await updateDoc(doc.ref, { name: name });
+          }
+        }
       } catch (error) {
         console.error("Failed to update email:", error);
       }
@@ -804,6 +821,14 @@ const store = createStore({
         //await updateEmail(user, email);
         await updateDoc(doc(db, "users", user.uid), { address: address });
         context.commit("SET_USER_DETAILS", { ...user, address: address });
+        const ordersCollectionRef = collection(db, "order");
+        const querySnapshot = await getDocs(ordersCollectionRef);
+        for (const doc of querySnapshot.docs) {
+          const orderData = doc.data();
+          if (orderData.sellerId == user.uid) {
+            await updateDoc(doc.ref, { companyAddress: address });
+          }
+        }
       } catch (error) {
         console.error("Failed to update email:", error);
       }

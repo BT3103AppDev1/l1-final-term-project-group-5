@@ -15,7 +15,7 @@ import SeekerMarketplaceView from "../views/SeekerMarketplaceView.vue";
 import SeekerDashboardView from "../views/SeekerDashboardView.vue";
 import OrderDashPartnerView from "../views/OrderDashPartnerView.vue";
 import { useStore } from "vuex";
-import { isProxy, toRaw, watch } from 'vue';
+import { isProxy, toRaw, watch } from "vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,27 +59,12 @@ const router = createRouter({
         const store = useStore();
         const user = store.state.user;
         const authUser = auth.currentUser;
-        if (store.state.user.loggedIn) {
-          if (authUser && user.type === "") {
-            next();
-          } else {
-            next({ name: "notFound" });
-          }
+
+        if (authUser && user.type === "") {
+          next();
+        } else {
+          next({ name: "notFound" });
         }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
-              }
-            }
-          }
-        );
       },
     },
     {
@@ -96,21 +81,22 @@ const router = createRouter({
           } else {
             next({ name: "notFound" });
           }
-        }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
+        } else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const user = toRaw(store.state.user);
+                const authUser = auth.currentUser;
+                if (authUser) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
               }
             }
-          }
-        );
+          );
+        }
       },
     },
     {
@@ -127,21 +113,22 @@ const router = createRouter({
           } else {
             next({ name: "notFound" });
           }
-        }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
+        } else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const user = toRaw(store.state.user);
+                const authUser = auth.currentUser;
+                if (authUser) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
               }
             }
-          }
-        );
+          );
+        }
       },
     },
     {
@@ -158,21 +145,22 @@ const router = createRouter({
           } else {
             next({ name: "notFound" });
           }
-        }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
+        } else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const user = toRaw(store.state.user);
+                const authUser = auth.currentUser;
+                if (authUser) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
               }
             }
-          }
-        );
+          );
+        }
       },
     },
     {
@@ -189,21 +177,22 @@ const router = createRouter({
           } else {
             next({ name: "notFound" });
           }
-        }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
+        } else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const user = toRaw(store.state.user);
+                const authUser = auth.currentUser;
+                if (authUser) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
               }
             }
-          }
-        );
+          );
+        }
       },
     },
     {
@@ -220,21 +209,22 @@ const router = createRouter({
           } else {
             next({ name: "notFound" });
           }
-        }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
+        } else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const user = toRaw(store.state.user);
+                const authUser = auth.currentUser;
+                if (authUser) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
               }
             }
-          }
-        );
+          );
+        }
       },
     },
     {
@@ -251,21 +241,22 @@ const router = createRouter({
           } else {
             next({ name: "notFound" });
           }
-        }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
+        } else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const user = toRaw(store.state.user);
+                const authUser = auth.currentUser;
+                if (authUser) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
               }
             }
-          }
-        );
+          );
+        }
       },
     },
     {
@@ -282,21 +273,22 @@ const router = createRouter({
           } else {
             next({ name: "notFound" });
           }
-        }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
+        } else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const user = toRaw(store.state.user);
+                const authUser = auth.currentUser;
+                if (authUser) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
               }
             }
-          }
-        );
+          );
+        }
       },
     },
     {
@@ -314,21 +306,22 @@ const router = createRouter({
           } else {
             next({ name: "notFound" });
           }
-        }
-        watch(
-          () => store.state.user.loggedIn,
-          (loggedIn) => {
-            if (loggedIn) {
-              const user = toRaw(store.state.user)
-              const authUser = auth.currentUser;
-              if (authUser) {
-                next();
-              } else {
-                next({ name: "notFound" });
+        } else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const user = toRaw(store.state.user);
+                const authUser = auth.currentUser;
+                if (authUser) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
               }
             }
-          }
-        );
+          );
+        }
       },
     },
     {

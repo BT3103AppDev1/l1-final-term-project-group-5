@@ -187,10 +187,9 @@ export default {
         );
       }
       //Filter by search query if present
-
       if (this.searchQuery) {
         filtered = filtered.filter((listing) =>
-          listing.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+          listing.product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
 

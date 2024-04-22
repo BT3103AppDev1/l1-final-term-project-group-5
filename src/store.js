@@ -193,12 +193,13 @@ const store = createStore({
     },
     ADD_TO_CART(state, item) {
       const found = state.cart.items.find(
-        (product) => product.listingId === item.listingId
+        (cartItem) => cartItem.listingId === item.listingId
       );
+      //console.log("Found: ", found, item.listingId);
       if (found) {
         if (found.quantity + item.quantity > found.unitsRemaining) {
           console.log("Not enough units remaining");
-          alert("Failed to add to cart: Not enough units remaining");
+          //alert("Failed to add to cart: Not enough units remaining");
           return;
         }
         found.quantity += item.quantity;
@@ -208,7 +209,8 @@ const store = createStore({
           ...item,
           quantity: item.quantity,
         });
-        //console.log('Added ' + item.name +  ' to cart x ', item.quantity);
+        //console.log('Added ' + item.listingId +  ' to cart x ', item.quantity);
+        //console.log("remaining: " + item.unitsRemaining);
       }
     },
     CLEAR_CART(state) {

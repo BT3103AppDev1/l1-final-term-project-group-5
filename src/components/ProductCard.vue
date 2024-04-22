@@ -27,7 +27,7 @@
       <h3 class="price">${{ listing.price.toFixed(2) }}</h3>
       <h3 class="category">{{ listing.product.category }}</h3>
       <h3 class="expiry">Expires: {{ formattedDate }}</h3>
-      <h5 class="rem">{{ listing.unitsRemaining }} available</h5>
+      <h5 class="rem">Left: {{ remainingUnits }}</h5>
     </div>
     <div class="qty-btn-container">
       <div class="qty-selector">
@@ -44,7 +44,7 @@
         <input
           type="number"
           class="input-qty"
-          v-model.lazy="listing.quantity"
+          v-model="listing.quantity"
           @input="handleQtyInputs"
           :max="listing.unitsRemaining"
           ref="qtyInput"
@@ -88,7 +88,7 @@ export default {
 
   data() {
     return {
-      quantity: 1,
+      quantity: 0,
       showOverlay: false,
       seller: null,
       isPressed: false,
@@ -140,36 +140,47 @@ export default {
     },
 
     cartQty() {
+      console.log("cartItems: ", this.cartItems);
       const cartItem = this.cartItems.find(
         (item) => item.id === this.listing.id
       );
+      //console.log(cartItem.name, cartItem.quantity)
       return cartItem ? cartItem.quantity : 0;
     },
 
+    remainingUnits() {
+      const found = this.cartItems.find((item) => item.listingId === this.listing.listingId);
+      console.log("found: ", found);
+      if (found) {
+        return this.listing.unitsRemaining - found.quantity;
+      } else {
+        return this.listing.unitsRemaining;
+      }
+    },
+
     isAddToCartDisabled() {
-      return this.listing.quantity + this.cartQty > this.listing.unitsRemaining;
+
+      return this.remainingUnits > 0 ? false : true;
     },
   },
 
   methods: {
     handleAddToCart() {
-      //console.log(this.listing);
-      //console.log(this.listing.quantity);
-      console.log("weight: ", this.listing.product.weight);
       this.$emit("add-to-cart", {
-        ...this.listing,
-        quantity: this.listing.quantity,
-      });
-      this.$store.dispatch("addNotification", {
-        type: "success",
-        message: "Added to cart succesfully!",
-      });
+          ...this.listing,
+          quantity: this.listing.quantity,
+        });
+        this.$store.dispatch("addNotification", {
+          type: "success",
+          message: "Added to cart succesfully!",
+        });
+        this.listing.quantity = 1; // reset quantity to 1 after adding to cart
     },
 
     increment() {
       if (this.listing.quantity < this.listing.unitsRemaining) {
         this.listing.quantity++;
-        console.log("Increased listing quantity");
+        console.log("units remaining : ", this.listing.unitsRemaining);
       }
     },
 
@@ -180,10 +191,9 @@ export default {
       }
     },
 
-    handleQtyInput(event) {
+    /*handleQtyInput(event) {
       if (this.listing.quantity === this.listing.unitsRemaining) {
         this.listing.quantity = this.listing.unitsRemaining;
-        console.log("stopped?: ");
         return;
       }
       const qty = parseInt(event.target.value);
@@ -196,7 +206,7 @@ export default {
           this.listing.quantity = qty;
         }
       }
-    },
+    },*/
     handleQtyInputs(event) {
       const qty = parseInt(event.target.value);
       if (!isNaN(qty)) {

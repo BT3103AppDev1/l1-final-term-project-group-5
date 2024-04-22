@@ -9,9 +9,9 @@
     />
     <button @click="handleSearch" class="search-button">Search</button>
     <button @click="clearSearch" class="clear-button">Clear</button>
-    <span v-if="searchMade && searchText" class="currentSearch">
-      Current search: {{ searchText }}
-    </span>
+    <div v-if="searchMade && appliedSearchText" class="currentSearch">
+      Current search: {{ appliedSearchText }}
+    </div>
   </div>
 </template>
 
@@ -20,12 +20,14 @@ export default {
   data() {
     return {
       searchText: "",
+      appliedSearchText: "",
       searchMade: false,
     };
   },
   methods: {
     handleSearch() {
       this.searchMade = true;
+      this.appliedSearchText = this.searchText;
       // Emit an event with the search text
       this.$emit("search", this.searchText);
     },
@@ -33,6 +35,7 @@ export default {
       // Clear the search text and emit an event to clear the search
       this.searchText = "";
       this.searchMade = false;
+      this.appliedSearchText = "";
       this.$emit("search", "");
     },
   },
@@ -46,8 +49,7 @@ export default {
   flex-direction: row;
   justify-content: left;
   align-items: left;
-  margin-top: 20px;
-  padding: 10px 10px 10px 20px;
+  margin: 0;
 }
 
 .search-input {
@@ -61,7 +63,7 @@ export default {
 .clear-button {
   background-color: #f5f5f5;
   color: #222;
-  border: none;
+  border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
   padding: 8px 12px;

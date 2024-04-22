@@ -10,15 +10,12 @@ import SeekerDashboard from "../components/SeekerDashboard.vue";
 
 <style scoped>
 .background {
-  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  background: url("../assets/bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
   width: 100%;
-  height: calc(100vh - 64px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 100%;
 }
 </style>

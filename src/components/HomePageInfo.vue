@@ -80,5 +80,6 @@ h4 {
 .ecoGradeInfo {
   width: 70%;
   height: auto;
+
 }
 </style>

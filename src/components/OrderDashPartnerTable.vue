@@ -6,7 +6,18 @@
           <th>ID</th>
           <th>Order</th>
           <th>Customer</th>
-          <th>Date Ordered</th>
+          <th>
+            <div class="date-container">
+              <span>Date Ordered</span>
+              <button class="header-icons" @click="toggleSortOrder">
+                <svg-icon
+                  :type="'mdi'"
+                  :path="sortIcon"
+                  style="color: rgba(255, 255, 255, 0.844)"
+                ></svg-icon>
+              </button>
+            </div>
+          </th>
           <th>Expiry Date</th>
           <th>Price</th>
           <th>
@@ -29,6 +40,11 @@
         </tr>
       </thead>
       <tbody></tbody>
+      <tbody v-if="numDocs < 1">
+        <tr>
+          <td colspan="8">No orders found</td>
+        </tr>
+      </tbody>
     </table>
     <br />
     <div id="completeButtonContainer">
@@ -59,7 +75,12 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import SvgIcon from "@jamescoyle/vue-icon";
-import { mdiTrashCanOutline, mdiFilterVariant } from "@mdi/js";
+import {
+  mdiTrashCanOutline,
+  mdiFilterVariant,
+  mdiSortCalendarDescending,
+  mdiSortCalendarAscending,
+} from "@mdi/js";
 
 const db = getFirestore(firebaseApp);
 
@@ -76,6 +97,9 @@ export default {
       entriesToComplete: [],
       store: null, // initialize store
       isDropdownOpen: false,
+      numDocs: 1,
+      sortIcon: mdiSortCalendarAscending,
+      sortOrder: "desc",
     };
   },
   props: {
@@ -155,13 +179,16 @@ export default {
 
       const querySnapshot = await getDocs(queryRef);
       const filteredDocuments = querySnapshot.docs.map((doc) => doc.data());
+      this.numDocs = filteredDocuments.length;
 
       // Update number of pages
       this.$emit("total-page", filteredDocuments.length);
 
-      // Sort documents by date ordered
+      // Sort documents by date ordered based on sortOrder
       filteredDocuments.sort((a, b) => {
-        return b.datePurchased.seconds - a.datePurchased.seconds;
+        const dateA = new Date(a.datePurchased.seconds * 1000);
+        const dateB = new Date(b.datePurchased.seconds * 1000);
+        return this.sortOrder === "asc" ? dateA - dateB : dateB - dateA;
       });
 
       // Filter documents based on pagination
@@ -243,6 +270,14 @@ export default {
         }
       });
       this.entriesToComplete = []; // Ensure previously checked boxes are unchecked
+    },
+    toggleSortOrder() {
+      this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+      this.sortIcon =
+        this.sortOrder === "asc"
+          ? mdiSortCalendarDescending
+          : mdiSortCalendarAscending;
+      this.display(); // Refresh the display with the new sort order
     },
     async deleteInstrument(id) {
       try {
@@ -344,9 +379,11 @@ export default {
 
         await updateDoc(docRef, { status: "Completed" });
         await updateDoc(sellerDocRef, { weight: sellerWeight });
-        await updateDoc(sellerDocRef, { ecoRank: getEcoRank(sellerWeight) });
+        await updateDoc(sellerDocRef, {
+          ecoRank: this.getEcoRank(sellerWeight),
+        });
         await updateDoc(buyerDocRef, { weight: buyerWeight });
-        await updateDoc(buyerDocRef, { ecoRank: getEcoRank(buyerWeight) });
+        await updateDoc(buyerDocRef, { ecoRank: this.getEcoRank(buyerWeight) });
       }
       this.display();
       this.store.dispatch("addNotification", {
@@ -391,7 +428,6 @@ export default {
 .container {
   max-width: 100%; /* Limit the container's width to the viewport width */
   margin: 0 auto; /* Center align the container */
-  padding: 20px; /* Add padding to the container */
 }
 
 /* Table styles */
@@ -454,15 +490,12 @@ tbody tr:nth-child(odd) {
   transform: scale(1.1); /* Scale up by 10% on hover */
 }
 
-/* Styles for status container */
+/* Styles for date and status container */
+.date-container,
 .status-container {
   display: flex;
   align-items: center;
   justify-content: center; /* Center the content horizontally */
-}
-
-.status-container span {
-  margin-right: 10px;
 }
 
 .status-container select {

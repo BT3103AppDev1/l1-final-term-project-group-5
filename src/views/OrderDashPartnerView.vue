@@ -4,22 +4,25 @@
       <div class="search-bar-container">
         <OrderDashPartnerSearchBar @search="handleSearch" />
       </div>
-      <OrderDashPartnerTable
-        class="table"
-        :currentPage="currentPage"
-        :entriesPerPage="entriesPerPage"
-        :searchQuery="searchQuery"
-        @total-page="updateTotalPage($event)"
-        @handleStatus="handleStatus"
-      />
-      <br />
-      <OrderDashPartnerPageBar
-        class="page-bar"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        :searchQuery="searchQuery"
-        @page-change="handlePageChange"
-      />
+      <div class="table-container">
+        <OrderDashPartnerTable
+          class="table"
+          :currentPage="currentPage"
+          :entriesPerPage="entriesPerPage"
+          :searchQuery="searchQuery"
+          @total-page="updateTotalPage($event)"
+          @handleStatus="handleStatus"
+        />
+      </div>
+      <div class="page-bar-container">
+        <OrderDashPartnerPageBar
+          class="page-bar"
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          :searchQuery="searchQuery"
+          @page-change="handlePageChange"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -42,7 +45,7 @@ export default {
   data() {
     return {
       currentPage: 1,
-      entriesPerPage: 5,
+      entriesPerPage: 10,
       totalEntries: 0,
       searchQuery: "",
       entriesToComplete: [],
@@ -96,7 +99,6 @@ export default {
 
 <style scoped>
 .container {
-  background: url("..\\assets\\bg2.png") no-repeat center center fixed; /* Set background image */
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -104,32 +106,41 @@ export default {
   background-position: center;
 }
 .background {
-  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  background: url("../assets/bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  width: 100%;
-  height: calc(100vh - 64px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100vw;
+  height: 100%;
 }
 
 .stack {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  height: 100%;
+  min-height: calc(100vh - 64px);
+  padding: 20px;
 }
 .search-bar-container {
-  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 10px 10px 20px;
 }
-.page-bar {
-  margin: auto;
-}
-.table {
-  margin: auto;
+.table-container {
   background-color: transparent;
+  position: relative; /* Make the table container a positioned element */
+  top: 0; /* Set the top position to 0 */
+  padding: 20px;
+}
+.page-bar-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -125px;
 }
 </style>

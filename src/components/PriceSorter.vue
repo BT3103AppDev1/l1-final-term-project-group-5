@@ -1,10 +1,10 @@
 <template>
   <div class="price-sorter">
       <label class="label" for="sort">Sort: </label>
-      <select class="sort-select">
+      <select class="sort-select" v-model="selected" @change="updateSort">
         <option disabled value>Please select one</option>
-        <option @click="selectSort('lowToHigh')">Price (Low to High)</option>
-        <option @click="selectSort('highToLow')">Price (High to Low)</option>
+        <option value="lowToHigh">Price (Low to High)</option>
+        <option value="highToLow">Price (High to Low)</option>
       </select>
   </div>
 </template>
@@ -17,10 +17,6 @@ export default {
     };
   },
   methods: {
-    selectSort(option) {
-      this.selected = option;
-      this.updateSort();
-    },
     updateSort() {
       //console.log('Selected Sort: ', this.selected);
       this.$emit("update-sort", this.selected);

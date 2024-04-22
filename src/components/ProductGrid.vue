@@ -124,11 +124,11 @@ export default {
     this.listings = listingSnapshot.docs.map((doc) => doc.data());
 
     this.filteredActiveListings = this.activeListings;
-    console.log(this.filteredActiveListings);
+    //console.log(this.filteredActiveListings);
 
     //sort listings by expiry-date
     this.filteredActiveListings.sort((a, b) => {
-      return new Date(a.expirationDate) - new Date(b.expirationDate);
+      return a.expirationDate - b.expirationDate;
     });
   },
 
@@ -150,7 +150,7 @@ export default {
     ...mapGetters(["cartItems", "totalPrice"]),
 
     cartItems() {
-      console.log("Cart items: ", this.$store.getters.cartItems);
+      //console.log("Cart items: ", this.$store.getters.cartItems);
       return this.$store.getters.cartItems;
     },
 
@@ -273,6 +273,10 @@ h3 {
   gap: 30px;
   margin: 0 50px 0 150px;
   overflow: hidden;
+}
+
+.product-grid.active {
+  opacity:0.5;
 }
 
 .view-cart-btn {

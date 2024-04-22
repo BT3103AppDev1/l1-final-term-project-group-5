@@ -150,7 +150,7 @@ export default {
 
     remainingUnits() {
       const found = this.cartItems.find((item) => item.listingId === this.listing.listingId);
-      console.log("found: ", found);
+      //console.log("found: ", found);
       if (found) {
         return this.listing.unitsRemaining - found.quantity;
       } else {

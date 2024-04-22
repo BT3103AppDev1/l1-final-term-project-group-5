@@ -1,25 +1,9 @@
 <template>
-  <div class="background">
-    <div class="checkout-body">
-      <div class="checkout-qr">
-        <h1>PayNow QR</h1>
-        <h3>To complete your order, please follow the steps below :</h3>
-        <div class="qr-steps-container">
-          <img src="@/assets/paynow.png" alt="QR Code" class="qr-code" />
-          <div class="steps">
-            <ul>
-              <li>Scan QR on your PayNow supported app (or)</li>
-              <li>
-                Save the QR code and upload QR into your PayNow banking app to
-                complete payment
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="cart-items">
-        <h2 class="summary">Order Summary</h2>
-        <div class="table-container">
+<div class="background" :class="backgroundClass" >
+  <div class="checkout-body">
+    <div class="cart-items">
+      <h2 class="summary">Order Summary</h2>
+      <div class="table-container">
           <table class="cart-table">
             <thead>
               <tr>
@@ -74,18 +58,49 @@
               </tr>
             </tbody>
           </table>
-        </div>
-        <h1 class="total">Total : ${{ totalPrice }}</h1>
       </div>
+      <h1 class="total">Total : ${{ totalPrice }}</h1>
     </div>
-    <div class="checkout-footer-btns">
-      <button class="back" @click="continueShopping">
-        <img src="@/assets/Go Back.png" class="back-img" />
-        Continue Shopping
-      </button>
-      <button class="order" @click="placeOrders()">Place Order</button>
-    </div>
+    
   </div>
+  <div class="checkout-footer-btns">
+    <button class="back" @click="continueShopping">
+        <img src="@/assets/Go Back.png" class="back-img" />
+          Continue Shopping
+        </button>
+    <button class="make-payment" @click="makePayment">Make Payment</button>
+  </div>
+</div>
+<div v-if="showQR" class="checkout-qr">
+      <button class="close-qr" @click="makePayment">
+        <img src="@/assets/close.png" alt="x" class="close-img" />
+      </button>
+      <button class="generate-qr" @click="genQR">Generate QR for Payment</button>
+      <div v-if="isLoading" class="loading">
+        <div class="spinner">
+        </div>
+      </div>
+      <div v-if="generateQR" class="qr-code">
+        <img src="@/assets/paynow.png" alt="QR Code" class="qr-img"/>
+        <div class="steps">
+            <ul>
+              <li>Scan QR on your PayNow supported app (or)</li>
+              <li>
+                Save the QR code and upload QR into your PayNow banking app to
+                complete payment
+              </li>
+            </ul>
+          </div>
+      </div>
+      <div v-if="showPlaceOrder || showButtonLoading" class="placeOrder">
+        <div v-if="showButtonLoading" class="small-spinner">
+        </div>
+          <button v-if="showPlaceOrder" class="order" @click="placeOrders">Place Order</button>
+      </div>
+      
+      
+      
+    </div>
 </template>
 
 <script>
@@ -101,8 +116,21 @@ import {
 } from "firebase/firestore";
 
 export default {
+  data() {
+    return {
+      showQR: false,
+      generateQR: false,
+      isLoading: false,
+      showPlaceOrder:false,
+      showButtonLoading:false,
+    };
+  },
   computed: {
     ...mapGetters(["cartItems", "totalPrice", "getUser"]),
+
+    backgroundClass() {
+      return this.showQR ? "background active" : "background";
+    },
   },
   methods: {
     ...mapActions(["removeFromCart"]),
@@ -212,56 +240,103 @@ export default {
         item.quantity--;
       }
     },
+    makePayment() {
+      this.showQR = !this.showQR;
+      this.generateQR = false;
+      this.showPlaceOrder = false;
+    },
+    genQR() {
+      this.isLoading = true;
+      this.generateQR = false;
+      this.showPlaceOrder = false;
+      setTimeout(() => {
+        this.isLoading = false;
+        this.generateQR = true;
+        this.showButtonLoading = true;
+      }, 3000);
+      setTimeout(() => {
+          this.showPlaceOrder = true;
+          this.showButtonLoading = false;
+      }, 8000);
+    },
   },
 };
 </script>
 <style scoped>
+.checkout-qr {
+  position: fixed;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color:whitesmoke;
+  border: 2px outset #4b644c;
+  border-radius: 8px;
+  padding: 24px;
+  width: 60%;
+  height:70%;
+  align-items: center;
+  z-index:100;
+}
+.generate-qr {
+  background-color: rgb(75, 100, 76);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 4px outset #4b644c;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-self:center;
+  align-items: center;
+  position: relative;
+
+}
+.qr-code {
+  display: flex;
+  justify-content: space-around;
+  gap:18px;
+  align-items: center;
+  margin:24px;
+}
+.qr-img {
+  height: 350px;
+  width: 350px;
+}
 .background {
   background: url("..\\assets\\bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  width: 100%;
+  display:flex;
+  flex-direction:column;
+  width: 100vw;
   height: 100vh;
 }
-
+.background.active {
+  opacity:0.5;
+  background-color: rgba(255, 255, 255, 0.6);
+}
 .checkout-body {
-  margin-top: 50px;
+  width: 100vw;
+  height:70vh;
   display: flex;
-  justify-content: space-evenly;
-  margin-bottom: 50px;
-  height: 500px;
+  align-items:center;
+  justify-content: center;
+  flex-direction:column;
 }
-.checkout-qr {
-  border: 2px solid #4b644c;
-  border-radius: 8px;
-  padding: 16px;
-  width: 45%;
-  box-shadow: 0 0 3px #4b644c;
-}
-
-.qr-code {
-  width: 45%;
-  margin-right: 16px;
-}
-
-.qr-steps-container {
-  display: flex;
-  margin-top: 20px;
-}
-
-.table-container {
-  overflow: auto;
-  height: 70%;
+.checkout-body.active {
+  opacity:0.5;
 }
 .cart-items {
-  width: 45%;
-  border: 2px solid #4b644c;
+  width: 98%;
+  
   border-radius: 8px;
-  align-items: center;
-  text-align: center;
-  box-shadow: 0 0 3px #4b644c;
+  text-align:center;
+}
+.table-container {
+  overflow: auto;
+  height: 50vh;
 }
 
 .summary {
@@ -282,19 +357,22 @@ export default {
 }
 
 .cart-table td {
-  height: 80px;
+  height: 100px;
 }
 
 .cart-table td.item {
   display: flex;
   justify-content: left;
+  padding-left:24px;
   gap: 8px;
   align-items: center;
 }
-
+.item-price {
+  font-size:large;
+}
 .subtotal {
   font-weight: bold;
-  font-size: large;
+  font-size: larger;
 }
 .total {
   font-weight: bolder;
@@ -302,19 +380,21 @@ export default {
 }
 
 .remove-img {
-  height: 20px;
-  width: 20px;
+  height: 30px;
+  width: 30px;
 }
 
 .item-img {
-  height: 50px;
-  width: 50px;
+  height: 80px;
+  width: 80px;
 }
 
 .checkout-footer-btns {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
+  width:auto;
   margin-top: 20px;
+  padding:4px;
 }
 
 .back {
@@ -338,22 +418,6 @@ export default {
   transform: scale(0.9);
 }
 
-.order {
-  background-color: #4b644c;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  border: 4px outset #4b644c;
-}
-.order:hover {
-  background-color: #3b523c;
-}
-
-.order:active {
-  transform: scale(0.9);
-}
 .back-img {
   height: 30px;
   width: 30px;
@@ -373,7 +437,7 @@ export default {
 .qty-input {
   font-size: large;
   text-align: center;
-  width: 25px;
+  width: 50px;
 }
 
 .qty-edit {
@@ -404,4 +468,99 @@ export default {
   font-weight: bold;
   font-size: large;
 }
+
+.make-payment{ 
+  background-color: #4b644c;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  border: 4px outset #4b644c;
+}
+
+.make-payment:hover {
+  background-color: #3b523c;
+}
+
+.make-payment:active {
+  transform: scale(0.9);
+}
+
+.close-img {
+  height:30px;
+  width:30px;
+}
+
+.loading {
+  position: fixed;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4); /* Semi-transparent black */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #4b644c;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.order {
+  font-size:larger;
+  letter-spacing: 1px;
+  background-color: #4b644c;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  border: 4px outset #4b644c;
+  height:60px;
+  width:150px;
+}
+.order:hover {
+  background-color: #3b523c;
+}
+      
+.order:active {
+  transform: scale(0.9);
+}
+
+.placeOrder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top:16px;
+}
+.small-spinner {
+  /* Adjust as needed */
+  width: 30px;
+  height: 30px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
 </style>

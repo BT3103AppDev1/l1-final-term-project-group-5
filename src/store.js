@@ -387,30 +387,40 @@ const store = createStore({
       }
     },
 
-    async fetchUser({ commit }) {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          const userRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(userRef);
-          commit("SET_LOGGED_IN", true);
-          context.commit("SET_USER_DETAILS", {
-            displayName: docSnap.get("displayName"),
-            email: docSnap.get("email"),
-            photoURL: docSnap.get("photoURL"),
-            about: docSnap.get("about"),
-            address: docSnap.get("address"),
-          });
-        } else {
-          commit("SET_LOGGED_IN", false);
-          commit("SET_USER", {
-            displayName: "",
-            email: "",
-            photoURL: "",
-            uid: "",
-            about: "",
-            address: "",
-          });
-        }
+    fetchUser({ commit }) {
+      return new Promise((resolve, reject) => {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const userRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userRef);
+            commit("SET_LOGGED_IN", true);
+            commit("SET_USER_DETAILS", {
+              displayName: docSnap.get("displayName"),
+              email: docSnap.get("email"),
+              photoURL: docSnap.get("photoURL"),
+              about: docSnap.get("about"),
+              address: docSnap.get("address"),
+            });
+            commit("SET_USER_REGISTERED", true);
+            commit("SET_USER_TYPE", docSnap.get("userType"));
+            commit("SET_WEIGHT", docSnap.get("weight"));
+            commit("SET_BANK_DETAILS", docSnap.get("bankDetails"));
+            commit("SET_PROVIDER", docSnap.get("authProvider"));
+            commit("SET_RANK", docSnap.get("rank"));
+            resolve();
+          } else {
+            commit("SET_LOGGED_IN", false);
+            commit("SET_USER", {
+              displayName: "",
+              email: "",
+              photoURL: "",
+              uid: "",
+              about: "",
+              address: "",
+            });
+            resolve();
+          }
+        });
       });
     },
 

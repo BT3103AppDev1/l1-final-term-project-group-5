@@ -103,7 +103,7 @@ export default {
     };
 
     onMounted(() => {
-      console.log(userData);
+      // console.log(userData);
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           // Fetch basic details from the auth user object

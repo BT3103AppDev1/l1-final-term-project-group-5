@@ -9,7 +9,7 @@
 
     <div class="ecograde">
       <h2>What is EcoGrade?</h2>
-      <img src="../assets/EcoGradeInfo.png"></img>
+      <img class="ecoGradeInfo" src="../assets/EcoGradeInfo.png"></img>
     </div>
   </div>
 </template>
@@ -46,6 +46,22 @@ h1 {
   font-size: 5rem;
 }
 
+@media (max-width: 600px) {
+  .background {
+    height: 100vh;
+  }
+  h1 {
+    font-size: 4rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .background {
+    height: 200vh;
+  }
+}
+
+
 h2 {
   font-size: 2.5rem;
 }
@@ -58,6 +74,12 @@ h4 {
   text-align: center;
   color: black;
   position: absolute;
-  bottom: 0;
+  top: 600px;
+}
+
+.ecoGradeInfo {
+  width: 70%;
+  height: auto;
+
 }
 </style>

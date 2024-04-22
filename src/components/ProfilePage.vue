@@ -3,28 +3,18 @@
     <v-row justify="center">
       <v-col cols="12" md="8">
         <v-card class="card">
-          <h1 :style="{ paddingBottom: '20px', textAlign: 'center' }">
-            Profile Page
-          </h1>
+          <h1 :style="{ textAlign: 'center' }">Profile Page</h1>
           <v-card-text class="text-center">
             <v-alert v-if="error" type="error">{{ error }}</v-alert>
             <v-form>
-              <v-row justify="center" :style="{ paddingBottom: '20px' }">
-                <v-col
-                  align-self="start"
-                  class="d-flex justify-center align-center pa-0"
-                  cols="12"
-                >
-                  <v-avatar
-                    class="profile avatar-center-heigth avatar-shadow"
-                    color="white"
-                    size="164"
-                  >
+              <v-row justify="center">
+                <v-col align-self="start" cols="12">
+                  <v-avatar color="white" size="120">
                     <img :src="user.photoURL" class="avatar-image" />
 
                     <v-btn
                       class="upload-btn absolute bottom"
-                      x-large
+                      small
                       icon="$vuetify"
                       @click="onUploadButtonClick"
                     >
@@ -41,8 +31,8 @@
                   </v-avatar>
                 </v-col>
               </v-row>
-
-              <v-col cols="12" md="12" flass="mt-5">
+              <v-row no-gutters>
+              <v-col cols="12" md="12">
                 <v-text-field
                   id="userType"
                   label="Usertype"
@@ -55,7 +45,7 @@
                 </v-text-field>
               </v-col>
 
-              <v-col cols="12" md="12" flass="mt-5">
+              <v-col cols="12" md="12">
                 <v-text-field
                   id="displayName"
                   label="Name"
@@ -234,7 +224,8 @@
                   </template>
                 </v-text-field>
               </v-col>
-
+            </v-row>
+            <v-row dense>
               <v-col cols="12" md="12">
                 <v-btn
                   id="emailVerification"
@@ -390,6 +381,7 @@
                   >!
                 </h3>
               </v-col>
+            </v-row>
             </v-form>
           </v-card-text>
         </v-card>
@@ -399,7 +391,7 @@
 </template>
 
 <script>
-import { ref, watch, computed, onMounted } from "vue";
+import { ref, watch, computed, onMounted, toRaw } from "vue";
 import { useStore } from "vuex";
 import { mapState } from "vuex";
 import router from "../router/index";
@@ -488,6 +480,30 @@ export default {
       profilePicture.value = newUser.photoURL;
       address.value = newUser.address;
     });
+
+    watch(
+      () => store.state.user.loggedIn,
+      async (loggedIn) => {
+        if (loggedIn) {
+          await store.dispatch("fetchUser");
+          const userValues = toRaw(store.state.user)
+          displayName.value = userValues.displayName;
+          email.value = user.value.email;
+          about.value = user.value.about;
+          address.value = user.value.address;
+
+          originalName.value = user.value.displayName;
+          originalEmail.value = user.value.email;
+          originalAbout.value = user.value.about;
+          originalAddress.value = user.value.address;
+
+          store.dispatch("fetchWeight");
+        } else {
+          console.log("User not logged in")
+        }
+      },
+      { immediate: true }
+    );
 
     onMounted(() => {
       displayName.value = user.value.displayName;
@@ -772,9 +788,11 @@ export default {
 .upload-btn {
   position: absolute !important;
   z-index: 999;
-  top: 121px;
+  top: 85px;
   color: cadetblue;
   background: #4b644c;
+  width: 30px; /* Adjust as needed */
+  height: 30px;
 }
 
 .avatar-image {

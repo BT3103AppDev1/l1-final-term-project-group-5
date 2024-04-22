@@ -16,7 +16,7 @@
         <img src="@/assets/close.png" alt="x" class="close-img" />
       </button>
       <h2 class="cart-header">SHOPPING CART</h2>
-      <button class="clear-cart" @click="clearCart">CLEAR CART</button>
+      <button class="clear-cart" @click="clearCartWithNotification">CLEAR CART</button>
     </div>
     <div class="cart-items">
       <table class="cart-table">
@@ -32,7 +32,7 @@
         <tbody>
           <tr v-for="item in cartItems" :key="item.listingId" class="cart-item">
             <td>
-              <button class="remove-btn" @click="removeFromCart(item)">
+              <button class="remove-btn" @click="removeFromCartWithNotification(item)">
                 <img src="@/assets/close.png" alt="x" class="remove-img" />
               </button>
             </td>
@@ -175,6 +175,22 @@ export default {
 
   methods: {
     ...mapActions(["addToCart", "clearCart", "removeFromCart"]),
+
+    removeFromCartWithNotification(item) {
+      this.$store.dispatch("removeFromCart", item);
+      this.$store.dispatch("addNotification", {
+        type: "success",
+        message: "Removed from cart!",
+      });
+    },
+
+    clearCartWithNotification() {
+      this.$store.dispatch("clearCart");
+      this.$store.dispatch("addNotification", {
+        type: "success",
+        message: "Cart cleared!",
+      });
+    },
 
     applyFilters() {
       // initialise with all active listings first
@@ -527,7 +543,7 @@ h3 {
 .qty-input {
   font-size: large;
   text-align: center;
-  width: 30px;
+  width: 50px;
 }
 
 .qty-edit {

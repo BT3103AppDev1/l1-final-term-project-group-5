@@ -133,7 +133,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["removeFromCart"]),
+    ...mapActions(["removeFromCart", "checkAndUpdateListingStatus"]),
 
     continueShopping() {
       this.$router.push("/seeker/marketplace");
@@ -213,9 +213,11 @@ export default {
               console.log(
                 "Updated units remaining for listing: " + item.listingId
               );
+
             }
           }
-
+          this.checkAndUpdateListingStatus();
+          console.log("check and update listing status");
           console.log("Order placed successfully with orderID: " + orderId);
         }
       } catch (error) {

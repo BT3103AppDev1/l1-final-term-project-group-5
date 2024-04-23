@@ -153,7 +153,7 @@ export default {
 
 <style scoped>
 .background {
-  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  background: url("../assets/bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;

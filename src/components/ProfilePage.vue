@@ -3,7 +3,7 @@
     <v-row justify="center">
       <v-col cols="12" md="8">
         <v-card class="card">
-          <h1 :style="{ textAlign: 'center' }">Profile Page</h1>
+          <h1 :style="{ textAlign: 'center' }"><b>Profile Page</b></h1>
           <v-card-text class="text-center">
             <v-alert v-if="error" type="error">{{ error }}</v-alert>
             <v-form>
@@ -777,11 +777,12 @@ export default {
   -o-background-size: cover;
   background-size: cover;
   width: 100vw;
-  height: calc(100vh - 64px);
+  min-height: calc(100vh - 64px);
+  height: 100%;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 20px;
+  align-items: center;
+  padding: 40px 20px 40px 20px;
 }
 
 .btn.active {

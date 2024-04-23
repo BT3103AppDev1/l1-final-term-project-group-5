@@ -132,7 +132,6 @@ export default {
 }
 .table-container {
   background-color: transparent;
-  position: relative; /* Make the table container a positioned element */
   top: 0; /* Set the top position to 0 */
   padding: 20px;
 }

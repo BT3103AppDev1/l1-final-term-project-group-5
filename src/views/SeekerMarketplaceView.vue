@@ -103,7 +103,7 @@ export default {
   width: 75%;
 }
 .sidebar {
-  width: 20%;
+  width: 25%;
   display: flex;
   align-items: center;
   flex-direction: column;

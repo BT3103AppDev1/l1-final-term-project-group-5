@@ -1,11 +1,11 @@
 <template>
   <div class="product-grid">
-    <ProductCard
+      <ProductCard
       v-for="listing in filteredActiveListings"
       :key="listing.listinId"
       :listing="listing"
-      @add-to-cart="addToCart"
-    />
+      @add-to-cart="addToCart"/>
+    
   </div>
   <div class="view-cart-btn" @click="showCart = true">
     <h3 class="view-cart-header">VIEW CART</h3>
@@ -269,10 +269,12 @@ h3 {
 .product-grid {
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 30px;
-  margin: 32px;
   overflow: hidden;
+  align-items:center;
+  justify-content: center;
+  justify-items:center;
 }
 
 .product-grid.active {

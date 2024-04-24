@@ -273,8 +273,8 @@ export default {
   border-radius: 12px;
   padding: 16px;
   margin: 8px;
-  width: 250px;
-  height: 420px;
+  width: fit-content;
+  height: fit-content;
   background-color: #4b644c;
   box-shadow: 0 0 3px #4b644c;
   transition: transform 0.2s ease-in-out;

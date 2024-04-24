@@ -2,7 +2,7 @@
   <div class="background" :class="backgroundClass">
     <div class="checkout-body">
       <div class="cart-items">
-        <h2 class="summary">Order Summary</h2>
+        <h2 class="summary"><b>Order Summary</b></h2>
         <div class="table-container">
           <table class="cart-table">
             <thead>
@@ -335,7 +335,7 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 64px);
 }
 .background.active {
   opacity: 0.5;

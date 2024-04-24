@@ -20,6 +20,7 @@ export default {
   -o-background-size: cover;
   background-size: cover;
   width: 100%;
+  min-height: calc(100vh - 64px);
   height: 100%;
   display: flex;
 }

@@ -83,10 +83,12 @@ const searchedOrders = computed(() => {
 });
 
 const filteredOrders = computed(() => {
-  return searchedOrders.value.filter(
-    (order) =>
-      currentFilter.value === "All" || order.status === currentFilter.value
-  );
+  return searchedOrders.value
+    .filter(
+      (order) =>
+        currentFilter.value === "All" || order.status === currentFilter.value
+    )
+    .slice(0, 80);
 });
 
 const totalOrders = computed(() => filteredOrders.value.length);
@@ -454,6 +456,10 @@ td:nth-child(4) {
   padding: 8px 12px;
   margin: 0 4px;
   transition: background-color 0.2s;
+}
+.previousButton,
+.nextButton {
+  width: 100px;
 }
 .previousButton:hover,
 .paginationButton:hover,

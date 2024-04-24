@@ -11,7 +11,7 @@
               <v-alert v-if="error" type="error">{{ error }}</v-alert>
               <v-form @submit.prevent="RegisterDetails">
                 <v-row justify="center">
-                  <v-col cols="12" md="2">
+                  <v-col cols="12" md="6" sm="6" xs="4">
                     <v-btn
                       value="ecoSeeker"
                       class="btn btn-outline-primary"
@@ -23,7 +23,7 @@
                       Eco-Seeker
                     </v-btn>
                   </v-col>
-                  <v-col cols="12" md="2">
+                  <v-col cols="12" md="6"  sm="6" xs="4">
                     <v-btn
                       value="ecoPartner"
                       class="btn btn-outline-primary"
@@ -36,7 +36,7 @@
                     </v-btn>
                   </v-col>
                 </v-row>
-
+                <v-row dense>
                 <v-col cols="12" md="12">
                   <v-text-field
                     id="displayName"
@@ -85,6 +85,7 @@
                       Register Details
                     </v-btn>
                   </v-col>
+                </v-row>
                 </v-row>
               </v-form>
             </v-card-text>

@@ -208,8 +208,9 @@ export default {
           listing.product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
-
+      
       this.filteredActiveListings = filtered;
+      this.sortProducts();
     },
 
     sortProducts() {

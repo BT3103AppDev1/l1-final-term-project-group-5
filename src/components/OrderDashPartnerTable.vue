@@ -433,7 +433,6 @@ export default {
 
 /* Table styles */
 table {
-  min-width: 1100px;
   table-layout: fixed;
   border-collapse: collapse;
   width: 100%; /* Set table width to 100% of its container */

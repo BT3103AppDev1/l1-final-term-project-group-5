@@ -59,11 +59,25 @@ const router = createRouter({
         const store = useStore();
         const user = store.state.user;
         const authUser = auth.currentUser;
-
+        if (store.state.user.loggedIn) {
         if (authUser && user.type === "") {
           next();
         } else {
           next({ name: "notFound" });
+        }} else {
+          watch(
+            () => store.state.user.loggedIn,
+            (loggedIn) => {
+              if (loggedIn) {
+                const authUser2 = auth.currentUser;
+                if (authUser2) {
+                  next();
+                } else {
+                  next({ name: "notFound" });
+                }
+              }
+            }
+          );
         }
       },
     },

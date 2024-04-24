@@ -26,6 +26,9 @@
                     <v-text-field
                       label="Product Name"
                       v-model="editedProduct.name"
+                      :rules="[
+                        v => (v && v.length <= 20) || 'Name must be less than 20 characters'
+                      ]"
                       required
                     ></v-text-field>
                     <v-select
@@ -45,6 +48,7 @@
                     <v-file-input
                       label="Upload Product Image"
                       prepend-icon="mdi-paperclip"
+                      accept=".jpg, .jpeg, .png"
                       @change="onFileChange"
                       chips
                     >
@@ -129,6 +133,10 @@
                       type="number"
                       min="0"
                       step="0.01"
+                      @blur="formatPrice"
+                      :rules="[
+                        v => !isNaN(parseFloat(v)) && v >= 0 || 'Price must be a positive number'
+                      ]"
                       required
                     ></v-text-field>
 
@@ -137,6 +145,9 @@
                       id="unitsRemaining"
                       label="# of units remaining"
                       type="number"
+                      :rules="[
+                        v => !isNaN(parseFloat(v)) && v >= 0 || 'Units remaining must be a positive number'
+                      ]"
                       min="0"
                       required
                     ></v-text-field>
@@ -147,6 +158,9 @@
                       label="# of quantity to sell"
                       type="number"
                       min="0"
+                      :rules="[
+                        v => !isNaN(parseFloat(v)) && v >= 0 || 'Units to sell must be a positive number'
+                      ]"
                       required
                     ></v-text-field>
                   </v-form>
@@ -284,6 +298,10 @@ export default {
       this.$router.push("marketplace/add-product");
     },
 
+    formatPrice() {
+      this.editedListing.price = Math.round(this.editedListing.price * 100) / 100;
+    },
+
     openEditWindow(object, type) {
       if (type === "listing") {
         this.editedListing = { ...object };
@@ -316,33 +334,40 @@ export default {
 
     async saveProductDetails() {
       try {
-        if (this.editedProduct.image) {
-          const imageUrl = await this.uploadImage(this.editedProduct.image);
-          // Prepare the product object with the image URL
-          const productToEdit = {
-            productId: this.editedProduct.productId,
-            name: this.editedProduct.name,
-            category: this.editedProduct.category,
-            weight: this.editedProduct.weight,
-            sellerId: this.editedProduct.sellerId,
-            imageUrl,
-          };
-
-          this.editProduct(productToEdit).then(() => {
-            this.fetchProducts();
+        if (this.editedProduct.name.length > 20) {
+          this.store.dispatch("addNotification", {
+            type: "error",
+            message: "Please correct the errors in the form",
           });
         } else {
-          this.editProduct(this.editedProduct).then(() => {
-            this.fetchProducts();
+          if (this.editedProduct.image) {
+            const imageUrl = await this.uploadImage(this.editedProduct.image);
+            // Prepare the product object with the image URL
+            const productToEdit = {
+              productId: this.editedProduct.productId,
+              name: this.editedProduct.name,
+              category: this.editedProduct.category,
+              weight: this.editedProduct.weight,
+              sellerId: this.editedProduct.sellerId,
+              imageUrl,
+            };
+
+            this.editProduct(productToEdit).then(() => {
+              this.fetchProducts();
+            });
+          } else {
+            this.editProduct(this.editedProduct).then(() => {
+              this.fetchProducts();
+            });
+          }
+          this.productDialog = false;
+          console.log("Close popup window");
+          this.store.dispatch("addNotification", {
+            // use store from instance
+            type: "success",
+            message: "Successfully edited product!",
           });
         }
-        this.productDialog = false;
-        console.log("Close popup window");
-        this.store.dispatch("addNotification", {
-          // use store from instance
-          type: "success",
-          message: "Successfully edited product!",
-        });
       } catch (error) {
         console.error("Error uploading image:", error);
       }
@@ -363,27 +388,34 @@ export default {
     },
 
     async saveListingDetails() {
-      if (
-        this.editedListing.unitsRemaining * 1 >
-          this.editedListing.unitsToSell * 1 ||
-        this.editedListing.unitsRemaining <= 0
-      ) {
-        this.editedListing.isActive = false;
+      if (this.editedListing.price > 0 && this.editedListing.unitsRemaining >= 0 && this.editedListing.unitsToSell >= 0) {
+        if (
+          this.editedListing.unitsRemaining >
+          this.editedListing.unitsToSell ||
+          this.editedListing.unitsRemaining <= 0
+        ) {
+          this.editedListing.isActive = false;
+        }
+        //console.log('Listing details to save:', this.editedListing.productName);
+
+        await this.editListing(this.editedListing).then(() => {
+          this.fetchActiveListingsWithProductDetails(this.user.uid);
+          this.fetchInactiveListingsWithProductDetails(this.user.uid);
+        });
+
+        this.listingDialog = false;
+        console.log("Close popup window");
+        this.store.dispatch("addNotification", {
+          // use store from instance
+          type: "success",
+          message: "Successfully edited listing!",
+        });
+      } else {
+        this.store.dispatch("addNotification", {
+            type: "error",
+            message: "Please correct the errors in the form",
+          });
       }
-      //console.log('Listing details to save:', this.editedListing.productName);
-
-      await this.editListing(this.editedListing).then(() => {
-        this.fetchActiveListingsWithProductDetails(this.user.uid);
-        this.fetchInactiveListingsWithProductDetails(this.user.uid);
-      });
-
-      this.listingDialog = false;
-      console.log("Close popup window");
-      this.store.dispatch("addNotification", {
-        // use store from instance
-        type: "success",
-        message: "Successfully edited listing!",
-      });
     },
 
     AddListing() {
@@ -477,10 +509,16 @@ h2 {
   background: #fff; /* Background color */
   margin: 10px; /* Adds space around the cards */
   /* padding: 10px; */
-  width: 200px; /* Set the width of the cards */
+  width: 210px; /* Set the width of the cards */
 }
 
+.product-card-add-new {
+  height: 298.2px;
+}
 
+.listing-card-add-new {
+  height: 341.6px;
+}
 
 .divider {
   border-top: 1px solid #ccc; /* Style for the horizontal line */

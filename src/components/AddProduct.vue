@@ -34,6 +34,7 @@
         <v-file-input
           label="Upload Product Image"
           prepend-icon="mdi-paperclip"
+          accept=".jpg, .jpeg, .png"
           @change="onFileChange"
           chips
           required
@@ -72,8 +73,8 @@ export default {
       },
       categories: ["Baked Good", "Dairy", "Fruit", "Vegetable"], // list of categories,
       nameRules: [
-        (v) => !!v || "Name is required",
-        (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
+        v => !!v || 'Name is required',
+        v => (v && v.length <= 20) || 'Name must be less than 20 characters'
       ],
       weightRules: [
         (v) =>
@@ -100,13 +101,8 @@ export default {
     },
 
     async addProduct() {
-      if (
-        this.product.name &&
-        this.product.category &&
-        this.product.weight &&
-        this.product.image
-      ) {
-        if (this.product.name.length <= 10 && this.product.weight > 0) {
+      if (this.product.name && this.product.category && this.product.weight && this.product.image) {
+        if (this.product.name.length <= 20 && this.product.weight > 0) {
           await this.addProductToDB(this.product);
           this.$router.push("/partner/marketplace"); // redirect to marketplace after adding
           this.store.dispatch("addNotification", {

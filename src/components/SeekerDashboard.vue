@@ -331,11 +331,15 @@ function formatDate(timestamp) {
   padding: 20px;
   height: 100%;
   width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
 }
 
 table {
   width: 100%;
+  min-width: 1100px;
   border-collapse: collapse;
+  white-space: nowrap;
 }
 th {
   background-color: #4e644b;
@@ -430,7 +434,10 @@ td:nth-child(4) {
 }
 
 .pageNavigation {
-  display: flex;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  display: fixed;
   justify-content: center;
   align-items: center;
   padding: 20px 10px 10px 10px;

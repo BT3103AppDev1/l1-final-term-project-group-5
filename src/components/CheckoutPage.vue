@@ -2,13 +2,15 @@
   <div class="background" :class="backgroundClass">
     <div class="checkout-body">
       <div class="cart-items">
-        <h2 class="summary">Order Summary</h2>
+        <h2 class="summary"><b>Order Summary</b></h2>
         <div class="table-container">
           <table class="cart-table">
             <thead>
               <tr>
                 <th></th>
                 <th>Product</th>
+                <th>Company</th>
+                <th>Expiry Date</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Subtotal</th>
@@ -33,6 +35,8 @@
                   />
                   <h3 class="item-name">{{ item.product.name }}</h3>
                 </td>
+                <td class="item-company">{{}}</td>
+                <td class="item-expiry">{{}}</td>
                 <td class="item-price">${{ item.price.toFixed(2) }}</td>
                 <td class="item-qty">
                   <div class="qty-container">
@@ -307,7 +311,7 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 64px);
 }
 .background.active {
   opacity: 0.5;

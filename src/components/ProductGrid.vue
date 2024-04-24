@@ -13,7 +13,7 @@
   <div v-if="showCart" class="cart-overlay" v-bind:class="{ open: isCartOpen }">
     <div class="cart-head">
       <button @click="showCart = false" class="close-btn">
-        <img src="@/assets/close.png" alt="x" class="close-img" />
+        <v-icon>mdi-close-circle-outline</v-icon>
       </button>
       <h2 class="cart-header">SHOPPING CART</h2>
       <button class="clear-cart" @click="clearCartWithNotification">
@@ -38,7 +38,7 @@
                 class="remove-btn"
                 @click="removeFromCartWithNotification(item)"
               >
-                <img src="@/assets/close.png" alt="x" class="remove-img" />
+                <v-icon>mdi-close-circle-outline</v-icon>
               </button>
             </td>
             <td class="item">

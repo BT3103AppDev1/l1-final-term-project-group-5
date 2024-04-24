@@ -2,14 +2,13 @@
   <div class="background" :class="backgroundClass">
     <div class="checkout-body">
       <div class="cart-items">
-        <h2 class="summary"><b>Order Summary</b></h2>
+        <h2 class="summary">Order Summary</h2>
         <div class="table-container">
           <table class="cart-table">
             <thead>
               <tr>
                 <th></th>
                 <th>Product</th>
-                <th>Company</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Subtotal</th>
@@ -19,10 +18,11 @@
               <tr
                 v-for="item in cartItems"
                 :key="item.listingId"
-                class="cart-item">
+                class="cart-item"
+              >
                 <td>
                   <button class="remove-btn" @click="removeFromCart(item)">
-                    <img src="@/assets/close.png" alt="x" class="remove-img" />
+                    <v-icon>mdi-close-circle-outline</v-icon>
                   </button>
                 </td>
                 <td class="item">
@@ -31,13 +31,8 @@
                     alt="Product Image"
                     class="item-img"
                   />
-                  <div class="name-expiry">
-                    <h3 class="item-name">{{ item.product.name }}</h3>
-                    <h5 class="expiry-date"> Expiry: {{ formattedDate(item.expirationDate) }} </h5>
-                  </div>
-                  
+                  <h3 class="item-name">{{ item.product.name }}</h3>
                 </td>
-                <td class="item-company">{{ sellerNames[item.sellerId] }}</td>
                 <td class="item-price">${{ item.price.toFixed(2) }}</td>
                 <td class="item-qty">
                   <div class="qty-container">
@@ -69,15 +64,15 @@
     </div>
     <div class="checkout-footer-btns">
       <button class="back" @click="continueShopping">
-        <img src="@/assets/Go Back.png" class="back-img" />
-        Continue Shopping
+        <v-icon>mdi-arrow-left-circle-outline</v-icon>
+        <h4>Continue Shopping</h4>
       </button>
       <button class="make-payment" @click="makePayment">Make Payment</button>
     </div>
   </div>
   <div v-if="showQR" class="checkout-qr">
     <button class="close-qr" @click="makePayment">
-      <img src="@/assets/close.png" alt="x" class="close-img" />
+      <v-icon>mdi-close-circle-outline</v-icon>
     </button>
     <button class="generate-qr" @click="genQR">Generate QR for Payment</button>
     <div v-if="isLoading" class="loading">
@@ -124,14 +119,7 @@ export default {
       isLoading: false,
       showPlaceOrder: false,
       showButtonLoading: false,
-      sellerNames: {},
     };
-  },
-
-  created() {
-    for (const item of this.cartItems) {
-      this.fetchSellerName(item.sellerId);
-    }
   },
   computed: {
     ...mapGetters(["cartItems", "totalPrice", "getUser"]),
@@ -139,7 +127,6 @@ export default {
     backgroundClass() {
       return this.showQR ? "background active" : "background";
     },
-    
   },
   methods: {
     ...mapActions(["removeFromCart", "checkAndUpdateListingStatus"]),
@@ -269,21 +256,6 @@ export default {
         this.showButtonLoading = false;
       }, 8000);
     },
-
-    async fetchSellerName(sellerId) {
-      const sellerRef = doc(db, "users", sellerId);
-      const sellerSnap = await getDoc(sellerRef);
-      const sellerData = sellerSnap.data();
-      this.sellerNames[sellerId] = sellerData.displayName;
-    },
-    formattedDate(expirationDate) {
-      const date = new Date(expirationDate.seconds * 1000);
-      //const date = new Date(this.listing.expirationDate.seconds * 1000);
-      const day = ("0" + date.getDate()).slice(-2);
-      const month = ("0" + (date.getMonth() + 1)).slice(-2);
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    },
   },
 };
 </script>
@@ -335,7 +307,7 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100vw;
-  height: calc(100vh - 64px);
+  height: 100vh;
 }
 .background.active {
   opacity: 0.5;
@@ -591,9 +563,5 @@ export default {
   100% {
     transform: rotate(360deg);
   }
-}
-
-.name-expiry {
-  text-align:left;
 }
 </style>

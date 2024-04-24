@@ -8,7 +8,7 @@
       placeholder="Search for ..."
     />
     <button class="clear-btn" @click="clearSearch">
-      <img src="@/assets/searchcross.png" alt="X" class="clear-img" />
+      <v-icon>mdi-close-circle-outline</v-icon>
     </button>
   </div>
 </template>

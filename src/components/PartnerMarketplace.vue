@@ -9,16 +9,13 @@
           <!---<button @click="AddProduct" class="submit-btn">Add Product</button>-->
         </div>
 
-        <div class="product-card" v-for="product in products" :key="product.id">
+        <v-card class="product-card" v-for="product in products" :key="product.id">
           <div class="edit-button">
             <v-dialog v-model="productDialog" max-width="500">
               <template v-slot:activator="{ props: activatorProps }">
-                <v-btn
-                  v-bind="activatorProps"
-                  variant="flat"
-                  icon
-                  @click="openEditWindow(product, 'product')"
-                >
+
+                <v-btn class="pencil-icon" v-bind="activatorProps" variant="flat" icon
+                  @click="openEditWindow(product, 'product')">
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
               </template>
@@ -79,14 +76,14 @@
           <hr class="divider" />
           <div class="product-info">
             <h3>{{ product.name }}</h3>
-            <p>{{ product.category }}</p>
-            <p>{{ product.weight }} grams</p>
-            <v-btn click="confirmDeleteProduct(product.productId)">
-              <v-icon>mdi-delete</v-icon>
+            <h5>{{ product.category }}</h5>
+            <h4>{{ product.weight }} grams</h4>
+            <v-btn class="delete-btn" size="small" @click="confirmDeleteProduct(product.productId)"  color="white">
+              <v-icon size="15" color="black">mdi-delete</v-icon>
               Delete
             </v-btn>
           </div>
-        </div>
+        </v-card>
       </div>
     </div>
 
@@ -107,12 +104,8 @@
           <div class="edit-button">
             <v-dialog v-model="listingDialog" max-width="500">
               <template v-slot:activator="{ props: activatorProps }">
-                <v-btn
-                  v-bind="activatorProps"
-                  variant="flat"
-                  icon
-                  @click="openEditWindow(listing, 'listing')"
-                >
+                <v-btn class="pencil-icon" v-bind="activatorProps" variant="flat" icon
+                  @click="openEditWindow(listing, 'listing')">
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
               </template>
@@ -170,21 +163,22 @@
               </template>
             </v-dialog>
           </div>
-          <img
-            :src="listing.product.imageUrl"
-            :alt="listing.product.name"
-            class="listing-image"
-          />
+
+          <div class="product-img">
+            <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image" />
+          </div>
+
           <div class="listing-details">
             <h3>{{ listing.product.name }}</h3>
-            <p>{{ listing.product.category }}</p>
-            <p>
+            <h5>{{ listing.product.category }}</h5>
+            <h4>
               Remaining: {{ listing.unitsRemaining }} /
               {{ listing.unitsToSell }}
-            </p>
-            <p>Price: ${{ listing.price }}</p>
-            <v-btn @click="confirmDelete(listing.listingId)">
-              <v-icon>mdi-delete</v-icon>
+            </h4>
+            <h4>Price: ${{ listing.price }}</h4>
+            <h4> Expires: {{ listing.expirationDate.toDate().toISOString().split("T")[0] }}</h4>
+            <v-btn class="delete-btn" size="small" @click="confirmDelete(listing.listingId)" color="white">
+              <v-icon color="black">mdi-delete</v-icon>
               Delete
             </v-btn>
           </div>
@@ -195,24 +189,20 @@
     <div class="expired-section">
       <h2><b>Expired Listings</b></h2>
       <div class="listings-container" name="expired-listings">
-        <div
-          class="expired-listing-card"
-          v-for="listing in inactiveListings"
-          :key="listing.id"
-        >
-          <img
-            :src="listing.product.imageUrl"
-            :alt="listing.product.name"
-            class="listing-image"
-          />
-          <div class="listing-details">
+
+        <div class="expired-listing-card" v-for="listing in inactiveListings" :key="listing.id">
+          <div class="product-img">
+            <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image" />
+          </div>
+          <div class="expired-listing-details">
             <h3>{{ listing.product.name }}</h3>
-            <p>{{ listing.product.category }}</p>
-            <p>
+            <h5>{{ listing.product.category }}</h5>
+            <h4>
               Remaining: {{ listing.unitsRemaining }} /
               {{ listing.unitsToSell }}
-            </p>
-            <p>Price: ${{ listing.price }}</p>
+            </h4>
+            <h4>Price: ${{ listing.price }}</h4>
+            <h4> Expires: {{ listing.expirationDate.toDate().toISOString().split("T")[0] }}</h4>
           </div>
         </div>
       </div>
@@ -359,7 +349,7 @@ export default {
     },
 
     confirmDeleteProduct(productId) {
-      if (confirm("Are you sure you want to delete this listing?")) {
+      if (confirm("Are you sure you want to delete this product?")) {
         console.log("Deleting product with ID:", productId);
         this.deleteProduct(productId).then(() => {
           this.fetchProducts();
@@ -429,12 +419,25 @@ export default {
 };
 </script>
 <style scoped>
+
+.edit-button {
+  width: 100%;
+  height: 0px;
+  display: flex;
+  justify-content: flex-end;
+}
+.pencil-icon {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+
 h2 {
   padding-left: 12px;
   background-color: #4e644b;
   color: white;
   border-radius: 15px;
 }
+
 .marketplace {
   display: flex;
   flex-direction: column;
@@ -461,7 +464,7 @@ h2 {
 .listing-card,
 .listing-card-add-new,
 .expired-listing-card {
-  flex: 0 1 200px; /* Cards will flex but have a base width of 200px */
+  /*flex: 0 1 150px;  Cards will flex but have a base width of 200px */
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 10px;
@@ -473,15 +476,11 @@ h2 {
   text-align: center;
   background: #fff; /* Background color */
   margin: 10px; /* Adds space around the cards */
-  padding: 10px;
+  /* padding: 10px; */
   width: 200px; /* Set the width of the cards */
 }
 
-.edit-button {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-}
+
 
 .divider {
   border-top: 1px solid #ccc; /* Style for the horizontal line */
@@ -491,6 +490,12 @@ h2 {
 .expired-listing-card {
   opacity: 0.5; /* Add a visual cue that the listing is expired */
 }
+.product-img{
+  height: 150px;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .product-image,
 .listing-image {
@@ -499,7 +504,34 @@ h2 {
 }
 
 .product-info,
+.listing-details,
+.expired-listing-details {
+  background-color: white;
+  color: black;
+  width:100%;
+  margin-top: 5px;
+  padding: 10px;
+}
+
+.product-info h3,
+.listing-details h3,
+.expired-listing-details h3 {
+  color: black;
+}
+
+.product-info {
+  height: 140px;
+}
+
 .listing-details {
+  height: 185px;
+}
+
+.expired-listing-details {
+  height: 140px;
+}
+
+.delete-btn {
   margin-top: 10px;
 }
 

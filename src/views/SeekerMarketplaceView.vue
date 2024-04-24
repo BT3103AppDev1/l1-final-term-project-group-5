@@ -100,7 +100,7 @@ export default {
 }
 
 .grid {
-  width: 80%;
+  width: 75%;
 }
 .sidebar {
   width: 20%;

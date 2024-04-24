@@ -9,7 +9,7 @@
           <!---<button @click="AddProduct" class="submit-btn">Add Product</button>-->
         </div>
 
-        <v-card class="product-card" v-for="product in products" :key="product.id">
+        <v-card class="product-card" v-for="product in sortedProducts" :key="product.id">
           <div class="edit-button">
             <v-dialog v-model="productDialog" max-width="500">
               <template v-slot:activator="{ props: activatorProps }">
@@ -102,7 +102,7 @@
 
         <div
           class="listing-card"
-          v-for="listing in activeListings"
+          v-for="listing in sortedActiveListings"
           :key="listing.id"
         >
           <div class="edit-button">
@@ -204,7 +204,7 @@
       <h2><b>Expired Listings</b></h2>
       <div class="listings-container" name="expired-listings">
 
-        <div class="expired-listing-card" v-for="listing in inactiveListings" :key="listing.id">
+        <div class="expired-listing-card" v-for="listing in sortedInactiveListings" :key="listing.id">
           <div class="product-img">
             <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image" />
           </div>
@@ -281,6 +281,16 @@ export default {
     today() {
       return new Date().toISOString().split("T")[0];
     },
+    sortedProducts() {
+      return this.products.slice().sort((a, b) => a.name.localeCompare(b.name));
+    },
+    sortedActiveListings() {
+      return this.activeListings.slice().sort((a, b) =>  a.expirationDate.toDate() - b.expirationDate.toDate());
+    },
+    sortedInactiveListings() {
+      return this.inactiveListings.slice().sort((a, b) => a.expirationDate.toDate() - b.expirationDate.toDate());
+    }
+
   },
 
   methods: {

@@ -134,6 +134,9 @@ export default {
   background-color: transparent;
   top: 0; /* Set the top position to 0 */
   padding: 20px;
+  max-width: 100%;
+  min-width: 1100px;
+  overflow-x: auto;
 }
 .page-bar-container {
   width: 100%;

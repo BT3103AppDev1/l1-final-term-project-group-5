@@ -428,10 +428,12 @@ export default {
 .container {
   max-width: 100%; /* Limit the container's width to the viewport width */
   margin: 0 auto; /* Center align the container */
+  overflow-x: auto;
 }
 
 /* Table styles */
 table {
+  min-width: 1100px;
   table-layout: fixed;
   border-collapse: collapse;
   width: 100%; /* Set table width to 100% of its container */

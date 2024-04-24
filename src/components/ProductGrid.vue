@@ -1,11 +1,11 @@
 <template>
   <div class="product-grid">
-      <ProductCard
+    <ProductCard
       v-for="listing in filteredActiveListings"
       :key="listing.listinId"
       :listing="listing"
-      @add-to-cart="addToCart"/>
-    
+      @add-to-cart="addToCart"
+    />
   </div>
   <div class="view-cart-btn" @click="showCart = true">
     <h3 class="view-cart-header">VIEW CART</h3>
@@ -16,7 +16,9 @@
         <img src="@/assets/close.png" alt="x" class="close-img" />
       </button>
       <h2 class="cart-header">SHOPPING CART</h2>
-      <button class="clear-cart" @click="clearCartWithNotification">CLEAR CART</button>
+      <button class="clear-cart" @click="clearCartWithNotification">
+        CLEAR CART
+      </button>
     </div>
     <div class="cart-items">
       <table class="cart-table">
@@ -32,7 +34,10 @@
         <tbody>
           <tr v-for="item in cartItems" :key="item.listingId" class="cart-item">
             <td>
-              <button class="remove-btn" @click="removeFromCartWithNotification(item)">
+              <button
+                class="remove-btn"
+                @click="removeFromCartWithNotification(item)"
+              >
                 <img src="@/assets/close.png" alt="x" class="remove-img" />
               </button>
             </td>
@@ -205,7 +210,9 @@ export default {
       //Filter by search query if present
       if (this.searchQuery) {
         filtered = filtered.filter((listing) =>
-          listing.product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+          listing.product.name
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase())
         );
       }
 
@@ -272,16 +279,16 @@ h3 {
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 30px;
   overflow: hidden;
-  align-items:center;
-  justify-items:center;
+  align-items: center;
+  justify-items: center;
 }
 
 .product-grid.active {
-  opacity:0.5;
+  opacity: 0.5;
 }
 
 .view-cart-btn {
-  position: absolute;
+  position: fixed;
   bottom: 30px;
   right: 30px;
   height: 60px;

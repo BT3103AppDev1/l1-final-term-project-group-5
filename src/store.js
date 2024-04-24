@@ -256,7 +256,11 @@ const store = createStore({
               about: docSnap.get("about"),
               address: docSnap.get("address"),
             });
-            commit("SET_USER_REGISTERED", true);
+            if (docSnap.get("userType") === "") { 
+              commit("SET_USER_REGISTERED", false);
+            } else {
+              commit("SET_USER_REGISTERED", true);
+            }
             commit("SET_WEIGHT", docSnap.get("weight"));
             commit("SET_BANK_DETAILS", docSnap.get("bankDetails"));
             commit("SET_PROVIDER", "local");
@@ -385,6 +389,12 @@ const store = createStore({
         });
         context.commit("SET_USER_ID", "");
         context.commit("SET_USER_REGISTERED", false);
+        context.commit("SET_USER_TYPE", "");
+        context.commit("SET_WEIGHT", 0);
+        context.commit("SET_BANK_DETAILS", "");
+        context.commit("SET_PROVIDER", "");
+        context.commit("SET_RANK", 5);
+        context.commit("CLEAR_CART");
       } catch (error) {
         console.error("Failed to log out:", error);
       }

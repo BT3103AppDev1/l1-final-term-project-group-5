@@ -268,10 +268,10 @@ h3 {
 
 .product-grid {
   display: grid;
-  width: 75vw;
+  width: 100%;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 30px;
-  margin: 0 50px 0 150px;
+  margin: 32px;
   overflow: hidden;
 }
 

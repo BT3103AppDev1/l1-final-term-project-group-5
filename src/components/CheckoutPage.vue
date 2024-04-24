@@ -161,18 +161,6 @@ export default {
         });
         return;
       }
-      for (const item of this.cartItems) {
-        const itemRef = doc(db, "listings", item.listingId);
-        const itemSnap = await getDoc(itemRef);
-        const itemData = itemSnap.data();
-
-        if (itemData.unitsRemaining < item.quantity) {
-          this.$store.dispatch("addNotification", {
-            type: "warning",
-            message: `Not enough units remaining for ${item.product.name}. Please update the quantity.`,
-          });
-        }
-      }
       //let counter = 0; // track how many orders made
       const datePurchased = new Date();
       const sellers = await this.fetchSellers(this.cartItems); //returns either a single seller or array of sellers

@@ -147,7 +147,7 @@ export default {
     },
 
     sortOption() {
-      this.sortProducts();
+      this.applyFilters();
     },
   },
 
@@ -215,26 +215,14 @@ export default {
             .includes(this.searchQuery.toLowerCase())
         );
       }
+      // filter by Sort Option
+      if (this.sortOption === "lowToHigh") {
+        filtered.sort((a, b) => Number(a.price) - Number(b.price));
+      } else if (this.sortOption === "highToLow") {
+        filtered.sort((a, b) => Number(b.price) - Number(a.price));
+      }
 
       this.filteredActiveListings = filtered;
-    },
-
-    sortProducts() {
-      if (this.sortOption === "lowToHigh") {
-        this.filteredActiveListings = [...this.filteredActiveListings].sort(
-          (a, b) => {
-            return Number(a.price) - Number(b.price);
-          }
-        );
-      } else if (this.sortOption === "highToLow") {
-        this.filteredActiveListings = [...this.filteredActiveListings].sort(
-          (a, b) => {
-            return Number(b.price) - Number(a.price);
-          }
-        );
-      } else {
-        this.filteredActiveListings = this.activeListings;
-      }
     },
 
     checkout() {

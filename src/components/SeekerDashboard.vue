@@ -278,7 +278,7 @@ function formatDate(timestamp) {
         </tbody>
         <tbody v-else class="emptyTable">
           <tr>
-            <td colspan="8">No orders found</td>
+            <td colspan="9">No orders found</td>
           </tr>
         </tbody>
       </table>

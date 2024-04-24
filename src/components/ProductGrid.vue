@@ -281,6 +281,7 @@ h3 {
   overflow: hidden;
   align-items: center;
   justify-items: center;
+  margin-bottom: 30px;
 }
 
 .product-grid.active {

@@ -34,10 +34,12 @@
                   />
                   <div class="name-expiry">
                     <h3 class="item-name">{{ item.product.name }}</h3>
-                    <h5 class="expiry-date"> Expiry: {{ formattedDate(item.expirationDate) }}</h5>
+                    <h5 class="expiry-date">
+                      Expiry: {{ formattedDate(item.expirationDate) }}
+                    </h5>
                   </div>
                 </td>
-                <td class="item-company"> {{ sellerNames[item.sellerId] }}</td>
+                <td class="item-company">{{ sellerNames[item.sellerId] }}</td>
                 <td class="item-price">${{ item.price.toFixed(2) }}</td>
                 <td class="item-qty">
                   <div class="qty-container">
@@ -78,9 +80,11 @@
   <div v-if="showQR" class="checkout-qr">
     <div class="btns">
       <button class="close-qr" @click="makePayment">
-      <v-icon>mdi-close-circle-outline</v-icon>
+        <v-icon>mdi-close-circle-outline</v-icon>
       </button>
-      <button class="generate-qr" @click="genQR">Generate QR for Payment</button>
+      <button class="generate-qr" @click="genQR">
+        Generate QR for Payment
+      </button>
     </div>
     <div v-if="isLoading" class="loading">
       <div class="spinner"></div>
@@ -284,14 +288,13 @@ export default {
       const month = ("0" + (date.getMonth() + 1)).slice(-2);
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
-    }
+    },
   },
 };
 </script>
 <style scoped>
-
 .btns {
-  height:15%;
+  height: 15%;
 }
 .checkout-qr {
   position: fixed;
@@ -318,9 +321,9 @@ export default {
   gap: 8px;
   align-self: center;
   align-items: center;
-  position:absolute;
+  position: absolute;
   left: 50%;
-  transform:translateX(-50%);
+  transform: translateX(-50%);
 }
 .qr-code {
   display: flex;
@@ -345,7 +348,8 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100vw;
-  height: 100vh;
+  min-height: calc(100vh - 64px);
+  height: 100%;
 }
 .background.active {
   opacity: 0.5;
@@ -376,9 +380,9 @@ export default {
 
 .summary {
   text-align: center;
-  font-weight:bold;
+  font-weight: bold;
   letter-spacing: 1px;
-  padding-bottom:4px;
+  padding-bottom: 4px;
 }
 
 .cart-table {

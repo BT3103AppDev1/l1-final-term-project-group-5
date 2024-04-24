@@ -19,7 +19,7 @@
           v-model="product.category"
           :items="categories"
           label="Select Product Category"
-          :rules="[v => !!v || 'Category is required']"
+          :rules="[(v) => !!v || 'Category is required']"
           required
         ></v-select>
 
@@ -72,11 +72,13 @@ export default {
       },
       categories: ["Baked Good", "Dairy", "Fruit", "Vegetable"], // list of categories,
       nameRules: [
-        v => !!v || 'Name is required',
-        v => (v && v.length <= 10) || 'Name must be less than 10 characters'
+        (v) => !!v || "Name is required",
+        (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
       ],
       weightRules: [
-        v => !isNaN(parseFloat(v)) && v >= 0 || 'Weight must be a positive number',
+        (v) =>
+          (!isNaN(parseFloat(v)) && v >= 0) ||
+          "Weight must be a positive number",
       ],
     };
   },
@@ -98,7 +100,12 @@ export default {
     },
 
     async addProduct() {
-      if (this.product.name && this.product.category && this.product.weight && this.product.image) {
+      if (
+        this.product.name &&
+        this.product.category &&
+        this.product.weight &&
+        this.product.image
+      ) {
         if (this.product.name.length <= 10 && this.product.weight > 0) {
           await this.addProductToDB(this.product);
           this.$router.push("/partner/marketplace"); // redirect to marketplace after adding
@@ -134,7 +141,7 @@ export default {
   flex-direction: column;
   align-items: center;
   height: 100vh;
-  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  background: url("../assets/bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -143,7 +150,7 @@ export default {
 }
 
 .submit-button {
-  background-color: #4B644C;
+  background-color: #4b644c;
   color: white;
 }
 

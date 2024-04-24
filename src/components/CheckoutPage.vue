@@ -1,9 +1,9 @@
 <template>
-<div class="background" :class="backgroundClass" >
-  <div class="checkout-body">
-    <div class="cart-items">
-      <h2 class="summary">Order Summary</h2>
-      <div class="table-container">
+  <div class="background" :class="backgroundClass">
+    <div class="checkout-body">
+      <div class="cart-items">
+        <h2 class="summary">Order Summary</h2>
+        <div class="table-container">
           <table class="cart-table">
             <thead>
               <tr>
@@ -58,49 +58,45 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <h1 class="total">Total : ${{ totalPrice }}</h1>
       </div>
-      <h1 class="total">Total : ${{ totalPrice }}</h1>
     </div>
-    
-  </div>
-  <div class="checkout-footer-btns">
-    <button class="back" @click="continueShopping">
+    <div class="checkout-footer-btns">
+      <button class="back" @click="continueShopping">
         <img src="@/assets/Go Back.png" class="back-img" />
-          Continue Shopping
-        </button>
-    <button class="make-payment" @click="makePayment">Make Payment</button>
-  </div>
-</div>
-<div v-if="showQR" class="checkout-qr">
-      <button class="close-qr" @click="makePayment">
-        <img src="@/assets/close.png" alt="x" class="close-img" />
+        Continue Shopping
       </button>
-      <button class="generate-qr" @click="genQR">Generate QR for Payment</button>
-      <div v-if="isLoading" class="loading">
-        <div class="spinner">
-        </div>
-      </div>
-      <div v-if="generateQR" class="qr-code">
-        <img src="@/assets/paynow.png" alt="QR Code" class="qr-img"/>
-        <div class="steps">
-            <ul>
-              <li>Scan QR on your PayNow supported app (or)</li>
-              <li>
-                Save the QR code and upload QR into your PayNow banking app to
-                complete payment
-              </li>
-            </ul>
-          </div>
-      </div>
-      <div v-if="showPlaceOrder || showButtonLoading" class="placeOrder">
-        <div v-if="showButtonLoading" class="small-spinner">
-        </div>
-          <button v-if="showPlaceOrder" class="order" @click="placeOrders">Place Order</button>
-      </div>
-      
-      
-      
+      <button class="make-payment" @click="makePayment">Make Payment</button>
     </div>
+  </div>
+  <div v-if="showQR" class="checkout-qr">
+    <button class="close-qr" @click="makePayment">
+      <img src="@/assets/close.png" alt="x" class="close-img" />
+    </button>
+    <button class="generate-qr" @click="genQR">Generate QR for Payment</button>
+    <div v-if="isLoading" class="loading">
+      <div class="spinner"></div>
+    </div>
+    <div v-if="generateQR" class="qr-code">
+      <img src="@/assets/paynow.png" alt="QR Code" class="qr-img" />
+      <div class="steps">
+        <ul>
+          <li>Scan QR on your PayNow supported app (or)</li>
+          <li>
+            Save the QR code and upload QR into your PayNow banking app to
+            complete payment
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div v-if="showPlaceOrder || showButtonLoading" class="placeOrder">
+      <div v-if="showButtonLoading" class="small-spinner"></div>
+      <button v-if="showPlaceOrder" class="order" @click="placeOrders">
+        Place Order
+      </button>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -121,8 +117,8 @@ export default {
       showQR: false,
       generateQR: false,
       isLoading: false,
-      showPlaceOrder:false,
-      showButtonLoading:false,
+      showPlaceOrder: false,
+      showButtonLoading: false,
     };
   },
   computed: {
@@ -213,7 +209,6 @@ export default {
               console.log(
                 "Updated units remaining for listing: " + item.listingId
               );
-
             }
           }
           this.checkAndUpdateListingStatus();
@@ -257,8 +252,8 @@ export default {
         this.showButtonLoading = true;
       }, 3000);
       setTimeout(() => {
-          this.showPlaceOrder = true;
-          this.showButtonLoading = false;
+        this.showPlaceOrder = true;
+        this.showButtonLoading = false;
       }, 8000);
     },
   },
@@ -270,14 +265,14 @@ export default {
   top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color:whitesmoke;
+  background-color: whitesmoke;
   border: 2px outset #4b644c;
   border-radius: 8px;
   padding: 24px;
   width: 60%;
-  height:70%;
+  height: 70%;
   align-items: center;
-  z-index:100;
+  z-index: 100;
 }
 .generate-qr {
   background-color: rgb(75, 100, 76);
@@ -288,53 +283,52 @@ export default {
   cursor: pointer;
   display: flex;
   gap: 8px;
-  align-self:center;
+  align-self: center;
   align-items: center;
   position: relative;
-
 }
 .qr-code {
   display: flex;
   justify-content: space-around;
-  gap:18px;
+  gap: 18px;
   align-items: center;
-  margin:24px;
+  margin: 24px;
 }
 .qr-img {
   height: 350px;
   width: 350px;
 }
 .background {
-  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  background: url("../assets/bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  display:flex;
-  flex-direction:column;
+  display: flex;
+  flex-direction: column;
   width: 100vw;
   height: 100vh;
 }
 .background.active {
-  opacity:0.5;
+  opacity: 0.5;
   background-color: rgba(255, 255, 255, 0.6);
 }
 .checkout-body {
   width: 100vw;
-  height:70vh;
+  height: 70vh;
   display: flex;
-  align-items:center;
+  align-items: center;
   justify-content: center;
-  flex-direction:column;
+  flex-direction: column;
 }
 .checkout-body.active {
-  opacity:0.5;
+  opacity: 0.5;
 }
 .cart-items {
   width: 98%;
-  
+
   border-radius: 8px;
-  text-align:center;
+  text-align: center;
 }
 .table-container {
   overflow: auto;
@@ -365,12 +359,12 @@ export default {
 .cart-table td.item {
   display: flex;
   justify-content: left;
-  padding-left:24px;
+  padding-left: 24px;
   gap: 8px;
   align-items: center;
 }
 .item-price {
-  font-size:large;
+  font-size: large;
 }
 .subtotal {
   font-weight: bold;
@@ -394,9 +388,9 @@ export default {
 .checkout-footer-btns {
   display: flex;
   justify-content: space-around;
-  width:auto;
+  width: auto;
   margin-top: 20px;
-  padding:4px;
+  padding: 4px;
 }
 
 .back {
@@ -471,7 +465,7 @@ export default {
   font-size: large;
 }
 
-.make-payment{ 
+.make-payment {
   background-color: #4b644c;
   color: white;
   padding: 8px 16px;
@@ -490,8 +484,8 @@ export default {
 }
 
 .close-img {
-  height:30px;
-  width:30px;
+  height: 30px;
+  width: 30px;
 }
 
 .loading {
@@ -501,7 +495,7 @@ export default {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.4); /* Semi-transparent black */
+  background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent black */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -517,12 +511,16 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .order {
-  font-size:larger;
+  font-size: larger;
   letter-spacing: 1px;
   background-color: #4b644c;
   color: white;
@@ -531,13 +529,13 @@ export default {
   border: none;
   cursor: pointer;
   border: 4px outset #4b644c;
-  height:60px;
-  width:150px;
+  height: 60px;
+  width: 150px;
 }
 .order:hover {
   background-color: #3b523c;
 }
-      
+
 .order:active {
   transform: scale(0.9);
 }
@@ -546,7 +544,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top:16px;
+  margin-top: 16px;
 }
 .small-spinner {
   /* Adjust as needed */
@@ -559,10 +557,11 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
-
-
-
 </style>

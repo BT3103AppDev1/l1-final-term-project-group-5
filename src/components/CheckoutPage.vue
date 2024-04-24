@@ -9,6 +9,7 @@
               <tr>
                 <th></th>
                 <th>Product</th>
+                <th>Company</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Subtotal</th>
@@ -18,8 +19,7 @@
               <tr
                 v-for="item in cartItems"
                 :key="item.listingId"
-                class="cart-item"
-              >
+                class="cart-item">
                 <td>
                   <button class="remove-btn" @click="removeFromCart(item)">
                     <img src="@/assets/close.png" alt="x" class="remove-img" />
@@ -31,8 +31,13 @@
                     alt="Product Image"
                     class="item-img"
                   />
-                  <h3 class="item-name">{{ item.product.name }}</h3>
+                  <div class="name-expiry">
+                    <h3 class="item-name">{{ item.product.name }}</h3>
+                    <h5 class="expiry-date"> Expiry: {{ formattedDate(item.expirationDate) }} </h5>
+                  </div>
+                  
                 </td>
+                <td class="item-company">{{ sellerNames[item.sellerId] }}</td>
                 <td class="item-price">${{ item.price.toFixed(2) }}</td>
                 <td class="item-qty">
                   <div class="qty-container">
@@ -119,7 +124,14 @@ export default {
       isLoading: false,
       showPlaceOrder: false,
       showButtonLoading: false,
+      sellerNames: {},
     };
+  },
+
+  created() {
+    for (const item of this.cartItems) {
+      this.fetchSellerName(item.sellerId);
+    }
   },
   computed: {
     ...mapGetters(["cartItems", "totalPrice", "getUser"]),
@@ -127,6 +139,7 @@ export default {
     backgroundClass() {
       return this.showQR ? "background active" : "background";
     },
+    
   },
   methods: {
     ...mapActions(["removeFromCart", "checkAndUpdateListingStatus"]),
@@ -147,6 +160,18 @@ export default {
           message: "Cart is empty! Cannot place order.",
         });
         return;
+      }
+      for (const item of this.cartItems) {
+        const itemRef = doc(db, "listings", item.listingId);
+        const itemSnap = await getDoc(itemRef);
+        const itemData = itemSnap.data();
+
+        if (itemData.unitsRemaining < item.quantity) {
+          this.$store.dispatch("addNotification", {
+            type: "warning",
+            message: `Not enough units remaining for ${item.product.name}. Please update the quantity.`,
+          });
+        }
       }
       //let counter = 0; // track how many orders made
       const datePurchased = new Date();
@@ -255,6 +280,21 @@ export default {
         this.showPlaceOrder = true;
         this.showButtonLoading = false;
       }, 8000);
+    },
+
+    async fetchSellerName(sellerId) {
+      const sellerRef = doc(db, "users", sellerId);
+      const sellerSnap = await getDoc(sellerRef);
+      const sellerData = sellerSnap.data();
+      this.sellerNames[sellerId] = sellerData.displayName;
+    },
+    formattedDate(expirationDate) {
+      const date = new Date(expirationDate.seconds * 1000);
+      //const date = new Date(this.listing.expirationDate.seconds * 1000);
+      const day = ("0" + date.getDate()).slice(-2);
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
     },
   },
 };
@@ -563,5 +603,9 @@ export default {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.name-expiry {
+  text-align:left;
 }
 </style>

@@ -9,6 +9,7 @@
               <tr>
                 <th></th>
                 <th>Product</th>
+                <th>Company</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Subtotal</th>
@@ -31,8 +32,12 @@
                     alt="Product Image"
                     class="item-img"
                   />
-                  <h3 class="item-name">{{ item.product.name }}</h3>
+                  <div class="name-expiry">
+                    <h3 class="item-name">{{ item.product.name }}</h3>
+                    <h5 class="expiry-date"> Expiry: {{ formattedDate(item.expirationDate) }}</h5>
+                  </div>
                 </td>
+                <td class="item-company"> {{ sellerNames[item.sellerId] }}</td>
                 <td class="item-price">${{ item.price.toFixed(2) }}</td>
                 <td class="item-qty">
                   <div class="qty-container">
@@ -71,10 +76,12 @@
     </div>
   </div>
   <div v-if="showQR" class="checkout-qr">
-    <button class="close-qr" @click="makePayment">
+    <div class="btns">
+      <button class="close-qr" @click="makePayment">
       <v-icon>mdi-close-circle-outline</v-icon>
-    </button>
-    <button class="generate-qr" @click="genQR">Generate QR for Payment</button>
+      </button>
+      <button class="generate-qr" @click="genQR">Generate QR for Payment</button>
+    </div>
     <div v-if="isLoading" class="loading">
       <div class="spinner"></div>
     </div>
@@ -119,6 +126,7 @@ export default {
       isLoading: false,
       showPlaceOrder: false,
       showButtonLoading: false,
+      sellerNames: {},
     };
   },
   computed: {
@@ -128,6 +136,13 @@ export default {
       return this.showQR ? "background active" : "background";
     },
   },
+
+  created() {
+    for (const item of this.cartItems) {
+      this.fetchSellerName(item.sellerId);
+    }
+  },
+
   methods: {
     ...mapActions(["removeFromCart", "checkAndUpdateListingStatus"]),
 
@@ -256,16 +271,34 @@ export default {
         this.showButtonLoading = false;
       }, 8000);
     },
+    async fetchSellerName(sellerId) {
+      const sellerRef = doc(db, "users", sellerId);
+      const sellerSnap = await getDoc(sellerRef);
+      const sellerData = sellerSnap.data();
+      this.sellerNames[sellerId] = sellerData.displayName;
+    },
+
+    formattedDate(expirationDate) {
+      const date = new Date(expirationDate.seconds * 1000);
+      const day = ("0" + date.getDate()).slice(-2);
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
   },
 };
 </script>
 <style scoped>
+
+.btns {
+  height:15%;
+}
 .checkout-qr {
   position: fixed;
   top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: whitesmoke;
+  background-color: white;
   border: 2px outset #4b644c;
   border-radius: 8px;
   padding: 24px;
@@ -285,14 +318,19 @@ export default {
   gap: 8px;
   align-self: center;
   align-items: center;
-  position: relative;
+  position:absolute;
+  left: 50%;
+  transform:translateX(-50%);
 }
 .qr-code {
   display: flex;
   justify-content: space-around;
-  gap: 18px;
+  gap: 32px;
   align-items: center;
   margin: 24px;
+  height: 70%;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
 }
 .qr-img {
   height: 350px;
@@ -314,12 +352,13 @@ export default {
   background-color: rgba(255, 255, 255, 0.6);
 }
 .checkout-body {
-  width: 100vw;
+  width: 100%;
   height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  border-bottom: 1px solid #ccc;
 }
 .checkout-body.active {
   opacity: 0.5;
@@ -337,6 +376,9 @@ export default {
 
 .summary {
   text-align: center;
+  font-weight:bold;
+  letter-spacing: 1px;
+  padding-bottom:4px;
 }
 
 .cart-table {

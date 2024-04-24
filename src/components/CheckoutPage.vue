@@ -99,13 +99,13 @@
             complete payment
           </li>
         </ul>
+        <div v-if="showPlaceOrder || showButtonLoading" class="placeOrder">
+        <div v-if="showButtonLoading" class="small-spinner"></div>
+          <button v-if="showPlaceOrder" class="order" @click="placeOrders">
+            Place Order
+          </button>
+        </div>
       </div>
-    </div>
-    <div v-if="showPlaceOrder || showButtonLoading" class="placeOrder">
-      <div v-if="showButtonLoading" class="small-spinner"></div>
-      <button v-if="showPlaceOrder" class="order" @click="placeOrders">
-        Place Order
-      </button>
     </div>
   </div>
 </template>
@@ -257,9 +257,17 @@ export default {
       }
     },
     makePayment() {
+      if (!this.cartItems.length) {
+        this.$store.dispatch("addNotification", {
+          type: "warning",
+          message: "Cart is empty! Cannot place order.",
+        });
+        return;
+      }
       this.showQR = !this.showQR;
       this.generateQR = false;
       this.showPlaceOrder = false;
+      
     },
     genQR() {
       this.isLoading = true;
@@ -352,6 +360,7 @@ export default {
   height: 100%;
 }
 .background.active {
+  pointer-events:none;
   opacity: 0.5;
   background-color: rgba(255, 255, 255, 0.6);
 }
@@ -609,5 +618,12 @@ export default {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.steps {
+  height:90%;
+  display:flex;
+  flex-direction:column;
+  justify-content: space-between;
 }
 </style>

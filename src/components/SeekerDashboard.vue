@@ -66,7 +66,7 @@ const ordersPerPage = 10;
 
 // Computed properties
 const userOrders = computed(() =>
-  orders.value.filter((order) => order.buyerId !== auth.currentUser.uid)
+  orders.value.filter((order) => order.buyerId == auth.currentUser.uid)
 );
 
 const nonDeletedOrders = computed(() =>

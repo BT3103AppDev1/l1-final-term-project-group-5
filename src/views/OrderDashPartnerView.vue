@@ -132,7 +132,6 @@ export default {
 }
 .table-container {
   background-color: transparent;
-  position: relative; /* Make the table container a positioned element */
   top: 0; /* Set the top position to 0 */
   padding: 20px;
 }
@@ -141,6 +140,6 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: -125px;
+  margin-top: -75px;
 }
 </style>

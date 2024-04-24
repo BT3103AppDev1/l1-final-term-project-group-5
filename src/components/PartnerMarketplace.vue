@@ -1,7 +1,7 @@
 <template>
   <div class="marketplace">
     <div class="products-section">
-      <h2>Products</h2>
+      <h2><b>Products</b></h2>
       <div class="products-grid">
         <div @click="AddProduct" class="product-card-add-new">
           <span class="plus-icon">+</span>
@@ -13,41 +13,67 @@
           <div class="edit-button">
             <v-dialog v-model="productDialog" max-width="500">
               <template v-slot:activator="{ props: activatorProps }">
+
                 <v-btn class="pencil-icon" v-bind="activatorProps" variant="flat" icon
                   @click="openEditWindow(product, 'product')">
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
-
               </template>
 
               <template v-slot:default="{ productDialog }">
                 <v-card title="Edit Product Details">
                   <v-form ref="form" v-model="valid" lazy-validation>
-                    <v-text-field label="Product Name" v-model="editedProduct.name" required></v-text-field>
-                    <v-select v-model="editedProduct.category" :items="categories" label="Select Product Category"
-                      required></v-select>
+                    <v-text-field
+                      label="Product Name"
+                      v-model="editedProduct.name"
+                      required
+                    ></v-text-field>
+                    <v-select
+                      v-model="editedProduct.category"
+                      :items="categories"
+                      label="Select Product Category"
+                      required
+                    ></v-select>
 
-                    <v-text-field v-model.number="editedProduct.weight" label="Enter Product Weight (grams)"
-                      type="number" required></v-text-field>
+                    <v-text-field
+                      v-model.number="editedProduct.weight"
+                      label="Enter Product Weight (grams)"
+                      type="number"
+                      required
+                    ></v-text-field>
 
-                    <v-file-input label="Upload Product Image" prepend-icon="mdi-paperclip" @change="onFileChange"
-                      chips>
+                    <v-file-input
+                      label="Upload Product Image"
+                      prepend-icon="mdi-paperclip"
+                      @change="onFileChange"
+                      chips
+                    >
                     </v-file-input>
                   </v-form>
 
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn text="Save Changes" @click="saveProductDetails()"></v-btn>
-                    <v-btn text="Close" @click="this.productDialog = false"></v-btn>
+                    <v-btn
+                      text="Save Changes"
+                      @click="saveProductDetails()"
+                    ></v-btn>
+                    <v-btn
+                      text="Close"
+                      @click="this.productDialog = false"
+                    ></v-btn>
                   </v-card-actions>
                 </v-card>
               </template>
             </v-dialog>
           </div>
           <div class="product-img">
-            <img :src="product.imageUrl" :alt="product.name" class="product-image" />
+            <img
+              :src="product.imageUrl"
+              :alt="product.name"
+              class="product-image"
+            />
           </div>
-          <hr class="divider">
+          <hr class="divider" />
           <div class="product-info">
             <h3>{{ product.name }}</h3>
             <h5>{{ product.category }}</h5>
@@ -62,16 +88,19 @@
     </div>
 
     <div class="listings-section">
-      <h2>Current Listings</h2>
+      <h2><b>Current Listings</b></h2>
       <div class="listings-container" name="active-listings">
-
         <!-- Add New Listing card here -->
         <div @click="AddListing" class="listing-card-add-new">
           <span class="plus-icon">+</span>
           <p>Add New Listing</p>
         </div>
 
-        <div class="listing-card" v-for="listing in activeListings" :key="listing.id">
+        <div
+          class="listing-card"
+          v-for="listing in activeListings"
+          :key="listing.id"
+        >
           <div class="edit-button">
             <v-dialog v-model="listingDialog" max-width="500">
               <template v-slot:activator="{ props: activatorProps }">
@@ -84,31 +113,61 @@
               <template v-slot:default="{ isActive }">
                 <v-card title="Edit Listing Details">
                   <v-form ref="form" v-model="valid" lazy-validation>
-                    <v-text-field v-model="editedListing.expirationDate" id="expirationDate" label="Expiration Date"
-                      type="date" :min="today" required></v-text-field>
+                    <v-text-field
+                      v-model="editedListing.expirationDate"
+                      id="expirationDate"
+                      label="Expiration Date"
+                      type="date"
+                      :min="today"
+                      required
+                    ></v-text-field>
 
-                    <v-text-field v-model.number="editedListing.price" id="price" label="Price of product ($)"
-                      type="number" min="0" step="0.01" required></v-text-field>
+                    <v-text-field
+                      v-model.number="editedListing.price"
+                      id="price"
+                      label="Price of product ($)"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                    ></v-text-field>
 
-                    <v-text-field v-model.number="editedListing.unitsRemaining" id="unitsRemaining"
-                      label="# of units remaining" type="number" min="0" required></v-text-field>
+                    <v-text-field
+                      v-model.number="editedListing.unitsRemaining"
+                      id="unitsRemaining"
+                      label="# of units remaining"
+                      type="number"
+                      min="0"
+                      required
+                    ></v-text-field>
 
-                    <v-text-field v-model.number="editedListing.unitsToSell" id="unitsToSell"
-                      label="# of quantity to sell" type="number" min="0" required></v-text-field>
+                    <v-text-field
+                      v-model.number="editedListing.unitsToSell"
+                      id="unitsToSell"
+                      label="# of quantity to sell"
+                      type="number"
+                      min="0"
+                      required
+                    ></v-text-field>
                   </v-form>
 
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn text="Save Changes" @click="saveListingDetails()"></v-btn>
+                    <v-btn
+                      text="Save Changes"
+                      @click="saveListingDetails()"
+                    ></v-btn>
                     <v-btn text="Close" @click="isActive.value = false"></v-btn>
                   </v-card-actions>
                 </v-card>
               </template>
             </v-dialog>
           </div>
+
           <div class="product-img">
             <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image" />
           </div>
+
           <div class="listing-details">
             <h3>{{ listing.product.name }}</h3>
             <h5>{{ listing.product.category }}</h5>
@@ -128,8 +187,9 @@
     </div>
 
     <div class="expired-section">
-      <h2>Expired Listings</h2>
+      <h2><b>Expired Listings</b></h2>
       <div class="listings-container" name="expired-listings">
+
         <div class="expired-listing-card" v-for="listing in inactiveListings" :key="listing.id">
           <div class="product-img">
             <img :src="listing.product.imageUrl" :alt="listing.product.name" class="listing-image" />
@@ -359,6 +419,7 @@ export default {
 };
 </script>
 <style scoped>
+
 .edit-button {
   width: 100%;
   height: 0px;
@@ -367,6 +428,14 @@ export default {
 }
 .pencil-icon {
   background-color: rgba(255, 255, 255, 0.8);
+}
+
+
+h2 {
+  padding-left: 12px;
+  background-color: #4e644b;
+  color: white;
+  border-radius: 15px;
 }
 
 .marketplace {

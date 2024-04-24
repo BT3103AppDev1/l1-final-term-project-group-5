@@ -64,16 +64,6 @@ export default {
 </script>
 
 <style>
-.body {
-  background-image: url("~@/assets/image 18.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  height: calc(100vh - 64px);
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-}
 .marketplace-view {
   background: url("../assets/bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
@@ -82,11 +72,13 @@ export default {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  height: 95vh;
+  min-height: calc(100vh - 64px);
+  height: 100%;
   width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   overflow: auto;
 }
 
@@ -104,17 +96,17 @@ export default {
 
 .main-content {
   display: flex;
-  justify-content: space-between;
-  width: 100%;
+  width: 100vw;
 }
 
 .grid {
-  align-self: center;
+  width: 80%;
 }
 .sidebar {
+  width: 20%;
   display: flex;
+  align-items: center;
   flex-direction: column;
-  width: 25vw;
 
   min-width: 200px;
   max-width: 400px;

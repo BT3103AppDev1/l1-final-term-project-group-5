@@ -203,7 +203,7 @@ function formatDate(timestamp) {
             <th>Address</th>
             <th>
               <div class="headerContent">
-                Date
+                Date Ordered
                 <button @click="toggleDateSortOrder" class="headerIcons">
                   <svg-icon
                     :type="'mdi'"
@@ -213,6 +213,7 @@ function formatDate(timestamp) {
                 </button>
               </div>
             </th>
+            <th>Expiry Date</th>
             <th>Price</th>
             <th>
               <div class="headerContent">
@@ -238,6 +239,7 @@ function formatDate(timestamp) {
             <td>{{ order.companyName }}</td>
             <td>{{ order.companyAddress }}</td>
             <td>{{ formatDate(order.datePurchased) }}</td>
+            <td>{{ formatDate(order.expirationDate) }}</td>
             <td>${{ order.totalPrice }}</td>
             <td>
               <div :class="`orderStatus-${order.status.toLowerCase()}`">
@@ -376,7 +378,7 @@ td:nth-child(1) {
 }
 th:nth-child(2),
 td:nth-child(2) {
-  width: 25%;
+  width: 20%;
 }
 th:nth-child(3),
 td:nth-child(3),
@@ -385,18 +387,17 @@ td:nth-child(5),
 th:nth-child(6),
 td:nth-child(6),
 th:nth-child(7),
-td:nth-child(7) {
+td:nth-child(7),
+th:nth-child(8),
+td:nth-child(8),
+th:nth-child(9),
+td:nth-child(9) {
   width: 10%;
 }
 th:nth-child(4),
 td:nth-child(4) {
   width: 15%;
 }
-th:nth-child(8),
-td:nth-child(8) {
-  width: 15%;
-}
-
 .orderStatus-completed {
   display: inline-block;
   text-align: center;

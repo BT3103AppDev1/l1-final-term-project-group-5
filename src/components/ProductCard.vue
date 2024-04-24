@@ -46,7 +46,7 @@
           class="input-qty"
           v-model="listing.quantity"
           @input="handleQtyInputs"
-          :max="listing.unitsRemaining"
+          :max= remainingUnits
           ref="qtyInput"
         />
         <button
@@ -150,16 +150,14 @@ export default {
 
     remainingUnits() {
       const found = this.cartItems.find((item) => item.listingId === this.listing.listingId);
-      //console.log("found: ", found);
+      console.log("found: ", found);
       if (found) {
         return this.listing.unitsRemaining - found.quantity;
       } else {
         return this.listing.unitsRemaining;
       }
     },
-
     isAddToCartDisabled() {
-
       return this.remainingUnits > 0 ? false : true;
     },
   },
@@ -178,7 +176,7 @@ export default {
     },
 
     increment() {
-      if (this.listing.quantity < this.listing.unitsRemaining) {
+      if (this.listing.quantity < this.remainingUnits) {
         this.listing.quantity++;
         console.log("units remaining : ", this.listing.unitsRemaining);
       }

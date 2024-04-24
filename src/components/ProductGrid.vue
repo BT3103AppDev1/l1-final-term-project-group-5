@@ -273,7 +273,6 @@ h3 {
   gap: 30px;
   overflow: hidden;
   align-items:center;
-  justify-content: center;
   justify-items:center;
 }
 

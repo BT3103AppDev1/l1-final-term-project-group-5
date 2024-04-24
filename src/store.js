@@ -311,7 +311,7 @@ const store = createStore({
           });
           context.commit("SET_USER_ID", response.user.uid);
           context.commit("SET_PROVIDER", "local");
-          context.commit("SET_RANK", 3);
+          context.commit("SET_RANK", 5);
         }
       } catch (error) {
         throw new Error(error);
@@ -337,7 +337,16 @@ const store = createStore({
         commit("SET_USER_ID", response.user.uid);
         const userRef = doc(db, "users", response.user.uid);
         const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
+        if (docSnap.get("userType") === "") {
+          await deleteDoc(userRef);
+          await deleteUser(auth.currentUser);
+          commit("SET_LOGGED_IN", false);
+          commit("SET_NOTIFICATION", {
+            type: "error",
+            message: "User not found in database, please register again.",
+          });
+          console.log("No such document!");
+        } else if (docSnap.exists()) {
           commit("SET_USER_TYPE", docSnap.get("userType"));
           commit("SET_USER_DETAILS", {
             displayName: docSnap.get("displayName"),
@@ -350,16 +359,8 @@ const store = createStore({
           commit("SET_WEIGHT", docSnap.get("weight"));
           commit("SET_BANK_DETAILS", docSnap.get("bankDetails"));
           commit("SET_PROVIDER", "local");
+          commit("SET_RANK", docSnap.get("rank"));
           return true;
-        } else {
-          await deleteDoc(userRef);
-          await deleteUser(auth.currentUser);
-          commit("SET_LOGGED_IN", false);
-          commit("SET_NOTIFICATION", {
-            type: "error",
-            message: "User not found in database, please register again.",
-          });
-          console.log("No such document!");
         }
       } catch (error) {
         dispatch("addNotification", {

@@ -19,7 +19,7 @@
           v-model="product.category"
           :items="categories"
           label="Select Product Category"
-          :rules="[v => !!v || 'Category is required']"
+          :rules="[(v) => !!v || 'Category is required']"
           required
         ></v-select>
 
@@ -77,7 +77,9 @@ export default {
         v => (v && v.length <= 20) || 'Name must be less than 20 characters'
       ],
       weightRules: [
-        v => !isNaN(parseFloat(v)) && v >= 0 || 'Weight must be a positive number',
+        (v) =>
+          (!isNaN(parseFloat(v)) && v >= 0) ||
+          "Weight must be a positive number",
       ],
     };
   },
@@ -134,8 +136,8 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
-  background: url("..\\assets\\bg2.png") no-repeat center center fixed;
+  height: calc(100vh - 64px);
+  background: url("../assets/bg2.png") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -144,7 +146,7 @@ export default {
 }
 
 .submit-button {
-  background-color: #4B644C;
+  background-color: #4b644c;
   color: white;
 }
 

@@ -65,23 +65,20 @@
         @mousedown="isPressed = true"
         @mouseup="isPressed = false"
         @mouseleave="isPressed = false"
-        :class="{ pressed: isPressed, disabled: isAddToCartDisabled }"
-      >
-        <img
-          src="@/assets/cart.png"
-          alt="Add to Cart"
-          :class="{ pressed: isPressed }"
-        />
+        :class="{ pressed: isPressed, disabled: isAddToCartDisabled }">
+        <v-icon> mdi-cart-plus </v-icon>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase";
 import { useStore } from "vuex";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+
 
 export default {
   props: ["listing"],

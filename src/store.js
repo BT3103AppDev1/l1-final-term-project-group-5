@@ -494,7 +494,7 @@ const store = createStore({
                 address: "",
               });
               context.commit("SET_PROVIDER", "google");
-              context.commit("SET_RANK", 3);
+              context.commit("SET_RANK", 5);
             } else {
               const userSnap = await getDoc(userRef);
               const userData = userSnap.data();

@@ -382,7 +382,7 @@
                 <v-col cols="12" md="12" v-if="user.type == 'ecoPartner'">
                   <h3 style="font-size: 20px">
                     You are currently
-                    <span style="color: green">EcoRank {{ user.rank }}</span
+                    <span style="color: green">EcoGrade {{ user.rank }}</span
                     >!
                   </h3>
                 </v-col>
